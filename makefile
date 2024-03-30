@@ -1,34 +1,17 @@
-ARFLAGS += -U
+all: libarm.a libarmvm.a
 
-CFLAGS += -g -Wall
-CFLAGS += -O2
-CFLAGS += $(INCLUDE)
+libarm.a:
+	$(MAKE) -C libarm
+	-ln -sr ./libarm/libarm.a .
 
-INCLUDE += -Iinclude
-INCLUDE += -I../libbse/include
-
-LDFLAGS += -lcapstone
-
-VPATH += source
-VPATH += ../libbse/include
-
-all: libarm.a libarm_disasm.a
-
-libarm.a: libarm.a( \
-	arm_alubox.o \
-	arm_shiftbox.o \
-	arm_strings.o )
-
-libarm_disasm.a: libarm_disasm.a(arm_disasm.o)
-	$(CC) $(CFLAGS) -o $@ -c $^ -Wl,-lcapstone
-#	$(CC) $(CFLAGS) -o $@ -Wl,-lcapstone -c $^
-#	$(CC) $(CFLAGS) -o $@ -Wl,-lcapstone -c $^ -Wl,-lcapstone
+libarmvm.a:
+	$(MAKE) -C armvm
+	-ln -sr ./armvm/libarmvm.a .
 
 clean:
-	-rm *.d *.o
+	$(MAKE) -C libarm clean
+	$(MAKE) -C armvm clean
 
-clean_all: clean clean_logs
-	-rm *.a
-
-clean_logs:
-	-rm *.debug *.log *.trace
+clean_all:
+	$(MAKE) -C libarm clean_all
+	$(MAKE) -C armvm clean_all
