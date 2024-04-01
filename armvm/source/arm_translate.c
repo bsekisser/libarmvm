@@ -1,4 +1,4 @@
-#include "arm_translate.h"
+#include "git/libarm/include/arm_translate.h"
 
 int translate_arm(armvm_p avm)
 {

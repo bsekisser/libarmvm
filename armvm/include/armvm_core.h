@@ -5,59 +5,68 @@
 typedef struct armvm_core_t** armvm_core_h;
 typedef struct armvm_core_t* armvm_core_p;
 
-#include "armvm.h"
+/* **** */
 
-#include "arm_trace.h" // TODO
+#include "armvm_core_config.h"
+#include "armvm.h"
 
 /* **** */
 
-#define ARM_VM_GPR(_x) ARM_VM_GPR_##_x
+#include "armvm_trace.h"
+
+/* **** */
+
+#include <stdint.h>
+
+/* **** */
+
+#define ARMVM_GPR(_x) ARMVM_GPR_##_x
 
 enum {
-	ARM_VM_GPR_SP = 13,
-	ARM_VM_GPR_LR = 14,
-	ARM_VM_GPR_PC = 15,
+	ARMVM_GPR_SP = 13,
+	ARMVM_GPR_LR = 14,
+	ARMVM_GPR_PC = 15,
 //
-	_ARM_VM_GPR_COUNT_,
+	_ARMVM_GPR_COUNT_,
 };
 
-#define ARM_VM_SPR32(_x) ARM_VM_SPR32_##_x
+#define ARMVM_SPR32(_x) ARMVM_SPR32_##_x
 
 enum {
-	ARM_VM_SPR32_CC,
-	ARM_VM_SPR32_CCX,
-	ARM_VM_SPR32_CP15R1,
-	ARM_VM_SPR32_CPSR,
-	ARM_VM_SPR32_IP,
-	ARM_VM_SPR32_IR,
+	ARMVM_SPR32_CC,
+	ARMVM_SPR32_CCX,
+	ARMVM_SPR32_CP15R1,
+	ARMVM_SPR32_CPSR,
+	ARMVM_SPR32_IP,
+	ARMVM_SPR32_IR,
 //
-	_ARM_VM_SPR32_COUNT_,
+	_ARMVM_SPR32_COUNT_,
 };
 
-#define ARM_VM_SPR64(_x) ARM_VM_SPR64_##_x
+#define ARMVM_SPR64(_x) ARMVM_SPR64_##_x
 
 enum {
-	ARM_VM_SPR64_CYCLE,
-	ARM_VM_SPR64_ICOUNT,
-//	ARM_VM_SPR64_IFETCH,
-	ARM_VM_SPR64_RESULT,
+	ARMVM_SPR64_CYCLE,
+	ARMVM_SPR64_ICOUNT,
+//	ARMVM_SPR64_IFETCH,
+	ARMVM_SPR64_RESULT,
 //
-	_ARM_VM_SPR64_COUNT_,
+	_ARMVM_SPR64_COUNT_,
 };
 
 typedef struct armvm_core_t {
-	uint64_t spr64[_ARM_VM_SPR64_COUNT_];
-#define SPR64x(_x) CORE->spr64[_x]
-
-	uint32_t gpr[_ARM_VM_GPR_COUNT_];
-#define GPRx(_x) CORE->gpr[_x]
-
-	uint32_t spr32[_ARM_VM_SPR32_COUNT_];
-#define SPR32x(_x) CORE->spr32[_x]
-
+	uint64_t spr64[_ARMVM_SPR64_COUNT_];
+//
+	uint32_t gpr[_ARMVM_GPR_COUNT_];
+	uint32_t spr32[_ARMVM_SPR32_COUNT_];
 	uint32_t* spsr;
 //
-	arm_trace_p arm_trace;
+	armvm_trace_p armvm_trace;
+	armvm_core_config_t config;
+//
+	armvm_p armvm;
+	armvm_core_h h2core;
+	armvm_coprocessor_p cp;
 }armvm_core_t;
 
 /* **** */

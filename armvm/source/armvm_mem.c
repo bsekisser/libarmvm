@@ -2,15 +2,15 @@
 
 /* **** */
 
-#include "armvm_state.h"
+#include "armvm_action.h"
 #include "armvm.h"
 
 /* **** */
 
-#include "err_test.h"
-#include "handle.h"
-#include "mem_access_le.h"
-#include "page.h"
+#include "git/libbse/include/err_test.h"
+#include "git/libbse/include/handle.h"
+#include "git/libbse/include/mem_access_le.h"
+#include "git/libbse/include/page.h"
 
 /* **** */
 
@@ -31,14 +31,12 @@ typedef struct armvm_mem_t {
 
 static void armvm__mem_alloc_init(armvm_mem_p mem)
 {
-	if(mem->avm->config.trace.alloc_init)
-		LOG();
+	if(mem->avm->config.trace.alloc_init) LOG();
 }
 
 static void armvm__mem_exit(armvm_mem_p mem)
 {
-	if(mem->avm->config.trace.exit)
-		LOG();
+	if(mem->avm->config.trace.exit) LOG();
 
 	handle_free((void*)mem->h2mem);
 }
@@ -56,8 +54,7 @@ armvm_mem_p armvm_mem_alloc(armvm_mem_h h2mem, armvm_p avm)
 	ERR_NULL(h2mem);
 	ERR_NULL(avm);
 
-	if(avm->config.trace.alloc)
-		LOG();
+	if(avm->config.trace.alloc) LOG();
 
 	armvm_mem_p mem = handle_calloc((void*)h2mem, 1, sizeof(armvm_mem_t));
 	ERR_NULL(mem);

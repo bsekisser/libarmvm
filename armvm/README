@@ -1,0 +1,11 @@
+make sure to link to your local git directory root
+
+ln -sr .. git
+
+where git/ includes ...
+
+git/
+	libbse/
+	libarm/
+	libarm_disasm/
+	libarmvm/

@@ -6,12 +6,12 @@
 
 /* **** */
 
-#include "arm_cc.h"
-#include "arm_cpsr.h"
+#include "git/libarm/include/arm_cc.h"
+#include "git/libarm/include/arm_cpsr.h"
 
 /* **** */
 
-static int armvm_core_check_cc(uint8_t cc, armvm_p avm)
+static int armvm_core_check_cc(uint8_t cc, armvm_core_p core)
 {
 	uint32_t res = 0;
 

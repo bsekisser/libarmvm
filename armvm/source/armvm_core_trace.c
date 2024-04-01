@@ -2,13 +2,13 @@
 
 /* **** */
 
-#include "arm_trace_glue.h"
-#include "arm_trace.h"
+#include "armvm_trace_glue.h"
+#include "armvm_trace.h"
 
 /* **** */
 
-#include "arm_ir.h"
-#include "arm_strings.h"
+#include "git/libarm/include/arm_ir.h"
+#include "git/libarm/include/arm_strings.h"
 
 /* **** */
 
@@ -17,10 +17,10 @@
 
 /* **** */
 
-void __trace_end(arm_trace_p atp)
+void __trace_end(armvm_trace_p atp)
 { if(atp) printf(")\n"); }
 
-int __trace_start(arm_trace_p atp)
+int __trace_start(armvm_trace_p atp)
 {
 	if(!atp) return(0);
 
@@ -37,7 +37,7 @@ int __trace_start(arm_trace_p atp)
 	return(1);
 }
 
-void _arm_trace_(arm_trace_p atp, const char* format, ...)
+void _armvm_trace_(armvm_trace_p atp, const char* format, ...)
 {
 	if(!atp) return;
 
@@ -49,7 +49,7 @@ void _arm_trace_(arm_trace_p atp, const char* format, ...)
 
 /* **** */
 
-void _arm_trace_comment(arm_trace_p atp, const char* format, ...)
+void _armvm_trace_comment(armvm_trace_p atp, const char* format, ...)
 {
 	if(!atp) return;
 
@@ -63,7 +63,7 @@ void _arm_trace_comment(arm_trace_p atp, const char* format, ...)
 	printf(" */");
 }
 
-void _arm_trace_end(arm_trace_p atp, const char* format, ...)
+void _armvm_trace_end(armvm_trace_p atp, const char* format, ...)
 {
 	if(!atp) return;
 
@@ -75,7 +75,7 @@ void _arm_trace_end(arm_trace_p atp, const char* format, ...)
 	__trace_end(atp);
 }
 
-void _arm_trace_start(arm_trace_p atp, const char* format, ...)
+void _armvm_trace_start(armvm_trace_p atp, const char* format, ...)
 {
 	if(!atp) return;
 
@@ -87,7 +87,7 @@ void _arm_trace_start(arm_trace_p atp, const char* format, ...)
 	va_end(ap);
 }
 
-void _arm_trace(arm_trace_p atp, const char* format, ...)
+void _armvm_trace(armvm_trace_p atp, const char* format, ...)
 {
 	if(!atp) return;
 

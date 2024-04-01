@@ -2,7 +2,7 @@
 
 /* **** */
 
-#include "arm_exception.h"
+#include "git/libarm/include/arm_exception.h"
 #include "armvm.h"
 
 /* **** */

@@ -8,7 +8,7 @@ static _arm_rop_b_bl_blx(int link, int x, rop_p rop, arm_rop_p arp)
 	CYCLE++;
 	PC += rop.b.offset;
 
-	arm_trace(pARM_TRACE, "b%s%s(0x%08x)",
+	armvm_trace(pARMVM_TRACE, "b%s%s(0x%08x)",
 		link ? "l" : "",
 		x ? "x" : "",
 		PC);

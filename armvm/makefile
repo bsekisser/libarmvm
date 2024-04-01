@@ -2,32 +2,39 @@ ARFLAGS += -U
 
 CFLAGS += -g -Wall
 CFLAGS += -O2
+#CFLAGS += -fpic -shared
 CFLAGS += -MD -MP
 CFLAGS += $(INCLUDE)
 
 INCLUDE += -Iinclude
-INCLUDE += -I../arm/include
-INCLUDE += -I../libbse/include
+INCLUDE += -I..
 
 VPATH += source
-VPATH += include
-VPATH += ../arm/source
-VPATH += ../libbse/include
 
 all: libarmvm.a
 
 #libarmvm.so: libarmvm.so(libarmvm.a)
+libarmvm.so: libarmvm.a
+	$(CC) -o libarmvm.so -fpic -shared libarmvm.a
+
+ARMVM_CORE_OBJS = armvm_core.o \
+	armvm_core_arm.o \
+	armvm_core_thumb.o \
+	armvm_core_trace.o
+
+ARMVM_TRACE_OBJS = armvm_trace.o \
+	armvm_trace_arm.o
+
+ARMVM_OBJS = armvm.o \
+	armvm_coprocessor.o \
+	armvm_exception.o \
+	armvm_mem.o \
+	armvm_tlb.o
 
 libarmvm.a: libarmvm.a( \
-	arm_core_arm.o \
-	arm_core_thumb.o \
-	arm_core_trace.o \
-	arm_exception.o \
-	arm_mem.o \
-	arm_trace_arm.o \
-	arm_trace.o \
-	arm_vm.o )
-#	libarm_disasm.o )
+	$(ARMVM_OBJS) \
+	$(ARMVM_CORE_OBJS) \
+	$(ARMVM_TRACE_OBJS))
 
 test: test.o libarm_disasm.o
 

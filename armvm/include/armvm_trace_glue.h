@@ -2,8 +2,8 @@
 
 /* **** */
 
-#define pARM_TRACE atp
-#define pARM_VM (pARM_TRACE->arm_vm)
+#define pARMVM_TRACE atp
+#define pARMVM_CORE (pARMVM_TRACE->armvm_core)
 
 #include "core_trace_glue.h"
 

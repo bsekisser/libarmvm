@@ -6,4 +6,4 @@
 
 /* **** */
 
-void armvm_step_thumb(armvm_p avm);
+void armvm_step_thumb(armvm_core_p core);

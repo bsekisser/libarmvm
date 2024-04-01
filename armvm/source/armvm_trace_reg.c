@@ -28,7 +28,7 @@ uint32_t arm_reg_src(armvm_p avm, unsigned rrx, unsigned rsrc)
 
 	LOG("rrx: 0x%02x, rsrc: 0x%02x, vr: 0x%08x", rrs, rsrc, vr);
 
-	if(ARM_VM_GPR(PC) == rsrc)
+	if(ARMVM_GPR(PC) == rsrc)
 		vr += 4;
 
 	LOG("rrx: 0x%02x, rsrc: 0x%02x, vr: 0x%08x", rrs, rsrc, vr);

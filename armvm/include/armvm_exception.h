@@ -3,23 +3,23 @@
 /* **** */
 
 enum {
-	ARM_VM_EXCEPTION_Reset,
-	ARM_VM_EXCEPTION_DataAbort,
-	ARM_VM_EXCEPTION_FIQ,
-	ARM_VM_EXCEPTION_IRQ,
-	ARM_VM_EXCEPTION_PrefetchAbort,
-	ARM_VM_EXCEPTION_SWI,
-	ARM_VM_EXCEPTION_UNDEFINED,
+	ARMVM_EXCEPTION_Reset,
+	ARMVM_EXCEPTION_DataAbort,
+	ARMVM_EXCEPTION_FIQ,
+	ARMVM_EXCEPTION_IRQ,
+	ARMVM_EXCEPTION_PrefetchAbort,
+	ARMVM_EXCEPTION_SWI,
+	ARMVM_EXCEPTION_UNDEFINED,
 };
 
 /* **** */
 
-#include "arm_disasm.h"
+#include "git/libarm/include/arm_disasm.h"
 #include "armvm.h"
 
 /* **** */
 
-#include "log.h"
+#include "git/libbse/include/log.h"
 
 /* **** */
 
