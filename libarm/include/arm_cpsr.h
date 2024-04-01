@@ -2,7 +2,7 @@
 
 /* **** */
 
-#include "bitfield.h"
+#include "git/libbse/include/bitfield.h"
 
 /* **** */
 
@@ -47,3 +47,4 @@ enum {
 
 #define ARM_CPSR_M(_x) (ARM_CPSR_M_##_x)
 #define ARM_CPSR_M32(_x) (ARM_CPSR(M32) | ARM_CPSR_M(_x))
+#define ARM_CPSR_M32_BMAS(_x) pbBFINS(CPSR, ARM_CPSR_M32(_x), 0, 5)

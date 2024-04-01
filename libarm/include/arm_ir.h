@@ -2,7 +2,7 @@
 
 /* **** */
 
-#include "bitfield.h"
+#include "git/libbse/include/bitfield.h"
 
 /* **** */
 

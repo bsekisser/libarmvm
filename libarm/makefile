@@ -5,12 +5,11 @@ CFLAGS += -O2
 CFLAGS += $(INCLUDE)
 
 INCLUDE += -Iinclude
-INCLUDE += -I../libbse/include
+INCLUDE += -I..
 
 LDFLAGS += -lcapstone
 
 VPATH += source
-VPATH += ../libbse/include
 
 all: libarm.a libarm_disasm.a
 
