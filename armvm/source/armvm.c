@@ -1,12 +1,10 @@
-#include "armvm_stste.h"
-#include "armvm_config.h"
 #include "armvm.h"
 
 /* **** */
 
-#include "armvm_core_arm.h"
-#include "armvm_core_glue.h"
-#include "armvm_core_thumb.h"
+#include "armvm_config.h"
+#include "armvm_core.h"
+#include "armvm_stste.h"
 
 /* **** */
 
@@ -20,7 +18,7 @@
 
 /* **** */
 
-void _armvm_alloc_init(armvm_p avm)
+void _armvm_alloc_init(armvm_p const avm)
 {
 	ERR_NULL(avm);
 
@@ -34,7 +32,7 @@ void _armvm_exit(armvm_p avm)
 
 /* **** */
 
-void armvm(unsigned action, armvm_p avm)
+void armvm(unsigned const action, armvm_p const avm)
 {
 	switch(action) {
 		case ARMVM_ACTION_ALLOC_INIT:
@@ -51,11 +49,11 @@ void armvm(unsigned action, armvm_p avm)
 	}
 }
 
-armvm_p armvm_alloc(armvm_h h2avm)
+armvm_p armvm_alloc(armvm_h const h2avm)
 {
 	ERR_NULL(h2avm);
 
-	armvm_p avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
+	const armvm_p avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
 	ERR_NULL(avm);
 
 	/* **** */
@@ -69,10 +67,22 @@ armvm_p armvm_alloc(armvm_h h2avm)
 	return(avm);
 }
 
-uint64_t armvm_run(uint64_t run_cycles, armvm_p avm)
+void armvm_alloc_init(armvm_p avm)
+{
+	armvm(ARMVM_ACTION_ALLOC_INIT);
+	armvm(ARMVM_ACTION_INIT);
+}
+
+void armvm_exit(armvm_p avm)
+{ armvm(ARMVM_ACTION_EXIT); }
+
+void armvm_reset(armvm_p avm)
+{ armvm(ARMVM_ACTION_RESET); }
+
+uint64_t armvm_run(uint64_t run_cycles, armvm_p const avm)
 {
 	do {
-		uint64_t start_cycle = CYCLE;
+		const uint64_t start_cycle = CYCLE;
 
 		armvm_step(avm);
 
@@ -82,13 +92,5 @@ uint64_t armvm_run(uint64_t run_cycles, armvm_p avm)
 	return(run_cycles);
 }
 
-void armvm_step(armvm_p avm)
-{
-	CYCLE++;
-	ICOUNT++;
-
-	if(1 & PC)
-		return(armvm_core_step_thumb(avm));
-
-	return(armvm_core_arm_step(avm));
-}
+void armvm_step(armvm_p const avm)
+{ return(armvm_core_step(avm->core)); }

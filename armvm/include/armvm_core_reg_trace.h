@@ -22,7 +22,8 @@ static uint32_t _setup_rR_vR(armvm_core_p core, unsigned rrx, unsigned rr, uint3
 {
 //	LOG("rrx: 0x%02x, rr: 0x%02x, vr: 0x%08x", rrx, rr, vr);
 
-	if(pARMVM_TRACE && (~0 != rrx)) {
+//	if(pARMVM_TRACE && (~0U != rrx)) {
+	if(pARMVM_TRACE) {
 		rRx(rrx) = rr;
 		vRx(rrx) = vr;
 	}

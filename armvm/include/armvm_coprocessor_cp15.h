@@ -3,7 +3,11 @@
 /* **** */
 
 enum {
+	CP15_REG1_BIT_M = 0,
+	CP15_REG1_BIT_A = 1,
+	CP15_REG1_BIT_V = 13,
 	CP15_REG1_BIT_U = 20,
+	CP15_REG1_BIT_EE = 25,
 };
 
 /* **** */

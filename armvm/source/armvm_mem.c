@@ -11,6 +11,7 @@
 #include "git/libbse/include/handle.h"
 #include "git/libbse/include/mem_access_le.h"
 #include "git/libbse/include/page.h"
+#include "git/libbse/include/unused.h"
 
 /* **** */
 
@@ -72,6 +73,7 @@ uint32_t armvm_mem_generic_page_ro(uint32_t ppa, size_t size, uint32_t *const wr
 {
 	uint8_t *const p = param + PAGE_OFFSET(ppa);
 	return(mem_access_le(p, size, 0));
+	UNUSED(write);
 }
 
 uint32_t armvm_mem_generic_page_rw(uint32_t ppa, size_t size, uint32_t *const write, void *const param)
@@ -80,4 +82,5 @@ uint32_t armvm_mem_generic_page_rw(uint32_t ppa, size_t size, uint32_t *const wr
 	return(mem_access_le(p, size, write));
 }
 
-void armvm_mem_mmap(armvm_mem_p mem);
+void armvm_mem_mmap(uint32_t start, uint32_t end,
+	armvm_mem_fn const fn, void *const param, armvm_mem_p const mem);

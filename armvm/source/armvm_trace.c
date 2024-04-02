@@ -13,6 +13,7 @@
 
 #include "git/libbse/include/bitfield.h"
 #include "git/libbse/include/log.h"
+#include "git/libbse/include/unused.h"
 
 /* **** */
 
@@ -22,12 +23,12 @@
 /* **** */
 
 
-static void __arm_decode_fail(armvm_trace_p atp)
-{ LOG_ACTION(exit(-1)); }
+static void __arm_decode_fail(armvm_trace_p const atp)
+{ LOG_ACTION(exit(-1)); UNUSED(atp); }
 
 /* **** */
 
-static void arm__trace_step0_misc(armvm_trace_p atp)
+static void arm__trace_step0_misc(armvm_trace_p const atp)
 {
 	switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
 //		case 0x00000090:
@@ -46,7 +47,7 @@ static void arm__trace_step0_misc(armvm_trace_p atp)
 	LOG_ACTION(return(__arm_decode_fail(atp)));
 }
 
-static void arm__trace_step0(armvm_trace_p atp)
+static void arm__trace_step0(armvm_trace_p const atp)
 {
 	if(BEXT(IR, 4)) {
 		if(BEXT(IR, 7))
@@ -67,12 +68,12 @@ static void arm__trace_step0(armvm_trace_p atp)
 	LOG_ACTION(return(__arm_decode_fail(atp)));
 }
 
-static void arm__trace_step1_misc(armvm_trace_p atp)
+static void arm__trace_step1_misc(armvm_trace_p const atp)
 {
 	LOG_ACTION(return(__arm_decode_fail(atp)));
 }
 
-static void arm__trace_step1(armvm_trace_p atp)
+static void arm__trace_step1(armvm_trace_p const atp)
 {
 	if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
 		return(arm__trace_step1_misc(atp));
@@ -82,7 +83,7 @@ static void arm__trace_step1(armvm_trace_p atp)
 	LOG_ACTION(return(__arm_decode_fail(atp)));
 }
 
-void armvm_trace(armvm_trace_p atp)
+void armvm_trace(armvm_trace_p const atp)
 {
 	switch(ARM_IR_CC) {
 	case CC_NV: break;

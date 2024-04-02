@@ -17,20 +17,21 @@
 
 #include "git/libbse/include/bitfield.h"
 #include "git/libbse/include/log.h"
+#include "git/libbse/include/unused.h"
 
 /* **** */
 
-static void __arm_decode_fail(armvm_trace_p atp)
-{ LOG_ACTION(exit(-1)); }
+static void __arm_decode_fail(armvm_trace_p const atp)
+{ LOG_ACTION(exit(-1)); UNUSED(atp); }
 
-static void _armvm_trace_b_bl_blx(uint32_t new_pc, int link, int blx, armvm_trace_p atp)
+static void _armvm_trace_b_bl_blx(uint32_t const new_pc, int const link, int const blx, armvm_trace_p const atp)
 {
 	_armvm_trace(atp, "b%s%s(0x%08x)",
 		link ? "l" : "",
 		blx ? "x" : "", new_pc);
 }
 
-static void _dp_mov_s_s(armvm_trace_p atp)
+static void _dp_mov_s_s(armvm_trace_p const atp)
 {
 	if(!ARM_IR_DPI) {
 		if(mlBFEXT(IR, 11, 4)) {
@@ -58,13 +59,13 @@ static void _dp_mov_s_s(armvm_trace_p atp)
 
 /* **** */
 
-void armvm_trace_b_bl(armvm_trace_p atp)
+void armvm_trace_b_bl(armvm_trace_p const atp)
 {
 	const uint32_t new_pc = ARM_PC_NEXT + ARM_IR_B_OFFSET;
 	return(_armvm_trace_b_bl_blx(new_pc, ARM_IR_B_LINK, 0, atp));
 }
 
-void armvm_trace_dp(armvm_trace_p atp)
+void armvm_trace_dp(armvm_trace_p const atp)
 {
 	if(!__trace_start(atp))
 		return;
@@ -148,7 +149,7 @@ void armvm_trace_dp(armvm_trace_p atp)
 	__trace_end(atp);
 }
 
-void armvm_trace_ldst(armvm_trace_p atp)
+void armvm_trace_ldst(armvm_trace_p const atp)
 {
 	if(!__trace_start(atp))
 		return;
@@ -212,7 +213,7 @@ void armvm_trace_ldst(armvm_trace_p atp)
 	__trace_end(atp);
 }
 
-void armvm_trace_mla(armvm_trace_p atp)
+void armvm_trace_mla(armvm_trace_p const atp)
 {
 	if(!__trace_start(atp))
 		return;
@@ -230,14 +231,14 @@ void armvm_trace_mla(armvm_trace_p atp)
 	__trace_end(atp);
 }
 
-void armvm_trace_msr(armvm_trace_p atp)
+void armvm_trace_msr(armvm_trace_p const atp)
 {
 	_armvm_trace_start(atp, "mrs(%s, %s)", rR_NAME(D), ARM_IR_MSR_R ? "spsr" : "cpsr");
 	_armvm_trace_comment(atp, "0x%08x", vR(D));
 	__trace_end(atp);
 }
 
-void armvm_trace_umull(armvm_trace_p atp)
+void armvm_trace_umull(armvm_trace_p const atp)
 {
 	if(!__trace_start(atp))
 		return;

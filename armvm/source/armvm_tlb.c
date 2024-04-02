@@ -3,6 +3,7 @@
 /* **** */
 
 #include "armvm_mem.h"
+#include "armvm_mmu.h"
 #include "armvm_coprocessor.h"
 #include "armvm_coprocessor_glue.h"
 #include "armvm_action.h"
@@ -34,6 +35,7 @@ typedef struct armvm_tlb_t {
 //
 	armvm_p armvm;
 	armvm_tlb_h h2tlb;
+	armvm_mmu_p mmu;
 }armvm_tlb_t;
 
 /* **** forward declarations */
@@ -141,7 +143,7 @@ static void _armvm_tlb_init(armvm_tlb_p tlb)
 
 /* **** */
 
-armvm_tlb_p armvm_tlb_alloc(armvm_tlb_h h2tlb, armvm_p avm)
+armvm_tlb_p armvm_tlb_alloc(armvm_tlb_h h2tlb, armvm_mmu_p mmu, armvm_p avm)
 {
 	ERR_NULL(h2tlb);
 	ERR_NULL(avm);
@@ -153,10 +155,14 @@ armvm_tlb_p armvm_tlb_alloc(armvm_tlb_h h2tlb, armvm_p avm)
 	armvm_tlb_p tlb = handle_calloc((void*)h2tlb, 1, sizeof(armvm_tlb_t));
 	ERR_NULL(tlb);
 
+	/* **** */
+
 	tlb->armvm = avm;
 	tlb->h2tlb = h2tlb;
+	tlb->mmu = mmu;
 
 	/* **** */
+
 	return(tlb);
 }
 

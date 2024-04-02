@@ -1,6 +1,6 @@
 ARFLAGS += -U
 
-CFLAGS += -g -Wall
+CFLAGS += -g -Wall -Wextra
 CFLAGS += -O2
 #CFLAGS += -fpic -shared
 CFLAGS += -MD -MP

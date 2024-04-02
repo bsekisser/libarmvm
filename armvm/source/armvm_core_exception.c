@@ -2,6 +2,8 @@
 
 /* **** */
 
+#include "armvm_exception_utility.h"
+#include "armvm_coprocessor_cp15.h"
 #include "armvm.h"
 
 /* **** */
@@ -10,7 +12,7 @@
 
 /* **** */
 
-void armvm_core_exception_revoid armvm_core_exception_prefetch_abort(armvm_core_p core)
+int armvm_core_exception_data_abort(armvm_core_p core)
 {
 	R14_ABT = ARM_PC_NEXT;
 	SPSR_ABT = CPSR;
@@ -25,9 +27,11 @@ void armvm_core_exception_revoid armvm_core_exception_prefetch_abort(armvm_core_
 	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
 
 	PC = _high_vectors(core) | 0x10;
+
+	return(0);
 }
 
-void armvm_core_exception_prefetch_abort(armvm_core_p core)
+int armvm_core_exception_prefetch_abort(armvm_core_p core)
 {
 	R14_ABT = ARM_IP_NEXT;
 	SPSR_ABT = CPSR;
@@ -42,6 +46,8 @@ void armvm_core_exception_prefetch_abort(armvm_core_p core)
 	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
 
 	PC = _high_vectors(core) | 0x0c;
+
+	return(0);
 }
 
 void armvm_core_exception_reset(armvm_core_p core)

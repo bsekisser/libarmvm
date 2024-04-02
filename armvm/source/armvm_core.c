@@ -1,7 +1,12 @@
+#include "armvm_core.h"
+
+/* **** */
+
+#include "armvm_core_arm.h"
 #include "armvm_core_config.h"
 #include "armvm_core_exception.h"
-//#include "armvm_core_glue.h"
-#include "armvm_core.h"
+#include "armvm_core_glue.h"
+#include "armvm_core_thumb.h"
 
 /* **** */
 
@@ -71,4 +76,15 @@ armvm_core_p armvm_core_alloc(armvm_core_h h2core, armvm_p avm)
 	/* **** */
 
 	return(core);
+}
+
+void armvm_core_step(armvm_core_p const core)
+{
+	CYCLE++;
+	ICOUNT++;
+
+	if(1 & PC)
+		return(armvm_core_thumb_step(core));
+
+	return(armvm_core_arm_step(core));
 }

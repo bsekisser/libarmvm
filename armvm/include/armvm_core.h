@@ -7,6 +7,7 @@ typedef struct armvm_core_t* armvm_core_p;
 
 /* **** */
 
+#include "armvm_mmu.h"
 #include "armvm_core_config.h"
 #include "armvm.h"
 
@@ -67,6 +68,7 @@ typedef struct armvm_core_t {
 	armvm_p armvm;
 	armvm_core_h h2core;
 	armvm_coprocessor_p cp;
+	armvm_mmu_p mmu;
 }armvm_core_t;
 
 /* **** */

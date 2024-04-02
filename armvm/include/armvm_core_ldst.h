@@ -8,10 +8,10 @@
 /* **** */
 
 #include "armvm_coprocessor_cp15.h"
-#include "armvm_mem.h"
 
 /* **** */
 
+#include "git/libbse/include/bswap.h"
 #include "git/libbse/include/shift_roll.h"
 
 /* **** */
@@ -51,6 +51,11 @@ static void __ldst_ldr(uint32_t sop, armvm_core_p core)
 
 	const unsigned ea_xx = ea & 3;
 
+	if(ea_xx && CP15_REG1_BIT(A)) {
+		armvm_core_exception_data_abort(core);
+		return;
+	}
+
 	uint32_t rd = 0, *const p2rd = &rd;
 	if(0 > armvm_core_mem_read(p2rd, ea, 4, core))
 		return;
@@ -86,13 +91,18 @@ static void __ldst_ldrh(uint32_t sop, armvm_core_p core)
 	uint32_t wb_ea = 0, ea = __ldst__ea(sop, &wb_ea, core);
 	if(!CCX) return;
 
-	if((ea & 1) && !CP15_REG1_BIT(U))
-		return(armvm_core_exception_data_abort(core));
+	if((ea & 1) && CP15_REG1_BIT(A)) {
+		armvm_core_exception_data_abort(core);
+		return;
+	}
 
 	uint32_t rd = 0, *const p2rd = &rd;
 
 	if(0 > armvm_core_mem_read(p2rd, ea, 2, core))
 		return;
+
+	if((ea & 1) && CP15_REG1_BIT(U))
+		rd = bswap16(rd);
 
 	__ldst__ea_wb(wb_ea, core);
 
@@ -120,13 +130,18 @@ static void __ldst_ldrsh(uint32_t sop, armvm_core_p core)
 	uint32_t wb_ea = 0, ea = __ldst__ea(sop, &wb_ea, core);
 	if(!CCX) return;
 
-	if((ea & 1) && !CP15_REG1_BIT(U))
-		return(armvm_core_exception_data_abort(core));
+	if((ea & 1) && CP15_REG1_BIT(A)) {
+		armvm_core_exception_data_abort(core);
+		return;
+	}
 
 	uint32_t rd, *const p2rd = &rd;
 
 	if(0 > armvm_core_mem_read(p2rd, ea, 2, core))
 		return;
+
+	if((ea & 1) && CP15_REG1_BIT(U))
+		rd = bswap16(rd);
 
 	__ldst__ea_wb(wb_ea, core);
 
@@ -168,8 +183,10 @@ static void __ldst_strh(uint32_t sop, armvm_core_p core)
 	uint32_t wb_ea = 0, ea = __ldst__ea(sop, &wb_ea, core);
 	if(!CCX) return;
 
-	if((ea & 1) && !CP15_REG1_BIT(U))
-		return(armvm_core_exception_data_abort(core));
+	if((ea & 1) && CP15_REG1_BIT(U)) {
+		armvm_core_exception_data_abort(core);
+		return;
+	}
 
 	const uint32_t rd = arm_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
