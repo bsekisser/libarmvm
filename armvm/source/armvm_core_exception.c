@@ -8,7 +8,7 @@
 
 /* **** */
 
-#include "git/libarm/arm_cpsr.h"
+#include "libarm/arm_cpsr.h"
 
 /* **** */
 

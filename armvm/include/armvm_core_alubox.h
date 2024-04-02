@@ -8,12 +8,12 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_cpsr.h"
-#include "git/libarm/include/arm_ir.h"
+#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/arm_ir.h"
 
 /* **** */
 
-#include "git/libbse/include/bitfield.h"
+#include "libbse/include/bitfield.h"
 //#include git/libbse/shift_roll.h"
 
 /* **** */

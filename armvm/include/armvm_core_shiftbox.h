@@ -2,10 +2,10 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_cpsr.h"
-#include "git/libarm/include/arm_ir.h"
-#include "git/libarm/include/arm_shiftbox.h"
-#include "git/libarm/include/arm_sop.h"
+#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/arm_ir.h"
+#include "libarm/include/arm_shiftbox.h"
+#include "libarm/include/arm_sop.h"
 
 /* **** */
 

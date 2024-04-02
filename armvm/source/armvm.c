@@ -8,13 +8,13 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_cpsr.h"
+#include "libarm/include/arm_cpsr.h"
 
 /* **** */
 
-#include "git/libbse/include/err_test.h"
-#include "git/libbse/inclide/handle.h"
-#include "git/libbse/include/log.h"
+#include "libbse/include/err_test.h"
+#include "libbse/inclide/handle.h"
+#include "libbse/include/log.h"
 
 /* **** */
 

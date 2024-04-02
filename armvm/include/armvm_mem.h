@@ -19,7 +19,7 @@ typedef uint32_t (*armvm_mem_fn)(uint32_t ppa, size_t size, uint32_t* write, voi
 
 /* **** */
 
-#include "git/libbse/include/log.h"
+#include "libbse/include/log.h"
 
 /* **** */
 

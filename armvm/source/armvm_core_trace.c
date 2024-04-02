@@ -7,8 +7,8 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_ir.h"
-#include "git/libarm/include/arm_strings.h"
+#include "libarm/include/arm_ir.h"
+#include "libarm/include/arm_strings.h"
 
 /* **** */
 

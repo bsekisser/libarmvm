@@ -11,7 +11,7 @@
 
 /* **** */
 
-#include "git/libbse/include/log.h"
+#include "libbse/include/log.h"
 
 /* **** */
 

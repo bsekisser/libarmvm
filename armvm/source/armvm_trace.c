@@ -4,16 +4,16 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_cc.h"
-#include "git/libarm/include/arm_disasm.h"
-#include "git/libarm/include/arm_ir.h"
-#include "git/libarm/include/arm_strings.h"
+#include "libarm/include/arm_cc.h"
+#include "libarm/include/arm_disasm.h"
+#include "libarm/include/arm_ir.h"
+#include "libarm/include/arm_strings.h"
 
 /* **** */
 
-#include "git/libbse/include/bitfield.h"
-#include "git/libbse/include/log.h"
-#include "git/libbse/include/unused.h"
+#include "libbse/include/bitfield.h"
+#include "libbse/include/log.h"
+#include "libbse/include/unused.h"
 
 /* **** */
 

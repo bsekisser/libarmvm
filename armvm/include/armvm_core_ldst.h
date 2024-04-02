@@ -11,8 +11,8 @@
 
 /* **** */
 
-#include "git/libbse/include/bswap.h"
-#include "git/libbse/include/shift_roll.h"
+#include "libbse/include/bswap.h"
+#include "libbse/include/shift_roll.h"
 
 /* **** */
 

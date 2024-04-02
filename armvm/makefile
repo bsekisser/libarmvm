@@ -7,7 +7,7 @@ CFLAGS += -MD -MP
 CFLAGS += $(INCLUDE)
 
 INCLUDE += -Iinclude
-INCLUDE += -I..
+INCLUDE += -Igit
 
 VPATH += source
 

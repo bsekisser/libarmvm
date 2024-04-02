@@ -14,12 +14,12 @@ enum {
 
 /* **** */
 
-#include "git/libarm/include/arm_disasm.h"
+#include "libarm/include/arm_disasm.h"
 #include "armvm.h"
 
 /* **** */
 
-#include "git/libbse/include/log.h"
+#include "libbse/include/log.h"
 
 /* **** */
 

@@ -7,11 +7,11 @@
 
 /* **** */
 
-#include "git/libbse/include/err_test.h"
-#include "git/libbse/include/handle.h"
-#include "git/libbse/include/mem_access_le.h"
-#include "git/libbse/include/page.h"
-#include "git/libbse/include/unused.h"
+#include "libbse/include/err_test.h"
+#include "libbse/include/handle.h"
+#include "libbse/include/mem_access_le.h"
+#include "libbse/include/page.h"
+#include "libbse/include/unused.h"
 
 /* **** */
 

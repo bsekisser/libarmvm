@@ -11,9 +11,9 @@
 
 /* **** */
 
-#include "git/libbse/include/bitfield.h"
-#include "git/libbse/include/err_test.h"
-#include "git/libbse/include/handle.h"
+#include "libbse/include/bitfield.h"
+#include "libbse/include/err_test.h"
+#include "libbse/include/handle.h"
 
 /* **** */
 

@@ -8,8 +8,8 @@
 
 /* **** */
 
-#include "git/libbse/include/handle.h"
-#include "git/libbse/include/log.h"
+#include "libbse/include/handle.h"
+#include "libbse/include/log.h"
 
 /* **** */
 

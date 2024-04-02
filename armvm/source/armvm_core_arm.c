@@ -21,18 +21,18 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_cc.h"
-#include "git/libarm/include/arm_cpsr.h"
-#include "git/libarm/include/arm_disasm.h"
-#include "git/libarm/include/arm_dp.h"
-#include "git/libarm/include/arm_ir.h"
-#include "git/libarm/include/arm_shiftbox.h"
-#include "git/libarm/include/arm_strings.h"
+#include "libarm/include/arm_cc.h"
+#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/arm_disasm.h"
+#include "libarm/include/arm_dp.h"
+#include "libarm/include/arm_ir.h"
+#include "libarm/include/arm_shiftbox.h"
+#include "libarm/include/arm_strings.h"
 
 /* **** */
 
-#include "git/libbse/include/log.h"
-#include "git/libbse/include/unused.h"
+#include "libbse/include/log.h"
+#include "libbse/include/unused.h"
 
 /* **** */
 
