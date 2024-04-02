@@ -6,7 +6,7 @@
 
 /* **** */
 
-#include "git/libbse/include/shift_roll.h"
+#include "libbse/include/shift_roll.h"
 
 /* **** */
 

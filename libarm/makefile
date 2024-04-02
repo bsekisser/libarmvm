@@ -5,7 +5,7 @@ CFLAGS += -O2
 CFLAGS += $(INCLUDE)
 
 INCLUDE += -Iinclude
-INCLUDE += -I..
+INCLUDE += -Igit
 
 LDFLAGS += -lcapstone
 

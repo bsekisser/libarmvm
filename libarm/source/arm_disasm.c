@@ -2,10 +2,10 @@
 
 /* **** */
 
-#include "git/libbse/include/bitfield.h"
-#include "git/libbse/include/capstone_assert_test.h"
-#include "git/libbse/include/log.h"
-#include "git/libbse/include/unused.h"
+#include "libbse/include/bitfield.h"
+#include "libbse/include/capstone_assert_test.h"
+#include "libbse/include/log.h"
+#include "libbse/include/unused.h"
 
 /* **** */
 
