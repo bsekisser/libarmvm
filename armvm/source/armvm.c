@@ -1,10 +1,13 @@
+#define pARMVM_CORE avm->core
+
+#include "armvm_glue.h"
 #include "armvm.h"
 
 /* **** */
 
+#include "armvm_action.h"
 #include "armvm_config.h"
 #include "armvm_core.h"
-#include "armvm_stste.h"
 
 /* **** */
 
@@ -13,7 +16,7 @@
 /* **** */
 
 #include "libbse/include/err_test.h"
-#include "libbse/inclide/handle.h"
+#include "libbse/include/handle.h"
 #include "libbse/include/log.h"
 
 /* **** */
@@ -27,7 +30,7 @@ void _armvm_alloc_init(armvm_p const avm)
 
 void _armvm_exit(armvm_p avm)
 {
-	handle_free(avm->h2avm);
+	handle_free((void**)avm->h2avm);
 }
 
 /* **** */
@@ -39,9 +42,10 @@ void armvm(unsigned const action, armvm_p const avm)
 			_armvm_alloc_init(avm);
 	}
 //
+	armvm_coprocessor(action, avm->coprocessor);
 	armvm_core(action, avm->core);
-	armvm_mem(action, avm-mem);
-	armvm_tlb(action, avm->tlb);
+	armvm_mem(action, avm->mem);
+	armvm_mmu(action, avm->mmu);
 //
 	switch(action) {
 		case ARMVM_ACTION_EXIT:
@@ -56,40 +60,51 @@ armvm_p armvm_alloc(armvm_h const h2avm)
 	const armvm_p avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
 	ERR_NULL(avm);
 
+	avm->h2avm = h2avm;
+
 	/* **** */
 
-	armvm_core_alloc(avm, &avm->core);
-	armvm_mem_alloc(avm, &avm-mem);
-	armvm_tlb_alloc(avm, &avm->tlb);
+	armvm_coprocessor_alloc(&avm->coprocessor, avm);
+	armvm_core_alloc(&avm->core, avm);
+	armvm_mem_alloc(&avm->mem, avm);
+	armvm_mmu_alloc(&avm->mmu, avm);
 
 	/* **** */
 
 	return(avm);
 }
 
-void armvm_alloc_init(armvm_p avm)
+void armvm_alloc_init(armvm_p const avm)
 {
-	armvm(ARMVM_ACTION_ALLOC_INIT);
-	armvm(ARMVM_ACTION_INIT);
+	armvm(ARMVM_ACTION_ALLOC_INIT, avm);
+	armvm(ARMVM_ACTION_INIT, avm);
 }
 
-void armvm_exit(armvm_p avm)
-{ armvm(ARMVM_ACTION_EXIT); }
+void armvm_exit(armvm_p const avm)
+{ armvm(ARMVM_ACTION_EXIT, avm); }
 
-void armvm_reset(armvm_p avm)
-{ armvm(ARMVM_ACTION_RESET); }
+void armvm_reset(armvm_p const avm)
+{ armvm(ARMVM_ACTION_RESET, avm); }
 
-uint64_t armvm_run(uint64_t run_cycles, armvm_p const avm)
+uint64_t armvm_run(const uint64_t run_cycles, armvm_p const avm)
 {
-	do {
+	uint64_t run_cycles_left = run_cycles;
+
+	for(;run_cycles_left;) {
 		const uint64_t start_cycle = CYCLE;
 
 		armvm_step(avm);
 
-		run_cycles -= CYCLE - start_cycle;
-	}while(0 < run_cycles);
+		const uint64_t delta_cycles = CYCLE - start_cycle;
+		const uint64_t _cycles_left = run_cycles_left - delta_cycles;
 
-	return(run_cycles);
+		if(run_cycles_left < delta_cycles)
+			return(_cycles_left);
+
+		run_cycles_left = _cycles_left;
+	}
+
+	return(run_cycles_left);
 }
 
 void armvm_step(armvm_p const avm)

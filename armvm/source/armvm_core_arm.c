@@ -66,21 +66,26 @@ static void __arm_decode_fail(armvm_core_p const core)
 	LOG_ACTION(exit(-1));
 }
 
-static void __arm__b_bl_blx(int const link, int32_t const offset, armvm_core_p const core)
+static void __arm__b_bl_blx(int const link, int x, int32_t const offset, armvm_core_p const core)
 {
 	if(CCX) {
 		if(link) {
-			CYCLE++;
+//			CYCLE++;
 			LR = PC;
 		}
 
 		CYCLE++;
 		PC = ARM_PC_NEXT + offset;
+
+		if(x) ARM_CPSR_BSET(Thumb);
 	}
 
 	/* **** */
 
-	armvm_trace_b_bl(pARMVM_TRACE);
+	if(x)
+		armvm_trace_blx(pARMVM_TRACE);
+	else
+		armvm_trace_b_bl(pARMVM_TRACE);
 
 	/* **** */
 }
@@ -89,12 +94,13 @@ static void __arm__b_bl_blx(int const link, int32_t const offset, armvm_core_p c
 
 static void _arm_inst_b_bl(armvm_core_p const core)
 {
-	return(__arm__b_bl_blx(ARM_IR_B_LINK, ARM_IR_B_OFFSET, core));
+	return(__arm__b_bl_blx(ARM_IR_B_LINK, 0, ARM_IR_B_OFFSET, core));
 }
 
 static void _arm_inst_blx(armvm_core_p const core)
 {
-	return(__arm__b_bl_blx(1, ARM_IR_BLX_OFFSET, core));
+	CCX = 1; rSPR32(CC) = CC_AL;
+	return(__arm__b_bl_blx(1, 1, ARM_IR_BLX_OFFSET, core));
 }
 
 static void _arm_inst_bx_blx_m(int const link, armvm_core_p const core)
@@ -121,9 +127,11 @@ static void _arm_inst_bx_blx_m(int const link, armvm_core_p const core)
 		ARM_CPSR_BMAS(T, thumb);
 	}
 
-	if(pARMVM_TRACE) { // TODO
-		_armvm_trace(pARMVM_TRACE, "b%sx, %s", link ? "l" :"", rR(M));
-		_armvm_trace_comment(pARMVM_TRACE, "%s(0x%08x)", thumb ? "T" : "A", vR(M));
+	if(pARMVM_TRACE) {
+		if(link)
+			armvm_trace_blx_m(pARMVM_TRACE);
+		else
+			armvm_trace_bx_m(pARMVM_TRACE);
 	}
 }
 
@@ -144,7 +152,7 @@ static void _arm_inst_clz(armvm_core_p const core)
 
 	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 
-	if(pARMVM_TRACE)
+	if(pARMVM_TRACE) // TODO
 		LOG_ACTION(exit(-1));
 }
 
@@ -225,15 +233,16 @@ if(0) LOG("sop: 0x%08x", sop);
 	return(_arm_inst_dp(sop, carry_in, core));
 }
 
-static void _arm_inst_dp_shift(uint32_t const rs, armvm_core_p const core)
+static void _arm_inst_dp_shift(uint32_t const rs, unsigned immediate, armvm_core_p const core)
 {
 	if(CCX) CYCLE++;
 
 	const uint32_t rm = arm_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 
 	const unsigned carry_in = IF_CPSR(C);
-	const uint32_t sop = arm_shiftbox_immediate(ARM_IR_DP_SHIFT_TYPE,
-		rm, rs, carry_in);
+
+	const uint32_t sop = (immediate ? arm_shiftbox_immediate : arm_shiftbox)
+		(ARM_IR_DP_SHIFT_TYPE, rm, rs, carry_in);
 
 	setup_rR_vR(core, ARMVM_TRACE_R(SOP), ~0, sop);
 
@@ -246,14 +255,14 @@ static void _arm_inst_dp_shift_register(armvm_core_p const core)
 
 	const uint32_t rs = arm_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
 
-	return(_arm_inst_dp_shift(rs, core));
+	return(_arm_inst_dp_shift(rs, 0, core));
 }
 
 static void _arm_inst_dp_shift_immediate(armvm_core_p const core)
 {
 	const uint32_t rs = setup_rR_vR(core, ARMVM_TRACE_R(S), ~0, ARM_IR_DP_SHIFT_AMOUNT);
 
-	return(_arm_inst_dp_shift(rs, core));
+	return(_arm_inst_dp_shift(rs, 1, core));
 }
 
 static void _arm_inst_ldst(uint32_t const sop, armvm_core_p const core)
@@ -453,6 +462,9 @@ void armvm_core_arm_step(armvm_core_p const core)
 		return;
 
 	setup_rR_vR(core, ARMVM_TRACE_R(IR), ~0, IR); // STUPID KLUDGE!!!
+
+//	armvm_trace(pARMVM_TRACE);
+//	arm_disasm(IP, IR);
 
 	armvm_core_check_cc(ARM_IR_CC, core);
 

@@ -31,4 +31,8 @@ typedef struct test_t {
 #define pARMVM t->armvm
 #define pCORE pARMVM->core
 
+int check_nz(test_p t, int n, int z);
+int check_nzc(test_p t, int n, int z, int c);
+int check_nzcv(test_p t, int n, int z, int c, int v);
+void reset(test_p t);
 uint32_t run_test(test_p t);

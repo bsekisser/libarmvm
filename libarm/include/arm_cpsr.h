@@ -39,8 +39,23 @@ enum {
 
 
 #define ARM_CPSR(_x) (ARM_CPSR_##_x)
-#define ARM_CPSR_BEXT(_x) BEXT(CPSR, ARM_CPSR(_x))
-#define ARM_CPSR_BMAS(_x, _set) BMAS(CPSR, ARM_CPSR(_x), _set)
+
+#define ARM_CPSRx_BEXT(_psr, _x) BEXT(_psr, ARM_CPSR(_x))
+#define ARM_CPSRx_BMAS(_psr, _x, _set) BMAS(_psr, ARM_CPSR(_x), _set)
+#define ARM_CPSRx_BSET(_psr, _x) BSET(_psr, ARM_CPSR(_x))
+
+#define ARM_CPSR_BEXT(_x) ARM_CPSRx_BEXT(CPSR, _x)
+#define ARM_CPSR_BMAS(_x, _set) ARM_CPSRx_BMAS(CPSR, _x, _set)
+#define ARM_CPSR_BSET(_x) ARM_CPSRx_BSET(CPSR, _x)
+
+#define ARM_CPSR_MASK_NZ \
+	(_BV(ARM_CPSR(N)) | _BV(ARM_CPSR(Z)))
+
+#define ARM_CPSR_MASK_NZC \
+	(ARM_CPSR_MASK_NZ | _BV(ARM_CPSR(C)))
+
+#define ARM_CPSR_MASK_NZCV \
+	(ARM_CPSR_MASK_NZC | _BV(ARM_CPSR(V)))
 
 #define IF_CPSR(_x) (0 != ARM_CPSR_BEXT(_x))
 #define IF_NOT_CPSR(_x) (0 == ARM_CPSR_BEXT(_x))

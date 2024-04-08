@@ -1,24 +1,28 @@
+#define pARMVM_CORE core
+#include "armvm_core_glue.h"
+#include "armvm_glue.h"
+
 #include "armvm_core_exception.h"
 
 /* **** */
 
-#include "armvm_exception_utility.h"
+#include "armvm_core.h"
 #include "armvm_coprocessor_cp15.h"
+#include "armvm_exception_utility.h"
 #include "armvm.h"
 
 /* **** */
 
-#include "libarm/arm_cpsr.h"
+#include "libarm/include/arm_cpsr.h"
 
 /* **** */
 
 int armvm_core_exception_data_abort(armvm_core_p core)
 {
-	R14_ABT = ARM_PC_NEXT;
-	SPSR_ABT = CPSR;
+	rABT(R14) = ARM_PC_NEXT;
+	rABT(SPSR) = CPSR;
 
-	CPSR &= ~0x1f;
-	ARM_CPSR_M32(Abort);
+	ARM_CPSR_M32_BMAS(Abort);
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);
@@ -33,11 +37,10 @@ int armvm_core_exception_data_abort(armvm_core_p core)
 
 int armvm_core_exception_prefetch_abort(armvm_core_p core)
 {
-	R14_ABT = ARM_IP_NEXT;
-	SPSR_ABT = CPSR;
+	rABT(R14) = ARM_IP_NEXT;
+	rABT(SPSR) = CPSR;
 
-	CPSR &= ~0x1f;
-	ARM_CPSR_M32(Abort);
+	ARM_CPSR_M32_BMAS(Abort);
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);
@@ -52,8 +55,8 @@ int armvm_core_exception_prefetch_abort(armvm_core_p core)
 
 void armvm_core_exception_reset(armvm_core_p core)
 {
-//	R14_SVC = UNPREDICTABLE;
-//	SPSR_SVC = UNPREDICTABLE;
+//	rSVC(R14) = UNPREDICTABLE;
+//	rSVC(SPSR) = UNPREDICTABLE;
 
 	ARM_CPSR_M32_BMAS(Supervisor);
 
@@ -68,8 +71,8 @@ void armvm_core_exception_reset(armvm_core_p core)
 
 void armvm_core_exception_swi(armvm_core_p core)
 {
-	R14_SVC = ARM_PC_NEXT;
-	SPSR_SVC = CPSR;
+	rSVC(R14) = ARM_PC_NEXT;
+	rSVC(SPSR) = CPSR;
 
 	ARM_CPSR_M32_BMAS(Supervisor);
 
@@ -84,8 +87,8 @@ void armvm_core_exception_swi(armvm_core_p core)
 
 void armvm_core_exception_undefined_instruction(armvm_core_p core)
 {
-	R14_UND = ARM_PC_NEXT;
-	SPSR_SVC = CPSR;
+	rUND(R14) = ARM_PC_NEXT;
+	rUND(SPSR) = CPSR;
 
 	ARM_CPSR_M32_BMAS(Undefined);
 
@@ -97,4 +100,3 @@ void armvm_core_exception_undefined_instruction(armvm_core_p core)
 
 	PC = _high_vectors(core) | 0x04;
 }
-

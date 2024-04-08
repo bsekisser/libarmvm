@@ -23,6 +23,7 @@
 static void _armvm_core_alloc_init(armvm_core_p core)
 {
 	core->cp = core->armvm->coprocessor;
+	core->mmu = core->armvm->mmu;
 
 	/* **** */
 

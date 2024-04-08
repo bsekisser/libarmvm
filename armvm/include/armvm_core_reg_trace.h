@@ -36,11 +36,11 @@ static uint32_t _setup_rR_vR(armvm_core_p core, unsigned rrx, unsigned rr, uint3
 	_setup_rR_vR(core, rrx, rdst, GPRx(rdst));
 }*/
 
-static inline void arm_reg_dst_wb(armvm_core_p core, unsigned rrx, unsigned rdst, uint32_t data)
+static inline uint32_t arm_reg_dst_wb(armvm_core_p core, unsigned rrx, unsigned rdst, uint32_t data)
 {
 	if(CCX) GPRx(rdst) = data;
 
-	_setup_rR_vR(core, rrx, rdst, data);
+	return(_setup_rR_vR(core, rrx, rdst, data));
 }
 
 static inline uint32_t arm_reg_src(armvm_core_p core, unsigned rrx, unsigned rsrc)

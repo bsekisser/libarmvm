@@ -25,6 +25,7 @@ uint32_t arm_alubox(unsigned operation, uint32_t *const rd, uint32_t rn,
 	case ARM_RSB:
 	case ARM_RSC:
 		result = sop;
+	break;
 	default:
 		result = rn;
 	break;

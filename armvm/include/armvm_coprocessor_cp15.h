@@ -12,11 +12,12 @@ enum {
 
 /* **** */
 
-#include "armvm_core_glue.h"
+#include "armvm_core.h"
+#include "armvm.h"
 
 /* **** */
 
-#include "armvm.h"
+#include "libbse/include/bitfield.h"
 
 /* **** */
 

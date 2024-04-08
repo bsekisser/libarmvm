@@ -31,11 +31,22 @@ static void _armvm_trace_b_bl_blx(uint32_t const new_pc, int const link, int con
 		blx ? "x" : "", new_pc);
 }
 
+static void _armvm_trace_bx_blx_m(int const link, armvm_trace_p const atp)
+{
+	_armvm_trace_start(atp, "b%sx(%s)",
+		link ? "l" : "", rR_NAME(M));
+
+	const int thumb = 1 & vR(M);
+	_armvm_trace_comment(atp, "%s(0x%08x)", thumb ? "T" : "A", vR(M));
+
+	__trace_end(atp);
+}
+
 static void _dp_mov_s_s(armvm_trace_p const atp)
 {
 	if(!ARM_IR_DPI) {
 		if(mlBFEXT(IR, 11, 4)) {
-			_armvm_trace_comment(atp, "%s(0x%08x, %03u) = 0x%08x",
+			_armvm_trace_comment(atp, "%s(0x%08x, %u) = 0x%08x",
 				arm_sop_lcase_string[ARM_IR_DP_SHIFT_TYPE],
 					vR(M), vR(S), vR(D));
 		}
@@ -49,7 +60,7 @@ static void _dp_mov_s_s(armvm_trace_p const atp)
 		}
 	} else {
 		if(vR(S)) {
-			_armvm_trace_comment(atp, "ROR(0x%08x, %03u) = 0x%08x",
+			_armvm_trace_comment(atp, "ROR(0x%08x, %u) = 0x%08x",
 				vR(M), vR(S), vR(D));
 		} else {
 			_armvm_trace_comment(atp, "0x%08x", vR(D)); // TODO: rrx?
@@ -64,6 +75,18 @@ void armvm_trace_b_bl(armvm_trace_p const atp)
 	const uint32_t new_pc = ARM_PC_NEXT + ARM_IR_B_OFFSET;
 	return(_armvm_trace_b_bl_blx(new_pc, ARM_IR_B_LINK, 0, atp));
 }
+
+void armvm_trace_blx(armvm_trace_p const atp)
+{
+	const uint32_t new_pc = ARM_PC_NEXT + ARM_IR_BLX_OFFSET;
+	return(_armvm_trace_b_bl_blx(new_pc, ARM_IR_B_LINK, 1, atp));
+}
+
+void armvm_trace_blx_m(armvm_trace_p const atp)
+{ return(_armvm_trace_bx_blx_m(1, atp)); }
+
+void armvm_trace_bx_m(armvm_trace_p const atp)
+{ return(_armvm_trace_bx_blx_m(0, atp)); }
 
 void armvm_trace_dp(armvm_trace_p const atp)
 {

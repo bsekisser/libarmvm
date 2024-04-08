@@ -25,73 +25,9 @@
 typedef uint32_t (*alu_fn)(uint32_t sop, armvm_core_p core);
 
 static void __alubox__fn_wb(uint32_t sop, alu_fn fn, armvm_core_p core)
-{ return(arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(sop, core))); }
+{ arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(sop, core)); }
 
 /* **** */
-
-static uint32_t _alubox_flags__add_c(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
-{
-	const uint32_t result = rn + sop + carry_in;
-
-	if(CCX) {
-		const uint64_t x_result = result;
-
-		ARM_CPSR_BMAS(C, result != x_result);
-	}
-
-	return(result);
-}
-
-static uint32_t _alubox_flags__add_v(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
-{
-	const int32_t result = rn + sop + carry_in;
-
-	if(CCX) {
-		const int64_t x_result = result;
-
-		ARM_CPSR_BMAS(V, result != x_result);
-	}
-
-	return(result);
-}
-
-static uint32_t _alubox_flags__sub_c(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
-{
-	const uint32_t result = rn - sop - carry_in;
-
-if(0) LOG("rn: 0x%08x, sop: 0x%08x, carry_in: 0x%08x, result: 0x%08x",
-		rn, sop, carry_in, result);
-
-	if(CCX) {
-		const uint64_t x_result = result;
-
-//		LOG("x_result: 0x%016" PRIx64, x_result);
-if(0) LOG("x_result: 0x%016lx", x_result);
-
-		ARM_CPSR_BMAS(C, result != x_result);
-	}
-
-	return(result);
-}
-
-static uint32_t _alubox_flags__sub_v(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
-{
-	const int32_t result = rn - sop - carry_in;
-
-if(0) LOG("rn: 0x%08x, sop: 0x%08x, carry_in: 0x%08x, result: 0x%08x",
-		rn, sop, carry_in, result);
-
-	if(CCX) {
-		const int64_t x_result = result;
-
-//		LOG("x_result: 0x%016" PRIx64, x_result);
-if(0) LOG("x_result: 0x%016lx", x_result);
-
-		ARM_CPSR_BMAS(V, result != x_result);
-	}
-
-	return(result);
-}
 
 static uint32_t _alubox_flags__nz(uint32_t result, armvm_core_p core)
 {
@@ -123,23 +59,51 @@ static uint32_t _alubox_nzc(uint32_t sop, alu_fn fn, armvm_core_p core)
 
 static void _alubox_nzc_wb(uint32_t sop, alu_fn fn, armvm_core_p core)
 {
-	const uint32_t rd = _alubox_nzc(sop, fn, core);
-	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
+	uint32_t result = arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(sop, core));
 
 	if(CCX && rR_IS_PC(D)) {
 		if(pSPSR)
 			CPSR = spsr(0, core);
-	}
+	} else
+		_alubox_flags__nzc(result, core);
+}
+
+/*
+ * Credit to:
+ * 		http://www.emulators.com/docs/nx11_flags.htm
+ *
+ * OF(A+B) = ((A XOR D) AND NOT (A XOR B)) < 0
+ * OF(A-B) = ((A XOR D) AND (A XOR B)) < 0
+ *
+ * CF(A+B) = (((A XOR B) XOR D) < 0) XOR (((A XOR D) AND NOT (A XOR B)) < 0)
+ * CF(A-B) = (((A XOR B) XOR D) < 0) XOR (((A XOR D) AND (A XOR B)) < 0)
+ *
+ */
+
+static uint32_t _alubox_flags_add_sub(uint32_t rd, uint32_t s1, uint32_t s2, armvm_core_p core)
+{
+	_alubox_flags__nz(rd, core);
+
+	const unsigned xvec = (s1 ^ s2);
+	const unsigned ovec = (s1 ^ rd) & ~xvec;
+
+	const unsigned cf = BEXT((xvec ^ ovec ^ rd), 31);
+	ARM_CPSR_BMAS(C, cf);
+
+	const unsigned vf = BEXT(ovec, 31);
+	ARM_CPSR_BMAS(V, vf);
+
+	if(0) LOG("rd: 0x%08x, s1: 0x%08x, s2: 0x%08x, C: %01u, V: %01u",
+		rd, s1, s2, cf, vf);
+
+	return(rd);
 }
 
 static uint32_t _alubox_flags_adds(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
 {
-	const uint32_t result = _alubox_flags__add_c(rn, sop, carry_in, core);
+	uint32_t result = rn + sop + carry_in;
 
-	(void)_alubox_flags__add_v(rn, sop, carry_in, core);
-	_alubox_flags__nz(result, core);
-
-	return(result);
+	return(_alubox_flags_add_sub(result, rn, sop, core));
 }
 
 static void _alubox_flags_adds_wb(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
@@ -150,12 +114,9 @@ static void _alubox_flags_adds_wb(uint32_t rn, uint32_t sop, uint32_t carry_in, 
 
 static uint32_t _alubox_flags_subs(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
 {
-	const uint32_t result = _alubox_flags__sub_c(rn, sop, carry_in, core);
+	const uint32_t result = rn - sop - carry_in;
 
-	(void)_alubox_flags__sub_v(rn, sop, carry_in, core);
-	_alubox_flags__nz(result, core);
-
-	return(result);
+	return(_alubox_flags_add_sub(result, -rn, sop, core));
 }
 
 static void _alubox_flags_subs_wb(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)

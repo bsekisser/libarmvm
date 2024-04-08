@@ -12,6 +12,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/err_test.h"
 #include "libbse/include/log.h"
 #include "libbse/include/unused.h"
 
@@ -37,8 +38,8 @@ static void arm__trace_step0_misc(armvm_trace_p const atp)
 		case 0x00300090: return(armvm_trace_mla(atp));
 		case 0x00800090:
 		case 0x00900090: return(armvm_trace_umull(atp));
-//		case 0x01200030: return(_arm_inst_bx_blx_m(atp));
-//		case 0x01200010: return(_arm_inst_bx(atp));
+		case 0x01200030: return(armvm_trace_blx_m(atp));
+		case 0x01200010: return(armvm_trace_bx_m(atp));
 //		case 0x01000000:
 //		case 0x01400000: return(_arm_inst_msr(atp));
 //		case 0x01600010: return(_arm_inst_clz(atp));
@@ -85,8 +86,15 @@ static void arm__trace_step1(armvm_trace_p const atp)
 
 void armvm_trace(armvm_trace_p const atp)
 {
+	ERR_NULL(atp);
+
 	switch(ARM_IR_CC) {
-	case CC_NV: break;
+	case CC_NV:
+		switch(ARM_IR_GROUP) {
+		case 5: // xxxx 101x xxxx xxxx
+			return(armvm_trace_blx(atp));
+		}
+	break;
 	default:
 		switch(ARM_IR_GROUP) {
 		case 0: // xxxx 000x xxxx xxxx
