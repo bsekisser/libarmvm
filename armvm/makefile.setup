@@ -1,0 +1,15 @@
+TOP_DIR = $(PWD)
+GIT_DIR = $(TOP_DIR)/git
+
+OBJ_DIR = $(TOP_DIR)/build-$(shell $(CC) -dumpmachine)
+
+ARFLAGS += -U
+
+CFLAGS += -g -Wall -Wextra
+CFLAGS += -MMD -MP
+CFLAGS += $(INCLUDE)
+
+LDFLAGS += -L$(GIT_DIR)/libarm -larm
+
+INCLUDE += -I$(TOP_DIR)/include
+INCLUDE += -I$(GIT_DIR)
