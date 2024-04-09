@@ -21,14 +21,14 @@
 
 /* **** */
 
-void _armvm_alloc_init(armvm_p const avm)
+static void _armvm_alloc_init(armvm_p const avm)
 {
 	ERR_NULL(avm);
 
 	/* **** */
 }
 
-void _armvm_exit(armvm_p avm)
+static void _armvm_exit(armvm_p avm)
 {
 	handle_free((void**)avm->h2avm);
 }

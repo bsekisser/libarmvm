@@ -32,13 +32,13 @@ typedef struct armvm_mmu_t {
 
 /* **** */
 
-void __armvm_mmu_alloc_init(armvm_mmu_p mmu)
+static void __armvm_mmu_alloc_init(armvm_mmu_p mmu)
 {
 	mmu->core = mmu->armvm->core;
 	mmu->mem = mmu->armvm->mem;
 }
 
-void __armvm_mmu_exit(armvm_mmu_p mmu)
+static void __armvm_mmu_exit(armvm_mmu_p mmu)
 {
 	if(mmu->armvm->config.trace.exit) LOG();
 

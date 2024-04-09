@@ -9,7 +9,5 @@ CFLAGS += -g -Wall -Wextra
 CFLAGS += -MMD -MP
 CFLAGS += $(INCLUDE)
 
-LDFLAGS += -L$(GIT_DIR)/libarm -larm
-
 INCLUDE += -I$(TOP_DIR)/include
 INCLUDE += -I$(GIT_DIR)
