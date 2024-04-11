@@ -256,7 +256,8 @@ void armvm_mem_mmap(const uint32_t base, const uint32_t end,
 		}
 
 //		uint8_t *const data_offset = param + (ppa - base);
-		uint8_t *const data_offset = param - base;
+//		uint8_t *const data_offset = param - base;
+		uint8_t *const data_offset = param - ppa;
 
 		if(((armvm_mem_fn)~0U) == fn) {
 			cb->fn = armvm_mem_generic_page_ro;
