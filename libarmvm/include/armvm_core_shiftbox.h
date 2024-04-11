@@ -16,7 +16,6 @@ static uint32_t _shifter_operand_immediate(armvm_core_p core)
 
 static uint32_t _shifter_operand_c_immediate(armvm_core_p core)
 {
-	LOG();
 	return(arm_shiftbox_c_immediate(ARM_SOP_ROR, ARM_IR_DPI_IMMEDIATE, ARM_IR_DPI_ROTATE_AMOUNT));
 }
 
@@ -27,7 +26,6 @@ static uint32_t _shifter_operand_shift_immediate(armvm_core_p core)
 
 static uint32_t _shifter_operand_c_shift_immediate(armvm_core_p core)
 {
-	LOG();
 	return(arm_shiftbox_c_immediate(ARM_IR_DP_SHIFT_TYPE, irGPR(M), ARM_IR_DP_SHIFT_AMOUNT));
 }
 
@@ -38,7 +36,6 @@ static uint32_t _shifter_operand_shift_register(armvm_core_p core)
 
 static uint32_t _shifter_operand_c_shift_register(armvm_core_p core)
 {
-	LOG();
 	return(arm_shiftbox_c_immediate(ARM_IR_DP_SHIFT_TYPE, irGPR(M), irGPR(S)));
 }
 
