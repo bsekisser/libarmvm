@@ -134,7 +134,7 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc(const unsigned ppa, armvm_mem_
 	const size_t l2size = sizeof(armvm_mem_callback_t) * PTE_SIZE;
 
 	void** p2l1e = 0;
-	armvm_mem_callback_p p2l2 = _armvm_mem_access_l1(ppa, &p2l1e, mem);
+	armvm_mem_callback_p p2l2 = _armvm_mem_access(ppa, &p2l1e, mem);
 
 	if(!p2l2) {
 		p2l2 = _armvm_mem_mmap_alloc_free(mem);
