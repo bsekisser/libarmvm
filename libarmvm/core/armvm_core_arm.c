@@ -82,10 +82,12 @@ static void __arm__b_bl_blx(int const link, int x, int32_t const offset, armvm_c
 
 	/* **** */
 
-	if(x)
-		armvm_trace_blx(pARMVM_TRACE);
-	else
-		armvm_trace_b_bl(pARMVM_TRACE);
+	if(pARMVM_TRACE) {
+		if(x)
+			armvm_trace_blx(pARMVM_TRACE);
+		else
+			armvm_trace_b_bl(pARMVM_TRACE);
+	}
 
 	/* **** */
 }
