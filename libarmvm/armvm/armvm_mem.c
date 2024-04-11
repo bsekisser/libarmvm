@@ -226,7 +226,6 @@ armvm_mem_p armvm_mem_alloc(armvm_mem_h h2mem, armvm_p avm)
 
 uint32_t armvm_mem_generic_page_ro(const uint32_t ppa, const size_t size, uint32_t *const write, void *const param)
 {
-//	uint8_t *const p = param + PAGE_OFFSET(ppa);
 	uint8_t *const p = param + ppa;
 	return(mem_access_le(p, size, 0));
 	UNUSED(write);
@@ -234,7 +233,6 @@ uint32_t armvm_mem_generic_page_ro(const uint32_t ppa, const size_t size, uint32
 
 uint32_t armvm_mem_generic_page_rw(const uint32_t ppa, const size_t size, uint32_t *const write, void *const param)
 {
-//	uint8_t *const p = param + PAGE_OFFSET(ppa);
 	uint8_t *const p = param + ppa;
 	return(mem_access_le(p, size, write));
 }
@@ -255,8 +253,6 @@ void armvm_mem_mmap(const uint32_t base, const uint32_t end,
 			LOG_END(", param: 0x%016" PRIxPTR, (uintptr_t)param);
 		}
 
-//		uint8_t *const data_offset = param + (ppa - base);
-//		uint8_t *const data_offset = param - base;
 		uint8_t *const data_offset = param - ppa;
 
 		if(((armvm_mem_fn)~0U) == fn) {
