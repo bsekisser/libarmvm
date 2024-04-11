@@ -48,9 +48,9 @@ static uint32_t _shifter_operand(armvm_core_p core)
 		return(_shifter_operand_immediate(core));
 
 	if(ARM_IR_DP_I)
-		return(_shifter_operand_shift_immediate(core));
+		return(_shifter_operand_shift_register(core));
 
-	return(_shifter_operand_shift_register(core));
+	return(_shifter_operand_shift_immediate(core));
 }
 
 static uint32_t _shifter_operand_c(armvm_core_p core)
@@ -59,7 +59,7 @@ static uint32_t _shifter_operand_c(armvm_core_p core)
 		return(_shifter_operand_c_immediate(core));
 
 	if(ARM_IR_DP_I)
-		return(_shifter_operand_c_shift_immediate(core));
+		return(_shifter_operand_c_shift_register(core));
 
-	return(_shifter_operand_c_shift_register(core));
+	return(_shifter_operand_c_shift_immediate(core));
 }
