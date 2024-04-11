@@ -52,8 +52,8 @@ void armvm_mem_mmap(uint32_t const start, uint32_t const end,
 static inline uint32_t armvm_mem_callback_io(uint32_t ppa, size_t size,
 	uint32_t* write, armvm_mem_callback_p cb)
 {
-	if(!cb) LOG_ACTION(exit(-1));
-	if(!cb->fn) LOG_ACTION(exit(-1));
+	if(!cb) return(0);
+	if(!cb->fn) return(0);
 
 	return(cb->fn(ppa, size, write, cb->param));
 }
