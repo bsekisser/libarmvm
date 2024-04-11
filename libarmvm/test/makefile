@@ -8,7 +8,7 @@ CFLAGS += $(INCLUDE)
 CPPFLAGS += $(CFLAGS)
 
 LDLIBS += -Lgit/libarmvm -larmvm
-LDLIBS += -Lgit/libarm -larm -larm_disasm
+LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
 LDLIBS += -lcapstone
 
