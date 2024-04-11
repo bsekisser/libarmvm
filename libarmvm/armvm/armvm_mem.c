@@ -23,8 +23,8 @@
 /* **** */
 
 typedef struct armvm_mem_t {
-	void* l1[PTD(~0)];
-	armvm_mem_callback_p l2heap[PAGE_SIZE][PAGE_SIZE];
+	void* l1[PTD_SIZE];
+	armvm_mem_callback_p l2heap[PAGE_SIZE][PTE_SIZE];
 //
 	queue_t l2free;
 	struct {
@@ -37,6 +37,20 @@ typedef struct armvm_mem_t {
 	armvm_mem_config_t config;
 	armvm_mem_h h2mem;
 }armvm_mem_t;
+
+/* **** */
+
+static void __armvm_mem_alloc_init(armvm_mem_p const mem)
+{
+	if(mem->avm->config.trace.alloc_init) LOG();
+}
+
+static void __armvm_mem_exit(armvm_mem_p mem)
+{
+	if(mem->avm->config.trace.exit) LOG();
+
+	handle_free((void*)mem->h2mem);
+}
 
 /* **** */
 
@@ -81,6 +95,8 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc_free(armvm_mem_p const mem)
 		}
 
 		mem->l2free.head = next;
+		if(!next)
+			mem->l2free.tail = 0;
 	}
 
 	return(p2l2);
@@ -143,23 +159,11 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc(const unsigned ppa, armvm_mem_
 	return(p2l2);
 }
 
-static void armvm__mem_alloc_init(armvm_mem_p const mem)
-{
-	if(mem->avm->config.trace.alloc_init) LOG();
-}
-
-static void armvm__mem_exit(armvm_mem_p mem)
-{
-	if(mem->avm->config.trace.exit) LOG();
-
-	handle_free((void*)mem->h2mem);
-}
-
 void armvm_mem(unsigned action, armvm_mem_p mem)
 {
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: return(armvm__mem_alloc_init(mem));
-		case ARMVM_ACTION_EXIT: return(armvm__mem_exit(mem));
+		case ARMVM_ACTION_ALLOC_INIT: return(__armvm_mem_alloc_init(mem));
+		case ARMVM_ACTION_EXIT: return(__armvm_mem_exit(mem));
 	}
 }
 
@@ -198,14 +202,22 @@ armvm_mem_p armvm_mem_alloc(armvm_mem_h h2mem, armvm_p avm)
 	mem->avm = avm;
 	mem->h2mem = h2mem;
 
+	if(0) {
+		mem->config.trace_mmap = 1;
+		mem->config.trace.mmap_alloc = 1;
+		mem->config.trace.mmap.alloc.free = 1;
+		mem->config.trace.mmap.alloc.malloc = 1;
+	}
+
 	/* **** */
+
+	memset(&mem->l2malloc, 0, sizeof(mem->l2malloc));
+	mem->l2malloc.limit = PAGE_SIZE;
 
 	queue_init(&mem->l2free);
 
 	for(unsigned i = 0; i < PAGE_SIZE; i++)
 		queue_enqueue((qelem_p)&mem->l2heap[i][0], &mem->l2free);
-
-	memset(&mem->l2malloc, 0, sizeof(mem->l2malloc));
 
 	/* **** */
 
