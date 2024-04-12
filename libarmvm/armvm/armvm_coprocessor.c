@@ -73,7 +73,7 @@ uint32_t armvm_coprocessor_access(uint32_t *const write, armvm_coprocessor_p con
 	armvm_core_p const core = cp->core;
 
 	if(15 == ir_cp_num(IR)) {
-		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(IR, cp);
+		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(write, cp);
 
 		if(cb->fn)
 			return(cb->fn(write, cb->param));

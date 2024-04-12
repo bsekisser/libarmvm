@@ -335,7 +335,7 @@ static void _arm_inst_mcr_mrc(armvm_core_p const core)
 	uint32_t rd = ARM_IR_MCRC_L ? 0 : irGPR(D);
 	uint32_t *const p2rd = ARM_IR_MCRC_L ? &irGPR(D) : 0;
 
-	rd = armvm_coprocessor_access(&p2rd, core->cp);
+	rd = armvm_coprocessor_access(p2rd, core->cp);
 
 	if(ARM_IR_MCRC_L) {
 		if(rR_IS_PC(D)) {
