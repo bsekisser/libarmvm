@@ -9,6 +9,8 @@
 #define rR_IS_NOT_PC(_x) (ARMVM_GPR(PC) != ARM_IR_R(_x))
 #define rR_IS_PC(_x) (ARMVM_GPR(PC) == ARM_IR_R(_x))
 
+#define rR_NAMEx(_x) arm_reg_name_lcase_string[0][_x]
+
 #define rRx(_x) pARMVM_TRACE->rr[_x]
 #define rR(_x) pARMVM_TRACE->rr[ARMVM_TRACE_R(_x)]
 

@@ -12,9 +12,9 @@
 
 /* **** */
 
-#define irGPR(_x) GPRx(ARM_IR_R(_x))
+//#define irGPR(_x) GPRx(ARM_IR_R(_x))
 
-#define irR_NAME(_x) arm_reg_name_lcase_string[0][ARM_IR_R(_x)]
+#define irR_NAMEx(_x) rR_NAMEx(ARM_IR_R(_x))
 
 #define IP rSPR32(IP)
 #define IR rSPR32(IR)

@@ -9,7 +9,7 @@
 
 /* **** */
 
-#define rR_NAME(_x) arm_reg_name_lcase_string[0][rR(_x)]
+#define rR_NAME(_x) rR_NAMEx(rR(_x))
 
 #define IP vR(IP)
 #define IR vR(IR)

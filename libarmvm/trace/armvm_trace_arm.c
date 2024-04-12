@@ -236,6 +236,15 @@ void armvm_trace_ldst(armvm_trace_p const atp)
 	__trace_end(atp);
 }
 
+void armvm_trace_mcr_mrc(armvm_trace_p const atp)
+{
+	_armvm_trace(atp, "m%s(p(%u), %u, %s, %s, %s, %u)",
+		ARM_IR_MCRC_L ? "rc" : "cr", ARM_IR_MCRC_CPx, ARM_IR_MCRC_OP1,
+		rR_NAME(D),
+		arm_creg_name_string[ARM_IR_MCRC_CRn], arm_creg_name_string[ARM_IR_MCRC_CRm],
+		ARM_IR_MCRC_OP2);
+}
+
 void armvm_trace_mla(armvm_trace_p const atp)
 {
 	if(!__trace_start(atp))

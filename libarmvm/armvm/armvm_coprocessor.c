@@ -6,8 +6,11 @@
 /* **** */
 
 #include "armvm_coprocessor_glue.h"
+#include "armvm_core_glue.h"
 
 /* **** */
+
+#include "libarm/include/arm_disasm.h"
 
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
@@ -32,24 +35,26 @@ typedef struct armvm_coprocessor_t {
 
 /* **** */
 
-static armvm_coprocessor_callback_p _armvm_coprocessor_callback(uint32_t ir, armvm_coprocessor_p cp)
+static armvm_coprocessor_callback_p _armvm_coprocessor_callback(const uint32_t ir, armvm_coprocessor_p const  cp)
 {
 	return(&cp->cp15[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)]);
 }
 
-static void _armvm_coprocessor_alloc_init(armvm_coprocessor_p cp)
+static void _armvm_coprocessor_alloc_init(armvm_coprocessor_p const cp)
 {
+	if(cp->armvm->config.trace.alloc_init) LOG();
+
 	cp->core = cp->armvm->core;
 }
 
-static void _armvm_coprocessor_exit(armvm_coprocessor_p cp)
+static void _armvm_coprocessor_exit(armvm_coprocessor_p const cp)
 {
 	if(cp->armvm->config.trace.exit) LOG();
 
 	handle_free((void*)cp->h2cp);
 }
 
-void armvm_coprocessor(unsigned action, armvm_coprocessor_p cp)
+void armvm_coprocessor(const unsigned action, armvm_coprocessor_p const cp)
 {
 	ERR_NULL(cp);
 
@@ -63,14 +68,33 @@ void armvm_coprocessor(unsigned action, armvm_coprocessor_p cp)
 	}
 }
 
-armvm_coprocessor_p armvm_coprocessor_alloc(armvm_coprocessor_h h2cp, armvm_p avm)
+uint32_t armvm_coprocessor_access(uint32_t *const write, armvm_coprocessor_p const cp)
+{
+	armvm_core_p const core = cp->core;
+
+	if(15 == ir_cp_num(IR)) {
+		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(IR, cp);
+
+		if(cb->fn)
+			return(cb->fn(write, cb->param));
+	}
+
+	arm_disasm_arm(IP, IR);
+	LOG_ACTION(exit(-1));
+	return(-1);
+}
+
+
+armvm_coprocessor_p armvm_coprocessor_alloc(armvm_coprocessor_h const h2cp, armvm_p const avm)
 {
 	ERR_NULL(h2cp);
 	ERR_NULL(avm);
 
 	if(avm->config.trace.alloc) LOG();
 
-	armvm_coprocessor_p cp = handle_calloc((void*)h2cp, 1, sizeof(armvm_coprocessor_t));
+	armvm_coprocessor_p const cp =
+		handle_calloc((void*)h2cp, 1, sizeof(armvm_coprocessor_t));
+
 	ERR_NULL(cp);
 
 	/* **** */

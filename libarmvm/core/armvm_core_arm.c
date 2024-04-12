@@ -325,6 +325,26 @@ static void _arm_inst_ldst_sh_register(armvm_core_p const core)
 	return(_arm_inst_ldst_sh(rm, core));
 }
 
+static void _arm_inst_mcr_mrc(armvm_core_p const core)
+{
+	armvm_trace_mcr_mrc(pARMVM_TRACE);
+
+	if(!CCX)
+		return;
+
+	uint32_t rd = ARM_IR_MCRC_L ? 0 : irGPR(D);
+	uint32_t *const p2rd = ARM_IR_MCRC_L ? &irGPR(D) : 0;
+
+	rd = armvm_coprocessor_access(&p2rd, core->cp);
+
+	if(ARM_IR_MCRC_L) {
+		if(rR_IS_PC(D)) {
+			ARM_CPSR_BIC(ARM_CPSR_MASK_NZCV, rd);
+		} else
+			irGPR(D) = rd;
+	}
+}
+
 static void _arm_inst_mla(armvm_core_p const core)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
@@ -389,7 +409,7 @@ static void _arm_inst_umull(armvm_core_p const core)
 
 /* **** */
 
-static void armvm_core_arm_step0_ldst(armvm_core_p const core)
+static void armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 {
 	if(9 != mlBFTST(IR, 7, 4)) {
 		if(ARM_IR_LDST_SH_BIT(I))
@@ -401,7 +421,7 @@ static void armvm_core_arm_step0_ldst(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm_step0_misc(armvm_core_p const core)
+static void armvm_core_arm__step__group0_misc(armvm_core_p const core)
 {
 	switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
 //		case 0x00000090:
@@ -420,19 +440,19 @@ static void armvm_core_arm_step0_misc(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm_step0(armvm_core_p const core)
+static void armvm_core_arm__step_group0(armvm_core_p const core)
 {
 	if(BEXT(IR, 4)) {
 		if(BEXT(IR, 7))
-			return(armvm_core_arm_step0_ldst(core));
+			return(armvm_core_arm__step__group0_ldst(core));
 		else if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
-			return(armvm_core_arm_step0_misc(core));
+			return(armvm_core_arm__step__group0_misc(core));
 		else
 			return(_arm_inst_dp_shift_register(core));
 
 	} else {
 		if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
-			return(armvm_core_arm_step0_misc(core));
+			return(armvm_core_arm__step__group0_misc(core));
 		else
 			return(_arm_inst_dp_shift_immediate(core));
 	}
@@ -440,17 +460,29 @@ static void armvm_core_arm_step0(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm_step1_misc(armvm_core_p const core)
+static void armvm_core_arm__step__group1_misc(armvm_core_p const core)
 {
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm_step1(armvm_core_p const core)
+static void armvm_core_arm__step_group1(armvm_core_p const core)
 {
 	if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
-		return(armvm_core_arm_step1_misc(core));
+		return(armvm_core_arm__step__group1_misc(core));
 	else
 		return(_arm_inst_dp_immediate(core));
+
+	return(__arm_decode_fail(core));
+}
+
+static void armvm_core_arm__step_group7(armvm_core_p const core)
+{
+	const uint32_t mask = mlBF(27, 24) | _BV(20) | _BV(4);
+
+	switch(IR & mask) {
+		case 0x0e000010:
+			return(_arm_inst_mcr_mrc(core));
+	}
 
 	return(__arm_decode_fail(core));
 }
@@ -474,13 +506,15 @@ void armvm_core_arm_step(armvm_core_p const core)
 	default:
 		switch(ARM_IR_GROUP) {
 			case 0: // xxxx 000x xxxx xxxx
-				return(armvm_core_arm_step0(core));
+				return(armvm_core_arm__step_group0(core));
 			case 1: // xxxx 001x xxxx xxxx
-				return(armvm_core_arm_step1(core));
+				return(armvm_core_arm__step_group1(core));
 			case 2: // xxxx 010x xxxx xxxx
 				return(_arm_inst_ldst_immediate(core));
 			case 5: // xxxx 101x xxxx xxxx
 				return(_arm_inst_b_bl(core));
+			case 7: // xxxx 111x xxxx xxxx
+				return(armvm_core_arm__step_group7(core));
 			default:
 				return(__arm_decode_fail(core));
 		}
