@@ -41,10 +41,16 @@ enum {
 #define ARM_CPSR(_x) (ARM_CPSR_##_x)
 
 #define ARM_CPSRx_BEXT(_psr, _x) BEXT(_psr, ARM_CPSR(_x))
+
+static inline uint32_t __arm_bic(const uint32_t data, const uint32_t mask, const uint32_t set)
+{ return((data & ~mask) | (set & mask)); }
+
+#define ARM_CPSRx_BIC(_psr, _mask, _set) _psr = __arm_bic(_psr, _mask, _set)
 #define ARM_CPSRx_BMAS(_psr, _x, _set) BMAS(_psr, ARM_CPSR(_x), _set)
 #define ARM_CPSRx_BSET(_psr, _x) BSET(_psr, ARM_CPSR(_x))
 
 #define ARM_CPSR_BEXT(_x) ARM_CPSRx_BEXT(CPSR, _x)
+#define ARM_CPSR_BIC(_mask, _set) ARM_CPSRx_BIC(CPSR, _mask, _set)
 #define ARM_CPSR_BMAS(_x, _set) ARM_CPSRx_BMAS(CPSR, _x, _set)
 #define ARM_CPSR_BSET(_x) ARM_CPSRx_BSET(CPSR, _x)
 

@@ -68,4 +68,11 @@ enum {
 
 #define ARM_IR_LDST_SH_OFFSET (ARM_IR_RM + (ARM_IR_RS << 8))
 
+#define ARM_IR_MCRC_CPx ARM_IR_RS
+#define ARM_IR_MCRC_CRm ARM_IR_RM
+#define ARM_IR_MCRC_CRn ARM_IR_RN
+#define ARM_IR_MCRC_L BEXT(IR, 20)
+#define ARM_IR_MCRC_OP1 mlBFEXT(IR, 23, 21)
+#define ARM_IR_MCRC_OP2 mlBFEXT(IR, 7, 5)
+
 #define ARM_IR_MSR_R BEXT(IR, 22)
