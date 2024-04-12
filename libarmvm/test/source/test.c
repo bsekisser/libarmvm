@@ -3,6 +3,7 @@
 /* **** */
 
 #include "test_arm.h"
+#include "test_armvm_mem.h"
 #include "test_utility.h"
 
 /* **** */
@@ -148,6 +149,8 @@ int main(int argc, char** argv)
 	armvm_trace.armvm_core = pARMVM->core;
 
 	armvm_mem_mmap(0, sizeof(t->mem), 0, t->mem, pARMVM->mem);
+
+	test_armvm_mem(t);
 
 	test_arm(t);
 

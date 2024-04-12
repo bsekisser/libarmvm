@@ -24,7 +24,7 @@
 
 typedef struct armvm_mem_t {
 	void* l1[PTD_SIZE];
-	armvm_mem_callback_p l2heap[PAGE_SIZE][PTE_SIZE];
+	armvm_mem_callback_t l2heap[PAGE_SIZE][PTE_SIZE];
 //
 	queue_t l2free;
 	struct {
@@ -243,7 +243,9 @@ void armvm_mem_mmap(const uint32_t base, const uint32_t end,
 	const uint32_t start = base & PAGE_MASK;
 	const uint32_t stop = end & PAGE_MASK;
 
-	for(uint32_t ppa = start; ppa <= stop; ppa += PAGE_SIZE) {
+	uint8_t *const data_offset = param - base;
+
+	for(uint32_t ppa = start; ppa < stop; ppa += PAGE_SIZE) {
 		armvm_mem_callback_p cb = _armvm_mem_mmap_alloc(ppa, mem);
 
 		if(mem->config.trace_mmap) {
@@ -252,8 +254,6 @@ void armvm_mem_mmap(const uint32_t base, const uint32_t end,
 			_LOG_(", fn: 0x%016" PRIxPTR, (uintptr_t)fn);
 			LOG_END(", param: 0x%016" PRIxPTR, (uintptr_t)param);
 		}
-
-		uint8_t *const data_offset = param - ppa;
 
 		if(((armvm_mem_fn)~0U) == fn) {
 			cb->fn = armvm_mem_generic_page_ro;

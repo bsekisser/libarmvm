@@ -21,7 +21,7 @@ VPATH += ../
 
 all: test
 
-test: test.o test_arm.a
+test: test.o test_armvm_mem.o test_arm.a
 
 TEST_ARM_OBJS = \
 	test_arm_adc.o \

@@ -16,6 +16,8 @@ typedef struct test_t* test_p;
 
 /* **** */
 
+#define kTEST_MEM_ALLOC Kb(64)
+
 typedef struct test_t {
 	armvm_p armvm;
 	struct {
@@ -25,7 +27,7 @@ typedef struct test_t {
 	}gen;
 	uint32_t test_pc;
 //
-	uint8_t mem[Mb(1)];
+	uint8_t mem[kTEST_MEM_ALLOC];
 }test_t;
 
 #define pARMVM t->armvm
