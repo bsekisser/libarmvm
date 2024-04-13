@@ -43,7 +43,7 @@ enum {
 
 	ARMVM_SPR32_CC,
 	ARMVM_SPR32_CCX,
-	ARMVM_SPR32_CP15R1,
+//	ARMVM_SPR32_CP15R1,
 	ARMVM_SPR32_CPSR,
 	ARMVM_SPR32_IP,
 	ARMVM_SPR32_IR,
@@ -92,13 +92,13 @@ typedef struct armvm_core_t {
 
 /* **** */
 
-void armvm_core(const unsigned action, armvm_core_p const core);
-armvm_core_p armvm_core_alloc(armvm_core_h const h2core, armvm_p const avm);
+void armvm_core(armvm_core_p const core, const unsigned action);
+armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core);
 void armvm_core_step(armvm_core_p const core);
 
 /* **** */
 
-static inline uint32_t spsr(uint32_t *const write, armvm_core_p core)
+static inline uint32_t spsr(armvm_core_p const core, uint32_t *const write)
 {
 	const uint32_t data = core->spsr ? *core->spsr : (write ? *write : 0);
 

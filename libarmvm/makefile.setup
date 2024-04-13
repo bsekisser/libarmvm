@@ -6,6 +6,7 @@ OBJ_DIR = $(TOP_DIR)/build-$(shell $(CC) -dumpmachine)
 ARFLAGS += -U
 
 CFLAGS += -g -Wall -Wextra
+CFLAGS += -Werror
 CFLAGS += -MMD -MP
 CFLAGS += $(INCLUDE)
 

@@ -1,3 +1,5 @@
+#define pARMVM pARMVM_CORE->armvm
+
 #define pARMVM_CORE core
 #include "armvm_core_glue.h"
 #include "armvm_glue.h"
@@ -17,7 +19,7 @@
 
 /* **** */
 
-int armvm_core_exception_data_abort(armvm_core_p core)
+int armvm_core_exception_data_abort(armvm_core_p const core)
 {
 	rABT(R14) = ARM_PC_NEXT;
 	rABT(SPSR) = CPSR;
@@ -35,7 +37,7 @@ int armvm_core_exception_data_abort(armvm_core_p core)
 	return(0);
 }
 
-int armvm_core_exception_prefetch_abort(armvm_core_p core)
+int armvm_core_exception_prefetch_abort(armvm_core_p const core)
 {
 	rABT(R14) = ARM_IP_NEXT;
 	rABT(SPSR) = CPSR;
@@ -53,7 +55,7 @@ int armvm_core_exception_prefetch_abort(armvm_core_p core)
 	return(0);
 }
 
-void armvm_core_exception_reset(armvm_core_p core)
+void armvm_core_exception_reset(armvm_core_p const core)
 {
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;
@@ -69,7 +71,7 @@ void armvm_core_exception_reset(armvm_core_p core)
 	PC = _high_vectors(core) | 0x00;
 }
 
-void armvm_core_exception_swi(armvm_core_p core)
+void armvm_core_exception_swi(armvm_core_p const core)
 {
 	rSVC(R14) = ARM_PC_NEXT;
 	rSVC(SPSR) = CPSR;
@@ -85,7 +87,7 @@ void armvm_core_exception_swi(armvm_core_p core)
 	PC = _high_vectors(core) | 0x08;
 }
 
-void armvm_core_exception_undefined_instruction(armvm_core_p core)
+void armvm_core_exception_undefined_instruction(armvm_core_p const core)
 {
 	rUND(R14) = ARM_PC_NEXT;
 	rUND(SPSR) = CPSR;

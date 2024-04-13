@@ -22,15 +22,19 @@
 
 /* **** */
 
+#define kL2HeapAlloc PAGE_SIZE
+
+#define kL2MallocCountLimit PAGE_SIZE
+#define kL2MallocAlloc (sizeof(armvm_mem_callback_t) * PTE_SIZE)
+
 typedef struct armvm_mem_t {
 	void* l1[PTD_SIZE];
-	armvm_mem_callback_t l2heap[PAGE_SIZE][PTE_SIZE];
+	armvm_mem_callback_t l2heap[kL2HeapAlloc][PTE_SIZE];
 //
 	queue_t l2free;
 	struct {
-		void* ptr[PAGE_SIZE];
+		void* ptr[kL2MallocAlloc];
 		unsigned count;
-		unsigned limit;
 	}l2malloc;
 //
 	armvm_p avm;
@@ -54,7 +58,8 @@ static void __armvm_mem_exit(armvm_mem_p mem)
 
 /* **** */
 
-static void* _armvm_mem_access_l1(const uint32_t ppa, void** *const h2l1e, armvm_mem_p const mem)
+static void* _armvm_mem_access_l1(armvm_mem_p const mem,
+	const uint32_t ppa, void** *const h2l1e)
 {
 	void* *const p2l1e = &mem->l1[PTD(ppa)];
 	void* const p2l2 = *p2l1e;
@@ -64,7 +69,8 @@ static void* _armvm_mem_access_l1(const uint32_t ppa, void** *const h2l1e, armvm
 	return(p2l2);
 }
 
-static armvm_mem_callback_p _armvm_mem_access_l2(const uint32_t ppa, void *const p2l2, armvm_mem_p const mem)
+static armvm_mem_callback_p _armvm_mem_access_l2(armvm_mem_p const mem,
+	const uint32_t ppa, void *const p2l2)
 {
 	const armvm_mem_callback_p l2 = p2l2;
 
@@ -72,13 +78,14 @@ static armvm_mem_callback_p _armvm_mem_access_l2(const uint32_t ppa, void *const
 	UNUSED(mem);
 }
 
-static armvm_mem_callback_p _armvm_mem_access(const uint32_t ppa, void** *const h2l1e, armvm_mem_p const mem)
+static armvm_mem_callback_p _armvm_mem_access(armvm_mem_p const mem,
+	const uint32_t ppa, void** *const h2l1e)
 {
-	void *const p2l2 = _armvm_mem_access_l1(ppa, h2l1e, mem);
+	void *const p2l2 = _armvm_mem_access_l1(mem, ppa, h2l1e);
 
 	if(!p2l2) return(0);
 
-	return(_armvm_mem_access_l2(ppa, p2l2, mem));
+	return(_armvm_mem_access_l2(mem, ppa, p2l2));
 }
 
 static armvm_mem_callback_p _armvm_mem_mmap_alloc_free(armvm_mem_p const mem)
@@ -102,27 +109,28 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc_free(armvm_mem_p const mem)
 	return(p2l2);
 }
 
-static armvm_mem_callback_p _armvm_mem_mmap_alloc_malloc(const size_t l2size, armvm_mem_p const mem)
+static armvm_mem_callback_p _armvm_mem_mmap_alloc_malloc(armvm_mem_p const mem)
 {
-	const armvm_mem_callback_p p2l2 = malloc(l2size);
+	const armvm_mem_callback_p p2l2 = malloc(kL2MallocAlloc);
 
 	const unsigned count = mem->l2malloc.count;
 
-	assert((1 + count) < mem->l2malloc.limit);
+	assert(kL2MallocCountLimit > count);
 
 	mem->l2malloc.ptr[count] = p2l2;
 	mem->l2malloc.count++;
 
 	if(mem->config.trace.mmap.alloc.malloc) {
 		LOG_START(">> p2l2: 0x%016" PRIxPTR, (uintptr_t)p2l2);
-		_LOG_(", size: 0x%08zx", l2size);
+		_LOG_(", size: 0x%08zx", kL2MallocAlloc);
 		LOG_END(", count: 0x%08x", count);
 	}
 
 	return(p2l2);
 }
 
-static armvm_mem_callback_p _armvm_mem_mmap_alloc(const unsigned ppa, armvm_mem_p const mem)
+static armvm_mem_callback_p _armvm_mem_mmap_alloc(armvm_mem_p const mem,
+	const unsigned ppa)
 {
 	const unsigned l1ptd = PTD(ppa);
 	const unsigned l2pte = PTE(ppa);
@@ -131,19 +139,17 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc(const unsigned ppa, armvm_mem_
 	if(0)
 		LOG("ppa: 0x%08x -- %03x:%03x:%03x", ppa, l1ptd, l2pte, offset);
 
-	const size_t l2size = sizeof(armvm_mem_callback_t) * PTE_SIZE;
-
 	void** p2l1e = 0;
-	armvm_mem_callback_p p2l2 = _armvm_mem_access(ppa, &p2l1e, mem);
+	armvm_mem_callback_p p2l2 = _armvm_mem_access(mem, ppa, &p2l1e);
 
 	if(!p2l2) {
 		p2l2 = _armvm_mem_mmap_alloc_free(mem);
 
 		if(!p2l2)
-			p2l2 = _armvm_mem_mmap_alloc_malloc(l2size, mem);
+			p2l2 = _armvm_mem_mmap_alloc_malloc(mem);
 
 		if(mem->config.trace.mmap_alloc) {
-			LOG_START("l2size: 0x%08zx", l2size);
+			LOG_START("l2size: 0x%08zx", kL2MallocAlloc);
 			_LOG_(", p2l1e: 0x%016" PRIxPTR, (uintptr_t)p2l1e);
 			LOG_END(", l2: 0x%016" PRIxPTR, (uintptr_t)p2l2);
 		}
@@ -151,7 +157,7 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc(const unsigned ppa, armvm_mem_
 		if(!p2l2) return(0);
 
 		*p2l1e = p2l2;
-		memset(p2l2, 0, l2size);
+		memset(p2l2, 0, kL2MallocAlloc);
 
 		p2l2 = &p2l2[l2pte];
 	}
@@ -159,7 +165,7 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc(const unsigned ppa, armvm_mem_
 	return(p2l2);
 }
 
-void armvm_mem(unsigned action, armvm_mem_p mem)
+void armvm_mem(armvm_mem_p const mem, const unsigned action)
 {
 	switch(action) {
 		case ARMVM_ACTION_ALLOC_INIT: return(__armvm_mem_alloc_init(mem));
@@ -167,27 +173,27 @@ void armvm_mem(unsigned action, armvm_mem_p mem)
 	}
 }
 
-uint32_t armvm_mem_access_read(const uint32_t ppa, const size_t size,
-	armvm_mem_callback_h h2cb, armvm_mem_p mem)
+uint32_t armvm_mem_access_read(armvm_mem_p const mem, const uint32_t ppa, const size_t size,
+	armvm_mem_callback_h h2cb)
 {
-	armvm_mem_callback_p cb = _armvm_mem_access(ppa, 0, mem);
+	armvm_mem_callback_p cb = _armvm_mem_access(mem, ppa, 0);
 
 	if(h2cb) *h2cb = cb;
 
-	return(armvm_mem_callback_io(ppa, size, 0, cb));
+	return(armvm_mem_callback_io(cb, ppa, size, 0));
 }
 
-armvm_mem_callback_p armvm_mem_access_write(const uint32_t ppa, const size_t size,
-	uint32_t write, armvm_mem_p mem)
+armvm_mem_callback_p armvm_mem_access_write(armvm_mem_p const mem, const uint32_t ppa, const size_t size,
+	uint32_t write)
 {
-	armvm_mem_callback_p cb = _armvm_mem_access(ppa, 0, mem);
+	armvm_mem_callback_p cb = _armvm_mem_access(mem, ppa, 0);
 
-	armvm_mem_callback_io(ppa, size, &write, cb);
+	armvm_mem_callback_io(cb, ppa, size, &write);
 
 	return(cb);
 }
 
-armvm_mem_p armvm_mem_alloc(armvm_mem_h h2mem, armvm_p avm)
+armvm_mem_p armvm_mem_alloc(armvm_p const avm, armvm_mem_h const h2mem)
 {
 	ERR_NULL(h2mem);
 	ERR_NULL(avm);
@@ -212,11 +218,10 @@ armvm_mem_p armvm_mem_alloc(armvm_mem_h h2mem, armvm_p avm)
 	/* **** */
 
 	memset(&mem->l2malloc, 0, sizeof(mem->l2malloc));
-	mem->l2malloc.limit = PAGE_SIZE;
 
 	queue_init(&mem->l2free);
 
-	for(unsigned i = 0; i < PAGE_SIZE; i++)
+	for(unsigned i = 0; i < kL2HeapAlloc; i++)
 		queue_enqueue((qelem_p)&mem->l2heap[i][0], &mem->l2free);
 
 	/* **** */
@@ -224,21 +229,26 @@ armvm_mem_p armvm_mem_alloc(armvm_mem_h h2mem, armvm_p avm)
 	return(mem);
 }
 
-uint32_t armvm_mem_generic_page_ro(const uint32_t ppa, const size_t size, uint32_t *const write, void *const param)
+uint32_t armvm_mem_generic_page_ro(void *const param,
+	const uint32_t ppa, const size_t size,
+	uint32_t *const write)
 {
 	uint8_t *const p = param + ppa;
 	return(mem_access_le(p, size, 0));
 	UNUSED(write);
 }
 
-uint32_t armvm_mem_generic_page_rw(const uint32_t ppa, const size_t size, uint32_t *const write, void *const param)
+uint32_t armvm_mem_generic_page_rw(void *const param,
+	const uint32_t ppa, const size_t size,
+	uint32_t *const write)
 {
 	uint8_t *const p = param + ppa;
 	return(mem_access_le(p, size, write));
 }
 
-void armvm_mem_mmap(const uint32_t base, const uint32_t end,
-	armvm_mem_fn const fn, void *const param, armvm_mem_p const mem)
+void armvm_mem_mmap(armvm_mem_p const mem,
+	const uint32_t base, const uint32_t end,
+	armvm_mem_fn const fn, void *const param)
 {
 	const uint32_t start = base & PAGE_MASK;
 	const uint32_t stop = end & PAGE_MASK;
@@ -246,7 +256,7 @@ void armvm_mem_mmap(const uint32_t base, const uint32_t end,
 	uint8_t *const data_offset = param - base;
 
 	for(uint32_t ppa = start; ppa < stop; ppa += PAGE_SIZE) {
-		armvm_mem_callback_p cb = _armvm_mem_mmap_alloc(ppa, mem);
+		armvm_mem_callback_p cb = _armvm_mem_mmap_alloc(mem, ppa);
 
 		if(mem->config.trace_mmap) {
 			LOG_START(">> cb: 0x%016" PRIxPTR, (uintptr_t)cb);

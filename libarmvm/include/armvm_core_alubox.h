@@ -22,14 +22,14 @@
 
 /* **** */
 
-typedef uint32_t (*alu_fn)(uint32_t sop, armvm_core_p core);
+typedef uint32_t (*alu_fn)(armvm_core_p const core, const uint32_t sop);
 
-static void __alubox__fn_wb(uint32_t sop, alu_fn fn, armvm_core_p core)
-{ arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(sop, core)); }
+static void __alubox__fn_wb(armvm_core_p const core, const uint32_t sop, alu_fn const fn)
+{ arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(core, sop)); }
 
 /* **** */
 
-static uint32_t _alubox_flags__nz(uint32_t result, armvm_core_p core)
+static uint32_t _alubox_flags__nz(armvm_core_p const core, const uint32_t result)
 {
 	if(CCX) {
 		ARM_CPSR_BMAS(N, BEXT(result, 31));
@@ -39,33 +39,33 @@ static uint32_t _alubox_flags__nz(uint32_t result, armvm_core_p core)
 	return(result);
 }
 
-static uint32_t _alubox_flags__nzc(uint32_t result, armvm_core_p core)
+static uint32_t _alubox_flags__nzc(armvm_core_p const core, const uint32_t result)
 {
 	if(CCX)
 		ARM_CPSR_BMAS(C, _shifter_operand_c(core));
 
-	return(_alubox_flags__nz(result, core));
+	return(_alubox_flags__nz(core, result));
 }
 
 /* **** */
 
-static uint32_t _alubox_nzc(uint32_t sop, alu_fn fn, armvm_core_p core)
+static uint32_t _alubox_nzc(armvm_core_p const core, const uint32_t sop, alu_fn const fn)
 {
-	const uint32_t result = fn(sop, core);
-	_alubox_flags__nzc(result, core);
+	const uint32_t result = fn(core, sop);
+	_alubox_flags__nzc(core, result);
 
 	return(result);
 }
 
-static void _alubox_nzc_wb(uint32_t sop, alu_fn fn, armvm_core_p core)
+static void _alubox_nzc_wb(armvm_core_p const core, const uint32_t sop, alu_fn const fn)
 {
-	uint32_t result = arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(sop, core));
+	uint32_t result = arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), fn(core, sop));
 
 	if(CCX && rR_IS_PC(D)) {
 		if(pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 	} else
-		_alubox_flags__nzc(result, core);
+		_alubox_flags__nzc(core, result);
 }
 
 /*
@@ -80,9 +80,10 @@ static void _alubox_nzc_wb(uint32_t sop, alu_fn fn, armvm_core_p core)
  *
  */
 
-static uint32_t _alubox_flags_add_sub(uint32_t rd, uint32_t s1, uint32_t s2, armvm_core_p core)
+static uint32_t _alubox_flags_add_sub(armvm_core_p const core, const uint32_t rd,
+	const uint32_t s1, const uint32_t s2)
 {
-	_alubox_flags__nz(rd, core);
+	_alubox_flags__nz(core, rd);
 
 	const unsigned xvec = (s1 ^ s2);
 	const unsigned ovec = (s1 ^ rd) & ~xvec;
@@ -99,123 +100,127 @@ static uint32_t _alubox_flags_add_sub(uint32_t rd, uint32_t s1, uint32_t s2, arm
 	return(rd);
 }
 
-static uint32_t _alubox_flags_adds(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
+static uint32_t _alubox_flags_adds(armvm_core_p const core, const uint32_t rn,
+	const uint32_t sop, const uint32_t carry_in)
 {
 	uint32_t result = rn + sop + carry_in;
 
-	return(_alubox_flags_add_sub(result, rn, sop, core));
+	return(_alubox_flags_add_sub(core, result, rn, sop));
 }
 
-static void _alubox_flags_adds_wb(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
+static void _alubox_flags_adds_wb(armvm_core_p const core, const uint32_t rn,
+	const uint32_t sop, const uint32_t carry_in)
 {
-	const uint32_t rd = _alubox_flags_adds(rn, sop, carry_in, core);
+	const uint32_t rd = _alubox_flags_adds(core, rn, sop, carry_in);
 	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 }
 
-static uint32_t _alubox_flags_subs(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
+static uint32_t _alubox_flags_subs(armvm_core_p const core, const uint32_t rn,
+	uint32_t sop, uint32_t carry_in)
 {
 	const uint32_t result = rn - sop - carry_in;
 
-	return(_alubox_flags_add_sub(result, -rn, sop, core));
+	return(_alubox_flags_add_sub(core, result, -rn, sop));
 }
 
-static void _alubox_flags_subs_wb(uint32_t rn, uint32_t sop, uint32_t carry_in, armvm_core_p core)
+static void _alubox_flags_subs_wb(armvm_core_p const core, const uint32_t rn,
+	const uint32_t sop, const uint32_t carry_in)
 {
-	const uint32_t rd = _alubox_flags_subs(rn, sop, carry_in, core);
+	const uint32_t rd = _alubox_flags_subs(core, rn, sop, carry_in);
 	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 }
 
 /* **** */
 
-static uint32_t alubox_adc(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_adc(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(rn + sop + (IF_CPSR(C) ? 1 : 0));
 }
 
-static void alubox_adc_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_adc, core)); }
+static void alubox_adc_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_adc)); }
 
-static void alubox_adcs(uint32_t sop, armvm_core_p core)
+static void alubox_adcs(armvm_core_p const core, const uint32_t sop)
 {
 	if(rR_IS_PC(D)) {
-		alubox_adc_wb(sop, core);
+		alubox_adc_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 
 		return;
 	}
 
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	return(_alubox_flags_adds_wb(rn, sop, IF_CPSR(C), core));
+	return(_alubox_flags_adds_wb(core, rn, sop, IF_CPSR(C)));
 }
 
-static uint32_t alubox_add(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_add(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 	return(rn + sop);
 }
 
-static void alubox_add_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_add, core)); }
+static void alubox_add_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_add)); }
 
-static void alubox_adds(uint32_t sop, armvm_core_p core)
+static void alubox_adds(armvm_core_p const core, const uint32_t sop)
 {
 	if(rR_IS_PC(D)) {
-		alubox_add_wb(sop, core);
+		alubox_add_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 
 		return;
 	}
 
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	return(_alubox_flags_adds_wb(rn, sop, 0, core));
+	return(_alubox_flags_adds_wb(core, rn, sop, 0));
 }
 
-static uint32_t alubox_and(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_and(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(rn & sop);
 }
 
-static void alubox_and_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_and, core)); }
+static void alubox_and_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_and)); }
 
-static void alubox_ands(uint32_t sop, armvm_core_p core)
-{ return(_alubox_nzc_wb(sop, alubox_and, core)); }
+static void alubox_ands(armvm_core_p const core, const uint32_t sop)
+{ return(_alubox_nzc_wb(core, sop, alubox_and)); }
 
-static uint32_t alubox_bic(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_bic(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(rn & ~sop);
 }
 
-static void alubox_bic_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_bic, core)); }
+static void alubox_bic_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_bic)); }
 
-static void alubox_bics(uint32_t sop, armvm_core_p core)
-{ return(_alubox_nzc_wb(sop, alubox_bic, core)); }
+static void alubox_bics(armvm_core_p const core, const uint32_t sop)
+{ return(_alubox_nzc_wb(core, sop, alubox_bic)); }
 
-static uint32_t alubox_eor(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_eor(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(rn ^ sop);
 }
 
-static void alubox_eor_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_eor, core)); }
+static void alubox_eor_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_eor)); }
 
-static void alubox_eors(uint32_t sop, armvm_core_p core)
-{ return(_alubox_nzc_wb(sop, alubox_eor, core)); }
+static void alubox_eors(armvm_core_p const core, const uint32_t sop)
+{ return(_alubox_nzc_wb(core, sop, alubox_eor)); }
 
-static uint32_t alubox_mov(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_mov(armvm_core_p const core, const uint32_t sop)
 {
 	if(CONFIG->pedantic.ir_checks)
 		assert(0 == ARM_IR_RN);
@@ -223,13 +228,13 @@ static uint32_t alubox_mov(uint32_t sop, armvm_core_p core)
 	return(sop);
 }
 
-static void alubox_mov_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_mov, core)); }
+static void alubox_mov_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_mov)); }
 
-static void alubox_movs(uint32_t sop, armvm_core_p core)
-{ return(_alubox_nzc_wb(sop, alubox_mov, core)); }
+static void alubox_movs(armvm_core_p const core, const uint32_t sop)
+{ return(_alubox_nzc_wb(core, sop, alubox_mov)); }
 
-static uint32_t alubox_mvn(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_mvn(armvm_core_p const core, const uint32_t sop)
 {
 	if(CONFIG->pedantic.ir_checks)
 		assert(0 == ARM_IR_RN);
@@ -237,66 +242,66 @@ static uint32_t alubox_mvn(uint32_t sop, armvm_core_p core)
 	return(~sop);
 }
 
-static void alubox_mvn_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_mvn, core)); }
+static void alubox_mvn_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_mvn)); }
 
-static void alubox_mvns(uint32_t sop, armvm_core_p core)
-{ return(_alubox_nzc_wb(sop, alubox_mvn, core)); }
+static void alubox_mvns(armvm_core_p const core, const uint32_t sop)
+{ return(_alubox_nzc_wb(core, sop, alubox_mvn)); }
 
-static uint32_t alubox_orr(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_orr(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(rn | sop);
 }
 
-static void alubox_orr_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_orr, core)); }
+static void alubox_orr_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_orr)); }
 
-static void alubox_orrs(uint32_t sop, armvm_core_p core)
-{ return(_alubox_nzc_wb(sop, alubox_orr, core)); }
+static void alubox_orrs(armvm_core_p const core, const uint32_t sop)
+{ return(_alubox_nzc_wb(core, sop, alubox_orr)); }
 
-static uint32_t alubox_rsb(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_rsb(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(sop - rn);
 }
 
-static void alubox_rsb_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_rsb, core)); }
+static void alubox_rsb_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_rsb)); }
 
-static void alubox_rsbs(uint32_t sop, armvm_core_p core)
+static void alubox_rsbs(armvm_core_p const core, const uint32_t sop)
 {
 	if(rR_IS_PC(D)) {
-		alubox_rsb_wb(sop, core);
+		alubox_rsb_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 
 		return;
 	}
 
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	return(_alubox_flags_subs_wb(sop, rn, 0, core));
+	return(_alubox_flags_subs_wb(core, sop, rn, 0));
 }
 
-static uint32_t alubox_rsc(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_rsc(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(sop - rn - (IF_CPSR(C) ? -1 : 0));
 }
 
-static void alubox_rsc_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_rsc, core)); }
+static void alubox_rsc_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_rsc)); }
 
-static void alubox_rscs(uint32_t sop, armvm_core_p core)
+static void alubox_rscs(armvm_core_p const core, const uint32_t sop)
 {
 	if(rR_IS_PC(D)) {
-		alubox_rsc_wb(sop, core);
+		alubox_rsc_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 
 		return;
 	}
@@ -304,25 +309,25 @@ static void alubox_rscs(uint32_t sop, armvm_core_p core)
 	const uint32_t carry_in = IF_CPSR(C) ? -1 : 0;
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	return(_alubox_flags_subs_wb(sop, rn, carry_in, core));
+	return(_alubox_flags_subs_wb(core, sop, rn, carry_in));
 }
 
-static uint32_t alubox_sbc(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_sbc(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	return(rn - sop - (IF_CPSR(C) ? -1 : 0));
 }
 
-static void alubox_sbc_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_sbc, core)); }
+static void alubox_sbc_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_sbc)); }
 
-static void alubox_sbcs(uint32_t sop, armvm_core_p core)
+static void alubox_sbcs(armvm_core_p const core, const uint32_t sop)
 {
 	if(rR_IS_PC(D)) {
-		alubox_sbc_wb(sop, core);
+		alubox_sbc_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 
 		return;
 	}
@@ -330,10 +335,10 @@ static void alubox_sbcs(uint32_t sop, armvm_core_p core)
 	const uint32_t carry_in = IF_CPSR(C) ? -1 : 0;
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	return(_alubox_flags_subs_wb(rn, sop, carry_in, core));
+	return(_alubox_flags_subs_wb(core, rn, sop, carry_in));
 }
 
-static uint32_t alubox_sub(uint32_t sop, armvm_core_p core)
+static uint32_t alubox_sub(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 	LOG("rn: 0x%08x, sop: 0x%08x", rn, sop);
@@ -341,48 +346,48 @@ static uint32_t alubox_sub(uint32_t sop, armvm_core_p core)
 	return(rn - sop);
 }
 
-static void alubox_sub_wb(uint32_t sop, armvm_core_p core)
-{ return(__alubox__fn_wb(sop, alubox_sub, core)); }
+static void alubox_sub_wb(armvm_core_p const core, const uint32_t sop)
+{ return(__alubox__fn_wb(core, sop, alubox_sub)); }
 
-static void alubox_subs(uint32_t sop, armvm_core_p core)
+static void alubox_subs(armvm_core_p const core, const uint32_t sop)
 {
 	if(rR_IS_PC(D)) {
-		alubox_sub_wb(sop, core);
+		alubox_sub_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(0, core);
+			CPSR = spsr(core, 0);
 
 		return;
 	}
 
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	return(_alubox_flags_subs_wb(rn, sop, 0, core));
+	return(_alubox_flags_subs_wb(core, rn, sop, 0));
 }
 
-static void alubox_teqs(uint32_t sop, armvm_core_p core)
-{ _alubox_nzc(sop, alubox_eor, core); }
+static void alubox_teqs(armvm_core_p const core, const uint32_t sop)
+{ _alubox_nzc(core, sop, alubox_eor); }
 
-static void alubox_tsts(uint32_t sop, armvm_core_p core)
-{ _alubox_nzc(sop, alubox_and, core); }
+static void alubox_tsts(armvm_core_p const core, const uint32_t sop)
+{ _alubox_nzc(core, sop, alubox_and); }
 
 /* **** */
 
-static void alubox_cmns(uint32_t sop, armvm_core_p core)
+static void alubox_cmns(armvm_core_p const core, const uint32_t sop)
 {
 	if(CONFIG->pedantic.ir_checks)
 		assert(0 == ARM_IR_RD);
 
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	_alubox_flags_adds(rn, sop, 0, core);
+	_alubox_flags_adds(core, rn, sop, 0);
 }
 
-static void alubox_cmps(uint32_t sop, armvm_core_p core)
+static void alubox_cmps(armvm_core_p const core, const uint32_t sop)
 {
 	if(CONFIG->pedantic.ir_checks)
 		assert(0 == ARM_IR_RD);
 
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
-	_alubox_flags_subs(rn, sop, 0, core);
+	_alubox_flags_subs(core, rn, sop, 0);
 }

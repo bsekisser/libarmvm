@@ -15,6 +15,7 @@
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
+#include "libbse/include/mem_access.h"
 
 /* **** */
 
@@ -35,48 +36,55 @@ typedef struct armvm_coprocessor_t {
 
 /* **** */
 
-static armvm_coprocessor_callback_p _armvm_coprocessor_callback(const uint32_t ir, armvm_coprocessor_p const  cp)
-{
-	return(&cp->cp15[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)]);
-}
-
-static void _armvm_coprocessor_alloc_init(armvm_coprocessor_p const cp)
+static void __armvm_coprocessor_alloc_init(armvm_coprocessor_p const cp)
 {
 	if(cp->armvm->config.trace.alloc_init) LOG();
 
 	cp->core = cp->armvm->core;
 }
 
-static void _armvm_coprocessor_exit(armvm_coprocessor_p const cp)
+static void __armvm_coprocessor_exit(armvm_coprocessor_p const cp)
 {
 	if(cp->armvm->config.trace.exit) LOG();
 
 	handle_free((void*)cp->h2cp);
 }
 
-void armvm_coprocessor(const unsigned action, armvm_coprocessor_p const cp)
+static armvm_coprocessor_callback_p _armvm_coprocessor_callback(armvm_coprocessor_p const  cp, const uint32_t ir)
+{
+	return(&cp->cp15[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)]);
+}
+
+static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
+{
+	armvm_coprocessor_p cp = param;
+
+	return(mem_32_access(&cp->armvm->cp15r1, write));
+}
+
+void armvm_coprocessor(armvm_coprocessor_p const cp, const unsigned action)
 {
 	ERR_NULL(cp);
 
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: _armvm_coprocessor_alloc_init(cp); break;
+		case ARMVM_ACTION_ALLOC_INIT: __armvm_coprocessor_alloc_init(cp); break;
 	}
 //
 //
 	switch(action) {
-		case ARMVM_ACTION_EXIT: _armvm_coprocessor_exit(cp); break;
+		case ARMVM_ACTION_EXIT: __armvm_coprocessor_exit(cp); break;
 	}
 }
 
-uint32_t armvm_coprocessor_access(uint32_t *const write, armvm_coprocessor_p const cp)
+uint32_t armvm_coprocessor_access(armvm_coprocessor_p const cp, uint32_t *const write)
 {
 	armvm_core_p const core = cp->core;
 
 	if(15 == ir_cp_num(IR)) {
-		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(write, cp);
+		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(cp, IR);
 
 		if(cb->fn)
-			return(cb->fn(write, cb->param));
+			return(cb->fn(cb->param, write));
 	}
 
 	arm_disasm_arm(IP, IR);
@@ -85,7 +93,8 @@ uint32_t armvm_coprocessor_access(uint32_t *const write, armvm_coprocessor_p con
 }
 
 
-armvm_coprocessor_p armvm_coprocessor_alloc(armvm_coprocessor_h const h2cp, armvm_p const avm)
+armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm,
+	armvm_coprocessor_h const h2cp)
 {
 	ERR_NULL(h2cp);
 	ERR_NULL(avm);
@@ -104,15 +113,18 @@ armvm_coprocessor_p armvm_coprocessor_alloc(armvm_coprocessor_h const h2cp, armv
 
 	/* **** */
 
+	armvm_coprocessor_register_callback(cp, cp15(0, 1, 0, 0),
+		_armvm_cp15_0_1_0_0_access, cp);
+
 	return(cp);
 }
 
-void armvm_coprocessor_register_callback(uint32_t cpx,
-	armvm_coprocessor_callback_fn const fn,
-	void *const param, armvm_coprocessor_p const cp)
+void armvm_coprocessor_register_callback(armvm_coprocessor_p const cp,
+	uint32_t cpx,
+	armvm_coprocessor_callback_fn const fn, void *const param)
 {
 	if(15 == ir_cp_num(cpx)) {
-		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(cpx, cp);
+		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(cp, cpx);
 
 		cb->fn = fn;
 		cb->param = param;

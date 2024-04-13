@@ -24,14 +24,14 @@
 static void __arm_decode_fail(armvm_trace_p const atp)
 { LOG_ACTION(exit(-1)); UNUSED(atp); }
 
-static void _armvm_trace_b_bl_blx(uint32_t const new_pc, int const link, int const blx, armvm_trace_p const atp)
+static void _armvm_trace_b_bl_blx(armvm_trace_p const atp, const uint32_t new_pc, const int link, const int blx)
 {
 	_armvm_trace(atp, "b%s%s(0x%08x)",
 		link ? "l" : "",
 		blx ? "x" : "", new_pc);
 }
 
-static void _armvm_trace_bx_blx_m(int const link, armvm_trace_p const atp)
+static void _armvm_trace_bx_blx_m(armvm_trace_p const atp, const int link)
 {
 	_armvm_trace_start(atp, "b%sx(%s)",
 		link ? "l" : "", rR_NAME(M));
@@ -73,20 +73,20 @@ static void _dp_mov_s_s(armvm_trace_p const atp)
 void armvm_trace_b_bl(armvm_trace_p const atp)
 {
 	const uint32_t new_pc = ARM_PC_NEXT + ARM_IR_B_OFFSET;
-	return(_armvm_trace_b_bl_blx(new_pc, ARM_IR_B_LINK, 0, atp));
+	return(_armvm_trace_b_bl_blx(atp, new_pc, ARM_IR_B_LINK, 0));
 }
 
 void armvm_trace_blx(armvm_trace_p const atp)
 {
 	const uint32_t new_pc = ARM_PC_NEXT + ARM_IR_BLX_OFFSET;
-	return(_armvm_trace_b_bl_blx(new_pc, ARM_IR_B_LINK, 1, atp));
+	return(_armvm_trace_b_bl_blx(atp, new_pc, ARM_IR_B_LINK, 1));
 }
 
 void armvm_trace_blx_m(armvm_trace_p const atp)
-{ return(_armvm_trace_bx_blx_m(1, atp)); }
+{ return(_armvm_trace_bx_blx_m(atp, 1)); }
 
 void armvm_trace_bx_m(armvm_trace_p const atp)
-{ return(_armvm_trace_bx_blx_m(0, atp)); }
+{ return(_armvm_trace_bx_blx_m(atp, 0)); }
 
 void armvm_trace_dp(armvm_trace_p const atp)
 {

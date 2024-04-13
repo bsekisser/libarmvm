@@ -34,7 +34,7 @@ int test_armvm_mem(test_p t)
 		armvm_mem_callback_p p2cb;
 
 		uint32_t* xp = (void*)&t->mem[ppa];
-		const uint32_t xppa = armvm_mem_access_read(ppa, 4, &p2cb, t->armvm->mem);
+		const uint32_t xppa = armvm_mem_access_read(t->armvm->mem, ppa, 4, &p2cb);
 		uint32_t* p = p2cb->param + ppa;
 
 //		LOG("xp: 0x%016" PRIxPTR ", p: 0x%016" PRIxPTR ", ppa: 0x%08x, xppa: 0x%08x",

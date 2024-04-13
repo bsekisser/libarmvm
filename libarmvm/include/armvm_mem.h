@@ -11,7 +11,7 @@ typedef struct armvm_mem_callback_t* armvm_mem_callback_p;
 #include <stddef.h>
 #include <stdint.h>
 
-typedef uint32_t (*armvm_mem_fn)(uint32_t ppa, size_t size, uint32_t* write, void* param);
+typedef uint32_t (*armvm_mem_fn)(void *const param, const uint32_t ppa, const size_t size, uint32_t *const write);
 
 #include "armvm.h"
 
@@ -30,30 +30,37 @@ typedef struct armvm_mem_callback_t {
 
 /* **** */
 
-void armvm_mem(unsigned const action, armvm_mem_p const mem);
-armvm_mem_p armvm_mem_alloc(armvm_mem_h const h2mem, armvm_p const avm);
+void armvm_mem(armvm_mem_p const mem, const unsigned action);
+armvm_mem_p armvm_mem_alloc(armvm_p const avm, armvm_mem_h const h2mem);
 
-uint32_t armvm_mem_access_read(const uint32_t ppa, const size_t size,
-	armvm_mem_callback_h const h2cb, armvm_mem_p const mem);
-armvm_mem_callback_p armvm_mem_access_write(const uint32_t ppa,
-	const size_t size, const uint32_t write, armvm_mem_p const mem);
+uint32_t armvm_mem_access_read(armvm_mem_p const mem,
+	const uint32_t ppa, const size_t size,
+	armvm_mem_callback_h const h2cb);
 
-uint32_t armvm_mem_generic_page_ro(uint32_t const ppa, size_t const size,
-	uint32_t *const write, void *const param);
+armvm_mem_callback_p armvm_mem_access_write(armvm_mem_p const mem,
+	const uint32_t ppa, const size_t size,
+	const uint32_t write);
 
-uint32_t armvm_mem_generic_page_rw(uint32_t const ppa, size_t const size,
-	uint32_t *const write, void *const param);
+uint32_t armvm_mem_generic_page_ro(void *const param,
+	const uint32_t ppa, const size_t size,
+	uint32_t *const write);
 
-void armvm_mem_mmap(uint32_t const start, uint32_t const end,
-	armvm_mem_fn const fn, void *const param, armvm_mem_p const mem);
+uint32_t armvm_mem_generic_page_rw(void *const param,
+	const uint32_t ppa, const size_t size,
+	uint32_t *const write);
+
+void armvm_mem_mmap(armvm_mem_p const mem,
+	const uint32_t base, const uint32_t end,
+	armvm_mem_fn const fn, void *const param);
 
 /* **** */
 
-static inline uint32_t armvm_mem_callback_io(uint32_t ppa, size_t size,
-	uint32_t* write, armvm_mem_callback_p cb)
+static inline uint32_t armvm_mem_callback_io(armvm_mem_callback_p const cb,
+	const uint32_t ppa, const size_t size,
+	uint32_t* write)
 {
 	if(!cb) return(0);
 	if(!cb->fn) return(0);
 
-	return(cb->fn(ppa, size, write, cb->param));
+	return(cb->fn(cb->param, ppa, size, write));
 }

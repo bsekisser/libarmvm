@@ -8,11 +8,11 @@
 
 /* **** */
 
-static int armvm_core_mem_ifetch(uint32_t *const ir, uint32_t const ea, size_t const size, armvm_core_p const core)
-{ return(armvm_mmu_ifetch(ir, ea, size, core->mmu)); }
+static int armvm_core_mem_ifetch(armvm_core_p const core, uint32_t *const ir, const uint32_t ea, const size_t size)
+{ return(armvm_mmu_ifetch(core->mmu, ir, ea, size)); }
 
-static int armvm_core_mem_read(uint32_t *const read, uint32_t const ea, size_t const size, armvm_core_p const core)
-{ return(armvm_mmu_read(read, ea, size, core->mmu)); }
+static int armvm_core_mem_read(armvm_core_p const core, uint32_t *const read, const uint32_t ea, const size_t size)
+{ return(armvm_mmu_read(core->mmu, read, ea, size)); }
 
-static int armvm_core_mem_write(uint32_t const ea, size_t const size, uint32_t const write, armvm_core_p const core)
-{ return(armvm_mmu_write(ea, size, write, core->mmu)); }
+static int armvm_core_mem_write(armvm_core_p const core, const uint32_t ea, const size_t size, const uint32_t write)
+{ return(armvm_mmu_write(core->mmu, ea, size, write)); }

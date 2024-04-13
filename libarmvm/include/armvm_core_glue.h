@@ -2,8 +2,9 @@
 
 /* **** */
 
-#define pARMVM_TRACE pARMVM_CORE->armvm_trace
+#define pARMVM pARMVM_CORE->armvm
 #define pARMVM_CORE core
+#define pARMVM_TRACE pARMVM_CORE->armvm_trace
 
 #define CONFIG (&pARMVM_CORE->config)
 

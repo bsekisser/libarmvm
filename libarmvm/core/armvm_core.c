@@ -20,7 +20,7 @@
 
 /* **** */
 
-static void _armvm_core_alloc_init(armvm_core_p core)
+static void __armvm_core_alloc_init(armvm_core_p const core)
 {
 	core->cp = core->armvm->coprocessor;
 	core->mmu = core->armvm->mmu;
@@ -39,27 +39,29 @@ static void _armvm_core_alloc_init(armvm_core_p core)
 	}
 }
 
-static void _armvm_core_exit(armvm_core_p core)
+static void __armvm_core_exit(armvm_core_p const core)
 {
 	if(core->armvm->config.trace.exit) LOG();
 
 	handle_free((void*)core->h2core);
 }
 
-void armvm_core(unsigned action, armvm_core_p core)
+/* **** */
+
+void armvm_core(armvm_core_p const core, const unsigned action)
 {
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: _armvm_core_alloc_init(core); break;
+		case ARMVM_ACTION_ALLOC_INIT: __armvm_core_alloc_init(core); break;
 		case ARMVM_ACTION_RESET: armvm_core_exception_reset(core); break;
 	}
 //
 //
 	switch(action) {
-		case ARMVM_ACTION_EXIT: _armvm_core_exit(core); break;
+		case ARMVM_ACTION_EXIT: __armvm_core_exit(core); break;
 	}
 }
 
-armvm_core_p armvm_core_alloc(armvm_core_h h2core, armvm_p avm)
+armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core)
 {
 	ERR_NULL(avm);
 	ERR_NULL(h2core);

@@ -22,5 +22,6 @@ enum {
 /* **** */
 
 #define _CP15_REG1_BIT(_x) CP15_REG1_BIT_##_x
-#define CP15_REG1_BIT(_x) BEXT(rSPR32(CP15R1), _CP15_REG1_BIT(_x))
+//#define CP15_REG1_BIT(_x) BEXT(rSPR32(CP15R1), _CP15_REG1_BIT(_x))
+#define CP15_REG1_BIT(_x) BEXT(pARMVM->cp15r1, _CP15_REG1_BIT(_x))
 

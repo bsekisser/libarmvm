@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sed -i 's|(const unsigned action, armvm_p const avm)|(armvm_p const avm, const unsigned action)|g' */*.c
+sed -i 's|(const unsigned action, armvm_p const avm)|(armvm_p const avm, const unsigned action)|g' */*.h

@@ -148,7 +148,7 @@ int main(int argc, char** argv)
 	pARMVM->core->armvm_trace = &armvm_trace;
 	armvm_trace.armvm_core = pARMVM->core;
 
-	armvm_mem_mmap(0, sizeof(t->mem), 0, t->mem, pARMVM->mem);
+	armvm_mem_mmap(pARMVM->mem, 0, sizeof(t->mem), 0, t->mem);
 
 	test_armvm_mem(t);
 

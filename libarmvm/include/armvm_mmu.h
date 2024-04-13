@@ -16,8 +16,8 @@ typedef struct armvm_mmu_t* armvm_mmu_p;
 
 /* **** */
 
-void armvm_mmu(unsigned const action, armvm_mmu_p const mem);
-armvm_mmu_p armvm_mmu_alloc(armvm_mmu_h h2mem, armvm_p const avm);
-int armvm_mmu_ifetch(uint32_t *const ir, uint32_t const va, size_t const size, armvm_mmu_p const mmu);
-int armvm_mmu_read(uint32_t *const read, uint32_t const va, size_t const size, armvm_mmu_p const mmu);
-int armvm_mmu_write(uint32_t const va, size_t const size, uint32_t const write, armvm_mmu_p const mmu);
+void armvm_mmu(armvm_mmu_p const mem, const unsigned action);
+armvm_mmu_p armvm_mmu_alloc(armvm_p const avm, armvm_mmu_h const h2mem);
+int armvm_mmu_ifetch(armvm_mmu_p const mem, uint32_t *const ir, const uint32_t va, const size_t size);
+int armvm_mmu_read(armvm_mmu_p const mem, uint32_t *const read, const uint32_t va, const size_t size);
+int armvm_mmu_write(armvm_mmu_p const mem, const uint32_t va, const size_t size, const uint32_t write);

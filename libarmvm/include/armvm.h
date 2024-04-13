@@ -30,16 +30,18 @@ typedef struct armvm_t {
 	armvm_mem_p mem;
 	armvm_mmu_p mmu;
 //
+	uint32_t cp15r1;
+//
 	armvm_config_t config;
 	armvm_h h2avm;
 }armvm_t;
 
 /* **** */
 
-void armvm(const unsigned action, armvm_p const avm);
+void armvm(armvm_p const avm, const unsigned action);
 armvm_p armvm_alloc(armvm_h const h2avm);
 void armvm_alloc_init(armvm_p const avm);
 void armvm_exit(armvm_p const avm);
 void armvm_reset(armvm_p const avm);
-uint64_t armvm_run(uint64_t cycles, armvm_p const avm);
+uint64_t armvm_run(armvm_p const avm, uint64_t cycles);
 void armvm_step(armvm_p const avm);

@@ -35,17 +35,17 @@ static void _armvm_exit(armvm_p avm)
 
 /* **** */
 
-void armvm(unsigned const action, armvm_p const avm)
+void armvm(armvm_p const avm, unsigned const action)
 {
 	switch(action) {
 		case ARMVM_ACTION_ALLOC_INIT:
 			_armvm_alloc_init(avm);
 	}
 //
-	armvm_coprocessor(action, avm->coprocessor);
-	armvm_core(action, avm->core);
-	armvm_mem(action, avm->mem);
-	armvm_mmu(action, avm->mmu);
+	armvm_coprocessor(avm->coprocessor, action);
+	armvm_core(avm->core, action);
+	armvm_mem(avm->mem, action);
+	armvm_mmu(avm->mmu, action);
 //
 	switch(action) {
 		case ARMVM_ACTION_EXIT:
@@ -64,10 +64,10 @@ armvm_p armvm_alloc(armvm_h const h2avm)
 
 	/* **** */
 
-	armvm_coprocessor_alloc(&avm->coprocessor, avm);
-	armvm_core_alloc(&avm->core, avm);
-	armvm_mem_alloc(&avm->mem, avm);
-	armvm_mmu_alloc(&avm->mmu, avm);
+	armvm_coprocessor_alloc(avm, &avm->coprocessor);
+	armvm_core_alloc(avm, &avm->core);
+	armvm_mem_alloc(avm, &avm->mem);
+	armvm_mmu_alloc(avm, &avm->mmu);
 
 	/* **** */
 
@@ -76,17 +76,17 @@ armvm_p armvm_alloc(armvm_h const h2avm)
 
 void armvm_alloc_init(armvm_p const avm)
 {
-	armvm(ARMVM_ACTION_ALLOC_INIT, avm);
-	armvm(ARMVM_ACTION_INIT, avm);
+	armvm(avm, ARMVM_ACTION_ALLOC_INIT);
+	armvm(avm, ARMVM_ACTION_INIT);
 }
 
 void armvm_exit(armvm_p const avm)
-{ armvm(ARMVM_ACTION_EXIT, avm); }
+{ armvm(avm, ARMVM_ACTION_EXIT); }
 
 void armvm_reset(armvm_p const avm)
-{ armvm(ARMVM_ACTION_RESET, avm); }
+{ armvm(avm, ARMVM_ACTION_RESET); }
 
-uint64_t armvm_run(const uint64_t run_cycles, armvm_p const avm)
+uint64_t armvm_run(armvm_p const avm, const uint64_t run_cycles)
 {
 	uint64_t run_cycles_left = run_cycles;
 

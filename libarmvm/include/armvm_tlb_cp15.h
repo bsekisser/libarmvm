@@ -8,7 +8,7 @@ static void armvm_tlb_invalidate_instruction(armvm_tlb_p tlb);
 
 /* **** */
 
-static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(uint32_t* write, void* param)
+static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
 
@@ -22,7 +22,7 @@ static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(uint32_t* write, void
 	return(data);
 }
 
-static uint32_t _armvm_cp15_0_8_6_0_invalidate_data(uint32_t* write, void* param)
+static uint32_t _armvm_cp15_0_8_6_0_invalidate_data(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
 
@@ -36,7 +36,7 @@ static uint32_t _armvm_cp15_0_8_6_0_invalidate_data(uint32_t* write, void* param
 	return(data);
 }
 
-static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(uint32_t* write, void* param)
+static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
 
@@ -54,10 +54,10 @@ static void _armvm_tlb_cp15_init(armvm_tlb_p tlb)
 {
 	armvm_coprocessor_p cp = tlb->armvm->coprocessor;
 
-	armvm_coprocessor_register_callback(cp15(0, 8, 5, 0),
-		_armvm_cp15_0_8_5_0_invalidate_instruction, tlb, cp);
-	armvm_coprocessor_register_callback(cp15(0, 8, 6, 0),
-		_armvm_cp15_0_8_6_0_invalidate_data, tlb, cp);
-	armvm_coprocessor_register_callback(cp15(0, 8, 7, 0),
-		_armvm_cp15_0_8_7_0_invalidate_all, tlb, cp);
+	armvm_coprocessor_register_callback(cp, cp15(0, 8, 5, 0),
+		_armvm_cp15_0_8_5_0_invalidate_instruction, tlb);
+	armvm_coprocessor_register_callback(cp, cp15(0, 8, 6, 0),
+		_armvm_cp15_0_8_6_0_invalidate_data, tlb);
+	armvm_coprocessor_register_callback(cp, cp15(0, 8, 7, 0),
+		_armvm_cp15_0_8_7_0_invalidate_all, tlb);
 }
