@@ -83,6 +83,12 @@ void armvm_alloc_init(armvm_p const avm)
 void armvm_exit(armvm_p const avm)
 { armvm(avm, ARMVM_ACTION_EXIT); }
 
+uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write)
+{
+	assert(_ARMVM_GPR32_COUNT_ > r);
+	return(mem_32_access(&GPRx(r), write));
+}
+
 void armvm_reset(armvm_p const avm)
 { armvm(avm, ARMVM_ACTION_RESET); }
 
@@ -105,6 +111,18 @@ uint64_t armvm_run(armvm_p const avm, const uint64_t run_cycles)
 	}
 
 	return(run_cycles_left);
+}
+
+uint32_t armvm_spr32(armvm_p const avm, const unsigned r)
+{
+	assert(_ARMVM_SPR32_COUNT_ > r);
+	return(SPR32x(r));
+}
+
+uint64_t armvm_spr64(armvm_p const avm, const unsigned r)
+{
+	assert(_ARMVM_SPR64_COUNT_ > r);
+	return(SPR64x(r));
 }
 
 void armvm_step(armvm_p const avm)
