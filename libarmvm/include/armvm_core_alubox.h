@@ -341,7 +341,6 @@ static void alubox_sbcs(armvm_core_p const core, const uint32_t sop)
 static uint32_t alubox_sub(armvm_core_p const core, const uint32_t sop)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
-	LOG("rn: 0x%08x, sop: 0x%08x", rn, sop);
 
 	return(rn - sop);
 }
