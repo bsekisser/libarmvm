@@ -18,6 +18,7 @@
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
+#include "libbse/include/mem_access.h"
 
 /* **** */
 
@@ -85,7 +86,7 @@ void armvm_exit(armvm_p const avm)
 
 uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write)
 {
-	assert(_ARMVM_GPR32_COUNT_ > r);
+	assert(_ARMVM_GPR_COUNT_ > r);
 	return(mem_32_access(&GPRx(r), write));
 }
 
