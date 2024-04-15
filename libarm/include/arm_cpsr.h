@@ -67,5 +67,5 @@ static inline uint32_t __arm_bic(const uint32_t data, const uint32_t mask, const
 #define IF_NOT_CPSR(_x) (0 == ARM_CPSR_BEXT(_x))
 
 #define ARM_CPSR_M(_x) (ARM_CPSR_M_##_x)
-#define ARM_CPSR_M32(_x) (ARM_CPSR(M32) | ARM_CPSR_M(_x))
+#define ARM_CPSR_M32(_x) (ARM_CPSR_M(32) | ARM_CPSR_M(_x))
 #define ARM_CPSR_M32_BMAS(_x) pbBFINS(CPSR, ARM_CPSR_M32(_x), 0, 5)
