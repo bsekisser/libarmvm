@@ -63,7 +63,7 @@ static void _alubox_nzc_wb(armvm_core_p const core, const uint32_t sop, alu_fn c
 
 	if(CCX && rR_IS_PC(D)) {
 		if(pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 	} else
 		_alubox_flags__nzc(core, result);
 }
@@ -147,7 +147,7 @@ static void alubox_adcs(armvm_core_p const core, const uint32_t sop)
 	if(rR_IS_PC(D)) {
 		alubox_adc_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 		return;
 	}
@@ -171,7 +171,7 @@ static void alubox_adds(armvm_core_p const core, const uint32_t sop)
 	if(rR_IS_PC(D)) {
 		alubox_add_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 		return;
 	}
@@ -276,7 +276,7 @@ static void alubox_rsbs(armvm_core_p const core, const uint32_t sop)
 	if(rR_IS_PC(D)) {
 		alubox_rsb_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 		return;
 	}
@@ -301,7 +301,7 @@ static void alubox_rscs(armvm_core_p const core, const uint32_t sop)
 	if(rR_IS_PC(D)) {
 		alubox_rsc_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 		return;
 	}
@@ -327,7 +327,7 @@ static void alubox_sbcs(armvm_core_p const core, const uint32_t sop)
 	if(rR_IS_PC(D)) {
 		alubox_sbc_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 		return;
 	}
@@ -353,7 +353,7 @@ static void alubox_subs(armvm_core_p const core, const uint32_t sop)
 	if(rR_IS_PC(D)) {
 		alubox_sub_wb(core, sop);
 		if(CCX && pSPSR)
-			CPSR = spsr(core, 0);
+			armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 		return;
 	}

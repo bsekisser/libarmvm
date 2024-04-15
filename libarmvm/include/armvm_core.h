@@ -34,10 +34,24 @@ enum {
 #define ARMVM_SPR32(_x) ARMVM_SPR32_##_x
 
 enum {
+	ARMVM_SPR32_ABT_R13,
 	ARMVM_SPR32_ABT_R14,
 	ARMVM_SPR32_ABT_SPSR,
+	ARMVM_SPR32_IRQ_R13,
+	ARMVM_SPR32_IRQ_R14,
+	ARMVM_SPR32_IRQ_SPSR,
+	ARMVM_SPR32_FIQ_R8,
+	ARMVM_SPR32_FIQ_R9,
+	ARMVM_SPR32_FIQ_R10,
+	ARMVM_SPR32_FIQ_R11,
+	ARMVM_SPR32_FIQ_R12,
+	ARMVM_SPR32_FIQ_R13,
+	ARMVM_SPR32_FIQ_R14,
+	ARMVM_SPR32_FIQ_SPSR,
+	ARMVM_SPR32_SVC_R13,
 	ARMVM_SPR32_SVC_R14,
 	ARMVM_SPR32_SVC_SPSR,
+	ARMVM_SPR32_UND_R13,
 	ARMVM_SPR32_UND_R14,
 	ARMVM_SPR32_UND_SPSR,
 
@@ -94,6 +108,9 @@ typedef struct armvm_core_t {
 
 void armvm_core(armvm_core_p const core, const unsigned action);
 armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core);
+void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr);
+void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr);
+void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core);
 void armvm_core_step(armvm_core_p const core);
 
 /* **** */

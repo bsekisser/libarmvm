@@ -24,7 +24,7 @@ int armvm_core_exception_data_abort(armvm_core_p const core)
 	rABT(R14) = ARM_PC_NEXT;
 	rABT(SPSR) = CPSR;
 
-	ARM_CPSR_M32_BMAS(Abort);
+	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Abort));
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);
@@ -42,7 +42,7 @@ int armvm_core_exception_prefetch_abort(armvm_core_p const core)
 	rABT(R14) = ARM_IP_NEXT;
 	rABT(SPSR) = CPSR;
 
-	ARM_CPSR_M32_BMAS(Abort);
+	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Abort));
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);
@@ -76,7 +76,7 @@ void armvm_core_exception_swi(armvm_core_p const core)
 	rSVC(R14) = ARM_PC_NEXT;
 	rSVC(SPSR) = CPSR;
 
-	ARM_CPSR_M32_BMAS(Supervisor);
+	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Supervisor));
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);
@@ -92,7 +92,7 @@ void armvm_core_exception_undefined_instruction(armvm_core_p const core)
 	rUND(R14) = ARM_PC_NEXT;
 	rUND(SPSR) = CPSR;
 
-	ARM_CPSR_M32_BMAS(Undefined);
+	armvm_core_psr_mode_switch(core, ARM_CPSR_M32_BMAS(Undefined));
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);

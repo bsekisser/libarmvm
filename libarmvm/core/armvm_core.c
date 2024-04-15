@@ -15,6 +15,10 @@
 
 /* **** */
 
+#include "libarm/include/arm_cpsr.h"
+
+/* **** */
+
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 
@@ -44,6 +48,70 @@ static void __armvm_core_exit(armvm_core_p const core)
 	if(core->armvm->config.trace.exit) LOG();
 
 	handle_free((void*)core->h2core);
+}
+
+static void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
+{
+	const uint32_t tmp = *dst;
+		*dst = *src;
+		*src = tmp;
+}
+
+/* **** */
+
+static uint32_t* _armvm_core_psr_mode_regs(armvm_core_p const core,
+	uint32_t mode, unsigned* reg, unsigned* swap_spsr)
+{
+	*reg = 13;
+
+	if(swap_spsr) {
+		switch(mode) {
+			case ARM_CPSR_M32(Abort):
+			case ARM_CPSR_M32(FIQ):
+			case ARM_CPSR_M32(IRQ):
+			case ARM_CPSR_M32(Supervisor):
+			case ARM_CPSR_M32(Undefined):
+				*swap_spsr = 1;
+			break;
+			case ARM_CPSR_M32(System):
+			case ARM_CPSR_M32(User):
+				*swap_spsr = 0;
+			break;
+		}
+	}
+
+	switch(mode) {
+		case ARM_CPSR_M32(Abort):
+			return(&rABT(R13));
+		case ARM_CPSR_M32(FIQ):
+			*reg = 8;
+			return(&rFIQ(R8));
+		case ARM_CPSR_M32(IRQ):
+			return(&rIRQ(R13));
+		case ARM_CPSR_M32(Supervisor):
+			return(&rSVC(R13));
+		case ARM_CPSR_M32(Undefined):
+			return(&rUND(R13));
+		case ARM_CPSR_M32(System):
+		case ARM_CPSR_M32(User):
+			break;
+		default:
+			LOG_ACTION(exit(-1));
+	}
+
+	*reg = 0;
+	return(0);
+}
+
+static void _armvm_core_psr_swap_regs(armvm_core_p const core,
+	uint32_t* dst, uint32_t* src,
+	unsigned r, const unsigned swap_spsr)
+{
+	for(; r < 15; r++)
+		__armvm_core_psr_swap_reg(dst++, src++);
+
+	if(swap_spsr)
+		pSPSR = src;
 }
 
 /* **** */
@@ -80,6 +148,34 @@ armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core)
 
 	return(core);
 }
+
+void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr)
+{
+	const uint32_t old_mode = mlBFEXT(CPSR, 4, 0);
+	const uint32_t new_mode = mlBFEXT(new_cpsr, 4, 0);
+
+	if(old_mode == new_mode)
+		return;
+
+	pbBFINS(CPSR, new_mode, 0, 5);
+
+	unsigned sreg = 0;
+	void *dst = _armvm_core_psr_mode_regs(core, old_mode, &sreg, 0);
+	_armvm_core_psr_swap_regs(core, dst, 0, sreg, 0);
+
+	unsigned dreg = 0, swap_spsr = 0;
+	void *src = _armvm_core_psr_mode_regs(core, new_mode, &dreg, &swap_spsr);
+	_armvm_core_psr_swap_regs(core, 0, src, dreg, swap_spsr);
+}
+
+void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr)
+{
+	armvm_core_psr_mode_switch(core, new_cpsr);
+	CPSR = new_cpsr;
+}
+
+void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core)
+{ armvm_core_psr_mode_switch_cpsr(core, spsr(core, 0)); }
 
 void armvm_core_step(armvm_core_p const core)
 {
