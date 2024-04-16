@@ -383,6 +383,118 @@ static void _arm_inst_mrs(armvm_core_p const core)
 		armvm_trace_mrs(pARMVM_TRACE);
 }
 
+static const uint32_t _armvm_core_msr_priv_mask[] =
+	{ 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x000001df };
+static const uint32_t _armvm_core_msr_state_mask[] =
+	{ 0x00000000, 0x00000020, 0x00000020, 0x01000020, 0x01000020 };
+static const uint32_t _armvm_core_msr_unalloc_mask[] =
+	{ 0x0fffff20, 0x0fffff00, 0x07ffff00, 0x06ffff00, 0x06f0fc00 };
+static const uint32_t _armvm_core_msr_user_mask[] =
+	{ 0xf0000000, 0xf0000000, 0xf8000000, 0xf8000000, 0xf80f0200 };
+
+static void _arm_inst_msr(armvm_core_p const core, const uint32_t sop)
+{
+	if(CONFIG->pedantic.ir_checks) {
+		assert(15 == ARM_IR_R(D));
+	}
+
+	const unsigned arm_version = core->config.version;
+if(0) LOG("arm_version: 0x%08x", arm_version);
+
+	const uint32_t unalloc_mask = _armvm_core_msr_unalloc_mask[arm_version];
+if(0) LOG("unalloc_mask: 0x%08x", unalloc_mask);
+
+	if(sop & unalloc_mask)
+	{
+		/* TODO: UNPREDICTABLE
+		 *
+		 * till further notice, fail silently...  fuck it!
+		 */
+	}
+
+	const uint32_t field_mask = ARM_IR_R(N);
+if(0) LOG("field_mask: 0x%08x", field_mask);
+
+	const uint32_t byte_mask =
+		(BTST(field_mask, 0) ? (0xff << (0 << 3)) : 0)
+		| (BTST(field_mask, 1) ? (0xff << (1 << 3)) : 0)
+		| (BTST(field_mask, 2) ? (0xff << (2 << 3)) : 0)
+		| (BTST(field_mask, 3) ? (0xff << (3 << 3)) : 0);
+if(0) LOG("byte_mask: 0x%08x", byte_mask);
+
+	const uint32_t state_mask = _armvm_core_msr_state_mask[arm_version];
+if(0) LOG("state_mask: 0x%08x", state_mask);
+
+	const uint32_t user_mask = _armvm_core_msr_user_mask[arm_version];
+if(0) LOG("user_mask: 0x%08x", user_mask);
+
+	const uint32_t priv_mask = _armvm_core_msr_priv_mask[arm_version];
+if(0) LOG("priv_mask: 0x%08x", priv_mask);
+
+	uint32_t saved_psr = 0, new_psr = 0;
+
+	uint32_t mask = 0;
+	if(ARM_IR_MRSR_R)
+	{
+		if(pSPSR)
+		{
+			mask = byte_mask & (user_mask | priv_mask | state_mask);
+
+			saved_psr = armvm_core_spsr(core, 0);
+			new_psr = (saved_psr & ~mask) | (sop & mask);
+
+			if(CCX)
+				armvm_core_spsr(core, &new_psr);
+		}
+		else
+		{
+			LOG_ACTION(UNPREDICTABLE);
+		}
+	}
+	else
+	{
+		if(armvm_core_in_a_privaleged_mode(core))
+		{
+			if(sop & state_mask)
+			{
+				LOG_ACTION(UNPREDICTABLE);
+			}
+			else
+				mask = byte_mask & (user_mask | priv_mask);
+		}
+		else
+			mask = byte_mask & user_mask;
+
+if(0)	LOG("mask: 0x%08x", mask);
+
+		saved_psr = CPSR;
+		new_psr = (saved_psr & ~mask) | (sop & mask);
+
+		if(CCX)
+			armvm_core_psr_mode_switch_cpsr(core, new_psr);
+	}
+
+	if(pARMVM_TRACE) {
+		setup_rR_vR(core, ARMVM_TRACE_R(D), ~0U, new_psr);
+		setup_rR_vR(core, ARMVM_TRACE_R(N), ~0U, saved_psr);
+		setup_rR_vR(core, ARMVM_TRACE_R(S), ~field_mask, mask);
+
+		armvm_trace_msr(pARMVM_TRACE);
+	}
+}
+
+static void _arm_inst_msr_register(armvm_core_p const core)
+{
+	if(CONFIG->pedantic.ir_checks) {
+		assert(0 == ARM_IR_R(S));
+	}
+
+	const uint32_t rm = arm_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(S));
+	const uint32_t sop = setup_rR_vR(core, ARMVM_TRACE_R(SOP), ~0, rm);
+
+	return(_arm_inst_msr(core, sop));
+}
+
 static void _arm_inst_umull(armvm_core_p const core)
 {
 	const uint32_t rs = arm_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));

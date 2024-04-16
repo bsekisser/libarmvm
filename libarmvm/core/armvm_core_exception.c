@@ -60,7 +60,7 @@ void armvm_core_exception_reset(armvm_core_p const core)
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;
 
-	ARM_CPSR_M32_BMAS(Supervisor);
+	CPSR = ARM_CPSR_M32_BMAS(Supervisor);
 
 	ARM_CPSR_BMAS(Thumb, 0);
 	ARM_CPSR_BMAS(FIQ, 1);

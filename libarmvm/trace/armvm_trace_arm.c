@@ -270,6 +270,36 @@ void armvm_trace_mrs(armvm_trace_p const atp)
 	__trace_end(atp);
 }
 
+void armvm_trace_msr(armvm_trace_p const atp)
+{
+	if(!__trace_start(atp))
+		return;
+
+	const unsigned field_mask = ~rR(S);
+
+	uint8_t cpsrs[5];
+	cpsrs[0] = BTST(field_mask, 3) ? 'F' : 'f';
+	cpsrs[1] = BTST(field_mask, 2) ? 'S' : 's';
+	cpsrs[2] = BTST(field_mask, 1) ? 'X' : 'x';
+	cpsrs[3] = BTST(field_mask, 0) ? 'C' : 'c';
+	cpsrs[4] = 0;
+
+	const uint8_t cs = ARM_IR_MRSR_R ? 'S' : 'C';
+
+	const uint32_t mask = vR(S);
+	const uint32_t operand_masked = vR(SOP) & mask;
+
+	if(ARM_IR_DPI)
+		_armvm_trace_(atp, "msr(%cPSR_%s, 0x%08x)", cs, cpsrs, vR(SOP));
+	else
+		_armvm_trace_(atp, "msr(%cPSR_%s, %s)", cs, cpsrs, rR_NAME(M));
+
+	_armvm_trace_comment(atp, "(0x%08x & 0x%08x): 0x%08x --> 0x%08x",
+		vR(SOP), mask, operand_masked, vR(D));
+
+	__trace_end(atp);
+}
+
 void armvm_trace_umull(armvm_trace_p const atp)
 {
 	if(!__trace_start(atp))

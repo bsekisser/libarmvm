@@ -108,12 +108,15 @@ typedef struct armvm_core_t {
 
 void armvm_core(armvm_core_p const core, const unsigned action);
 armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core);
+int armvm_core_in_a_privaleged_mode(armvm_core_p const core);
 void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr);
 void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr);
 void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core);
 void armvm_core_step(armvm_core_p const core);
 
 /* **** */
+
+#define UNPREDICTABLE
 
 static inline uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const write)
 {

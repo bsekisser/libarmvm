@@ -107,6 +107,10 @@ static void _armvm_core_psr_swap_regs(armvm_core_p const core,
 	uint32_t* dst, uint32_t* src,
 	unsigned r, const unsigned swap_spsr)
 {
+	if(!r) return;
+	if(!dst) dst = &GPRx(r);
+	if(!src) src = &GPRx(r);
+
 	for(; r < 15; r++)
 		__armvm_core_psr_swap_reg(dst++, src++);
 
@@ -148,6 +152,9 @@ armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core)
 
 	return(core);
 }
+
+int armvm_core_in_a_privaleged_mode(armvm_core_p const core)
+{ return(0 != mlBFEXT(CPSR, 3, 0)); }
 
 void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr)
 {
