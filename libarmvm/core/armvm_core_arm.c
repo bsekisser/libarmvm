@@ -373,7 +373,7 @@ static void _arm_inst_msr(armvm_core_p const core)
 
 	if(ARM_IR_MSR_R) {
 		if(pSPSR)
-			arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), spsr(core, 0));
+			arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), armvm_core_spsr(core, 0));
 	} else
 		arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), CPSR);
 

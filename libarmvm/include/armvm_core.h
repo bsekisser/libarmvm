@@ -115,7 +115,7 @@ void armvm_core_step(armvm_core_p const core);
 
 /* **** */
 
-static inline uint32_t spsr(armvm_core_p const core, uint32_t *const write)
+static inline uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const write)
 {
 	const uint32_t data = core->spsr ? *core->spsr : (write ? *write : 0);
 
