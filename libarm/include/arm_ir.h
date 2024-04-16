@@ -75,4 +75,4 @@ enum {
 #define ARM_IR_MCRC_OP1 mlBFEXT(IR, 23, 21)
 #define ARM_IR_MCRC_OP2 mlBFEXT(IR, 7, 5)
 
-#define ARM_IR_MSR_R BEXT(IR, 22)
+#define ARM_IR_MRSR_R BEXT(IR, 22)
