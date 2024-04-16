@@ -189,7 +189,7 @@ void armvm_core_step(armvm_core_p const core)
 	CYCLE++;
 	ICOUNT++;
 
-	if(1 & PC)
+	if(ARM_CPSR_BEXT(Thumb))
 		return(armvm_core_thumb_step(core));
 
 	return(armvm_core_arm_step(core));
