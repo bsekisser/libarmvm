@@ -31,6 +31,11 @@ static void __arm_decode_fail(armvm_trace_p const atp)
 
 static void arm__trace_step0_misc(armvm_trace_p const atp)
 {
+	switch(mlBFTST(IR, 27, 20)) {
+		case 0x01000000:
+		case 0x01400000: return(armvm_trace_mrs(atp));
+	}
+
 	switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
 //		case 0x00000090:
 //		case 0x00100090: return(_arm_inst_mul(atp));
@@ -38,8 +43,6 @@ static void arm__trace_step0_misc(armvm_trace_p const atp)
 		case 0x00300090: return(armvm_trace_mla(atp));
 		case 0x00800090:
 		case 0x00900090: return(armvm_trace_umull(atp));
-		case 0x01000000:
-		case 0x01400000: return(armvm_trace_mrs(atp));
 		case 0x01200010: return(armvm_trace_bx_m(atp));
 		case 0x01200030: return(armvm_trace_blx_m(atp));
 //		case 0x01600010: return(_arm_inst_clz(atp));

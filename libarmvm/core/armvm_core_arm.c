@@ -423,6 +423,11 @@ static void armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 
 static void armvm_core_arm__step__group0_misc(armvm_core_p const core)
 {
+	switch(mlBFTST(IR, 27, 20)) {
+		case 0x01000000:
+		case 0x01400000: return(_arm_inst_mrs(core));
+	}
+
 	switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
 //		case 0x00000090:
 //		case 0x00100090: return(_arm_inst_mul(core));
@@ -430,8 +435,8 @@ static void armvm_core_arm__step__group0_misc(armvm_core_p const core)
 		case 0x00300090: return(_arm_inst_mla(core));
 		case 0x00800090:
 		case 0x00900090: return(_arm_inst_umull(core));
-		case 0x01000000:
-		case 0x01400000: return(_arm_inst_mrs(core));
+		case 0x01200000:
+		case 0x01600000: return(_arm_inst_msr_register(core));
 		case 0x01200010: return(_arm_inst_bx_blx_m(core, 0));
 		case 0x01200030: return(_arm_inst_bx_blx_m(core, 1));
 		case 0x01600010: return(_arm_inst_clz(core));
