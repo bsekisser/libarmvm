@@ -263,9 +263,9 @@ void armvm_trace_mla(armvm_trace_p const atp)
 	__trace_end(atp);
 }
 
-void armvm_trace_msr(armvm_trace_p const atp)
+void armvm_trace_mrs(armvm_trace_p const atp)
 {
-	_armvm_trace_start(atp, "mrs(%s, %s)", rR_NAME(D), ARM_IR_MSR_R ? "spsr" : "cpsr");
+	_armvm_trace_start(atp, "mrs(%s, %s)", rR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr");
 	_armvm_trace_comment(atp, "0x%08x", vR(D));
 	__trace_end(atp);
 }

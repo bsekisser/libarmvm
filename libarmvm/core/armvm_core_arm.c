@@ -364,14 +364,14 @@ static void _arm_inst_mla(armvm_core_p const core)
 		armvm_trace_mla(pARMVM_TRACE);
 }
 
-static void _arm_inst_msr(armvm_core_p const core)
+static void _arm_inst_mrs(armvm_core_p const core)
 {
 	if(CONFIG->pedantic.ir_checks) {
 		assert(15 == ARM_IR_R(N));
 		assert(0 == ARM_IR_SHIFT_OPERAND);
 	}
 
-	if(ARM_IR_MSR_R) {
+	if(ARM_IR_MRSR_R) {
 		if(pSPSR)
 			arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), armvm_core_spsr(core, 0));
 	} else
@@ -380,7 +380,7 @@ static void _arm_inst_msr(armvm_core_p const core)
 	/* **** */
 
 	if(pARMVM_TRACE)
-		armvm_trace_msr(pARMVM_TRACE);
+		armvm_trace_mrs(pARMVM_TRACE);
 }
 
 static void _arm_inst_umull(armvm_core_p const core)
@@ -430,10 +430,10 @@ static void armvm_core_arm__step__group0_misc(armvm_core_p const core)
 		case 0x00300090: return(_arm_inst_mla(core));
 		case 0x00800090:
 		case 0x00900090: return(_arm_inst_umull(core));
-		case 0x01200030: return(_arm_inst_bx_blx_m(core, 1));
-		case 0x01200010: return(_arm_inst_bx_blx_m(core, 0));
 		case 0x01000000:
-		case 0x01400000: return(_arm_inst_msr(core));
+		case 0x01400000: return(_arm_inst_mrs(core));
+		case 0x01200010: return(_arm_inst_bx_blx_m(core, 0));
+		case 0x01200030: return(_arm_inst_bx_blx_m(core, 1));
 		case 0x01600010: return(_arm_inst_clz(core));
 	}
 
