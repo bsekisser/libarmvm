@@ -7,5 +7,4 @@ where git/ includes ...
 git/
 	libbse/
 	libarm/
-	libarm_disasm/
 	libarmvm/
