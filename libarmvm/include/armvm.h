@@ -30,8 +30,6 @@ typedef struct armvm_t {
 	armvm_mem_p mem;
 	armvm_mmu_p mmu;
 //
-	uint32_t cp15r1;
-//
 	armvm_config_t config;
 	armvm_h h2avm;
 }armvm_t;

@@ -12,7 +12,9 @@ enum {
 
 /* **** */
 
-#include "armvm_core.h"
+#include "armvm_coprocessor.h"
+#include "armvm_coprocessor_glue.h"
+//#include "armvm_core.h"
 #include "armvm.h"
 
 /* **** */
@@ -21,7 +23,8 @@ enum {
 
 /* **** */
 
+
+
 #define _CP15_REG1_BIT(_x) CP15_REG1_BIT_##_x
-//#define CP15_REG1_BIT(_x) BEXT(rSPR32(CP15R1), _CP15_REG1_BIT(_x))
-#define CP15_REG1_BIT(_x) BEXT(pARMVM->cp15r1, _CP15_REG1_BIT(_x))
+#define CP15_REG1_BIT(_x) BEXT(rCP15x(cp15(0, 1, 0, 0), 0), _CP15_REG1_BIT(_x))
 
