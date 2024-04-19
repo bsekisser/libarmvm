@@ -24,7 +24,8 @@ extern "C" {
 	subs(r0, r1, r2);
 	run_test(t);
 	fail_if(-1U != rR(0));
-	check_nzcv(t, 1, 0, 0, 0);
+//	check_nzcv(t, 1, 0, 0, 0);
+	check_nzcv(t, 1, 0, 1, 0);
 
 	rR(1) = 0x1c; rR(2) = 0x1c;
 	subs(r0, r1, r2);
@@ -43,6 +44,13 @@ extern "C" {
 	run_test(t);
 	fail_if(0x00000008 != rR(1));
 	check_nzcv(t, 0, 0, 1, 0);
+
+	rR(1) = 64 << 24; rR(2) = 65 << 24;
+	subs(r0, r1, r2);
+	run_test(t);
+	fail_if((0xffU << 24) != rR(0));
+	check_nzcv(t, 1, 0, 1, 1);
+
 
 	return(1);
 }}

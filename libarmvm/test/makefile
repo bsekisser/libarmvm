@@ -17,11 +17,11 @@ INCLUDE += -Igit
 INCLUDE += -I..
 
 VPATH += source
-VPATH += ../
+VPATH += git/libarmvm
 
 all: test
 
-test: test.o test_armvm_mem.o test_arm.a
+test: test.o test_armvm_mem.o test_arm.a libarmvm.a
 
 TEST_ARM_OBJS = \
 	test_arm_adc.o \

@@ -40,6 +40,8 @@ int test_armvm_mem(test_p t)
 //		LOG("xp: 0x%016" PRIxPTR ", p: 0x%016" PRIxPTR ", ppa: 0x%08x, xppa: 0x%08x",
 //			(uintptr_t)xp, (uintptr_t)p, ppa, xppa);
 
+		assert(xppa == ppa);
+		assert(xp == p);
 		assert(*p++ == ppa);
 		assert(*p++ == PTD(ppa));
 		assert(*p++ == PTE(ppa));
