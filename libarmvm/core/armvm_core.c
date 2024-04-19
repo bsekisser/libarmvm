@@ -184,7 +184,7 @@ void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new
 void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core)
 { armvm_core_psr_mode_switch_cpsr(core, armvm_core_spsr(core, 0)); }
 
-void armvm_core_step(armvm_core_p const core)
+int armvm_core_step(armvm_core_p const core)
 {
 	CYCLE++;
 	ICOUNT++;

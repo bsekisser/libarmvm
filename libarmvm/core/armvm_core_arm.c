@@ -42,7 +42,7 @@
 
 /* **** */
 
-static void __arm_decode_fail(armvm_core_p const core)
+static int __arm_decode_fail(armvm_core_p const core)
 {
 	LOG("group: %01u", ARM_IR_GROUP);
 
@@ -63,10 +63,10 @@ static void __arm_decode_fail(armvm_core_p const core)
 	}
 
 	arm_disasm(IP, IR);
-	LOG_ACTION(exit(-1));
+	LOG_ACTION(return(-1));
 }
 
-static void __arm__b_bl_blx(armvm_core_p const core, int const link, const int x, int32_t const offset)
+static int __arm__b_bl_blx(armvm_core_p const core, int const link, const int x, int32_t const offset)
 {
 	if(CCX) {
 		if(link) {
@@ -90,22 +90,23 @@ static void __arm__b_bl_blx(armvm_core_p const core, int const link, const int x
 	}
 
 	/* **** */
+	return(0);
 }
 
 /* **** */
 
-static void _arm_inst_b_bl(armvm_core_p const core)
+static int _arm_inst_b_bl(armvm_core_p const core)
 {
 	return(__arm__b_bl_blx(core, ARM_IR_B_LINK, 0, ARM_IR_B_OFFSET));
 }
 
-static void _arm_inst_blx(armvm_core_p const core)
+static int _arm_inst_blx(armvm_core_p const core)
 {
 	CCX = 1; rSPR32(CC) = CC_AL;
 	return(__arm__b_bl_blx(core, 1, 1, ARM_IR_BLX_OFFSET));
 }
 
-static void _arm_inst_bx_blx_m(armvm_core_p const core, const int link)
+static int _arm_inst_bx_blx_m(armvm_core_p const core, const int link)
 {
 	if(CONFIG->pedantic.ir_checks) {
 		assert(15 == ARM_IR_RD);
@@ -135,9 +136,11 @@ static void _arm_inst_bx_blx_m(armvm_core_p const core, const int link)
 		else
 			armvm_trace_bx_m(pARMVM_TRACE);
 	}
+
+	return(0);
 }
 
-static void _arm_inst_clz(armvm_core_p const core)
+static int _arm_inst_clz(armvm_core_p const core)
 {
 	if(CONFIG->pedantic.ir_checks) {
 		assert(15 == ARM_IR_R(N));
@@ -156,19 +159,23 @@ static void _arm_inst_clz(armvm_core_p const core)
 
 	if(pARMVM_TRACE) // TODO
 		LOG_ACTION(exit(-1));
+
+	return(rR_IS_PC(D));
 }
 
 typedef void (*arm_dp_fn)(armvm_core_p const core, const uint32_t sop);
 
-static void _alubox_(armvm_core_p const core, arm_dp_fn const fn, const uint32_t sop)
+static int _alubox_(armvm_core_p const core, arm_dp_fn const fn, const uint32_t sop)
 {
 	fn(core, sop);
 
 	if(pARMVM_TRACE)
 		armvm_trace_dp(pARMVM_TRACE);
+
+	return(rR_IS_NOT_PC(D));
 }
 
-static void _arm_inst_dp(armvm_core_p const core, const uint32_t sop, const unsigned carry_in)
+static int _arm_inst_dp(armvm_core_p const core, const uint32_t sop, const unsigned carry_in)
 {
 	if(ARM_IR_DP_S) {
 		switch(ARM_IR_DP_OPCODE) {
@@ -216,7 +223,7 @@ static void _arm_inst_dp(armvm_core_p const core, const uint32_t sop, const unsi
 	UNUSED(carry_in);
 }
 
-static void _arm_inst_dp_immediate(armvm_core_p const core)
+static int _arm_inst_dp_immediate(armvm_core_p const core)
 {
 	const unsigned carry_in = IF_CPSR(C);
 
@@ -235,7 +242,7 @@ if(0) LOG("sop: 0x%08x", sop);
 	return(_arm_inst_dp(core, sop, carry_in));
 }
 
-static void _arm_inst_dp_shift(armvm_core_p const core, const uint32_t rs, const unsigned immediate)
+static int _arm_inst_dp_shift(armvm_core_p const core, const uint32_t rs, const unsigned immediate)
 {
 	if(CCX) CYCLE++;
 
@@ -251,7 +258,7 @@ static void _arm_inst_dp_shift(armvm_core_p const core, const uint32_t rs, const
 	return(_arm_inst_dp(core, sop, carry_in));
 }
 
-static void _arm_inst_dp_shift_register(armvm_core_p const core)
+static int _arm_inst_dp_shift_register(armvm_core_p const core)
 {
 	if(CCX) CYCLE++;
 
@@ -260,14 +267,14 @@ static void _arm_inst_dp_shift_register(armvm_core_p const core)
 	return(_arm_inst_dp_shift(core, rs, 0));
 }
 
-static void _arm_inst_dp_shift_immediate(armvm_core_p const core)
+static int _arm_inst_dp_shift_immediate(armvm_core_p const core)
 {
 	const uint32_t rs = setup_rR_vR(core, ARMVM_TRACE_R(S), ~0, ARM_IR_DP_SHIFT_AMOUNT);
 
 	return(_arm_inst_dp_shift(core, rs, 1));
 }
 
-static void _arm_inst_ldst(armvm_core_p const core, const uint32_t sop)
+static int _arm_inst_ldst(armvm_core_p const core, const uint32_t sop)
 {
 	if(ARM_IR_LDST_BIT(L)) {
 		if(ARM_IR_LDST_BIT(B))
@@ -282,9 +289,11 @@ static void _arm_inst_ldst(armvm_core_p const core, const uint32_t sop)
 	}
 
 	armvm_trace_ldst(pARMVM_TRACE);
+
+	return(0);
 }
 
-static void _arm_inst_ldst_immediate(armvm_core_p const core)
+static int _arm_inst_ldst_immediate(armvm_core_p const core)
 {
 	const uint32_t rm = setup_rR_vR(core, ARMVM_TRACE_R(M), ~0, ARM_IR_LDST_IMMEDIATE_OFFSET);
 	const uint32_t sop = setup_rR_vR(core, ARMVM_TRACE_R(SOP), ~0, rm);
@@ -292,7 +301,7 @@ static void _arm_inst_ldst_immediate(armvm_core_p const core)
 	return(_arm_inst_ldst(core, sop));
 }
 
-static void _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
+static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 {
 	const unsigned bwh  = BMOV(IR, ARM_IR_LDST_BIT_L, 2) | mlBFEXT(IR, 6, 5);
 
@@ -308,15 +317,17 @@ static void _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 	}
 
 	armvm_trace_ldst(pARMVM_TRACE);
+
+	return(0);
 }
 
-static void _arm_inst_ldst_sh_immediate(armvm_core_p const core)
+static int _arm_inst_ldst_sh_immediate(armvm_core_p const core)
 {
 	const uint rm = setup_rR_vR(core, ARMVM_TRACE_R(M), ~0, ARM_IR_LDST_SH_OFFSET);
 	return(_arm_inst_ldst_sh(core, rm));
 }
 
-static void _arm_inst_ldst_sh_register(armvm_core_p const core)
+static int _arm_inst_ldst_sh_register(armvm_core_p const core)
 {
 	if(CONFIG->pedantic.ir_checks)
 		assert(0 == ARM_IR_RS);
@@ -325,12 +336,12 @@ static void _arm_inst_ldst_sh_register(armvm_core_p const core)
 	return(_arm_inst_ldst_sh(core, rm));
 }
 
-static void _arm_inst_mcr_mrc(armvm_core_p const core)
+static int _arm_inst_mcr_mrc(armvm_core_p const core)
 {
 	armvm_trace_mcr_mrc(pARMVM_TRACE);
 
 	if(!CCX)
-		return;
+		return(1);
 
 	uint32_t rd = ARM_IR_MCRC_L ? 0 : irGPR(D);
 	uint32_t *const p2rd = ARM_IR_MCRC_L ? &irGPR(D) : 0;
@@ -343,9 +354,11 @@ static void _arm_inst_mcr_mrc(armvm_core_p const core)
 		} else
 			irGPR(D) = rd;
 	}
+
+	return(rR_IS_NOT_PC(D));
 }
 
-static void _arm_inst_mla(armvm_core_p const core)
+static int _arm_inst_mla(armvm_core_p const core)
 {
 	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 	const uint32_t rm = arm_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
@@ -362,9 +375,11 @@ static void _arm_inst_mla(armvm_core_p const core)
 
 	if(pARMVM_TRACE)
 		armvm_trace_mla(pARMVM_TRACE);
+
+	return(rR_IS_NOT_PC(D));
 }
 
-static void _arm_inst_mrs(armvm_core_p const core)
+static int _arm_inst_mrs(armvm_core_p const core)
 {
 	if(CONFIG->pedantic.ir_checks) {
 		assert(15 == ARM_IR_R(N));
@@ -381,6 +396,8 @@ static void _arm_inst_mrs(armvm_core_p const core)
 
 	if(pARMVM_TRACE)
 		armvm_trace_mrs(pARMVM_TRACE);
+
+	return(rR_IS_NOT_PC(D));
 }
 
 static const uint32_t _armvm_core_msr_priv_mask[] =
@@ -392,7 +409,7 @@ static const uint32_t _armvm_core_msr_unalloc_mask[] =
 static const uint32_t _armvm_core_msr_user_mask[] =
 	{ 0xf0000000, 0xf0000000, 0xf8000000, 0xf8000000, 0xf80f0200 };
 
-static void _arm_inst_msr(armvm_core_p const core, const uint32_t sop)
+static int _arm_inst_msr(armvm_core_p const core, const uint32_t sop)
 {
 	if(CONFIG->pedantic.ir_checks) {
 		assert(15 == ARM_IR_R(D));
@@ -481,9 +498,11 @@ if(0)	LOG("mask: 0x%08x", mask);
 
 		armvm_trace_msr(pARMVM_TRACE);
 	}
+
+	return(0);
 }
 
-static void _arm_inst_msr_register(armvm_core_p const core)
+static int _arm_inst_msr_register(armvm_core_p const core)
 {
 	if(CONFIG->pedantic.ir_checks) {
 		assert(0 == ARM_IR_R(S));
@@ -495,7 +514,7 @@ static void _arm_inst_msr_register(armvm_core_p const core)
 	return(_arm_inst_msr(core, sop));
 }
 
-static void _arm_inst_umull(armvm_core_p const core)
+static int _arm_inst_umull(armvm_core_p const core)
 {
 	const uint32_t rs = arm_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
 	const uint32_t rm = arm_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
@@ -517,11 +536,13 @@ static void _arm_inst_umull(armvm_core_p const core)
 
 	if(pARMVM_TRACE)
 		armvm_trace_umull(pARMVM_TRACE);
+
+	return(rR_IS_NOT_PC(D));
 }
 
 /* **** */
 
-static void armvm_core_arm__step__group0_ldst(armvm_core_p const core)
+static int armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 {
 	if(9 != mlBFTST(IR, 7, 4)) {
 		if(ARM_IR_LDST_SH_BIT(I))
@@ -533,7 +554,7 @@ static void armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm__step__group0_misc(armvm_core_p const core)
+static int armvm_core_arm__step__group0_misc(armvm_core_p const core)
 {
 	switch(mlBFTST(IR, 27, 20)) {
 		case 0x01000000:
@@ -557,7 +578,7 @@ static void armvm_core_arm__step__group0_misc(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm__step_group0(armvm_core_p const core)
+static int armvm_core_arm__step_group0(armvm_core_p const core)
 {
 	if(BEXT(IR, 4)) {
 		if(BEXT(IR, 7))
@@ -577,12 +598,12 @@ static void armvm_core_arm__step_group0(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm__step__group1_misc(armvm_core_p const core)
+static int armvm_core_arm__step__group1_misc(armvm_core_p const core)
 {
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm__step_group1(armvm_core_p const core)
+static int armvm_core_arm__step_group1(armvm_core_p const core)
 {
 	if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
 		return(armvm_core_arm__step__group1_misc(core));
@@ -592,7 +613,7 @@ static void armvm_core_arm__step_group1(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-static void armvm_core_arm__step_group7(armvm_core_p const core)
+static int armvm_core_arm__step_group7(armvm_core_p const core)
 {
 	const uint32_t mask = mlBF(27, 24) | _BV(20) | _BV(4);
 
@@ -604,13 +625,13 @@ static void armvm_core_arm__step_group7(armvm_core_p const core)
 	return(__arm_decode_fail(core));
 }
 
-void armvm_core_arm_step(armvm_core_p const core)
+int armvm_core_arm_step(armvm_core_p const core)
 {
 	IP = setup_rR_vR(core, ARMVM_TRACE_R(IP), ~0, PC); // STUPID KLUDGE!!
 	PC = ARM_IP_NEXT;
 
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 4))
-		return;
+		return(1);
 
 	setup_rR_vR(core, ARMVM_TRACE_R(IR), ~0, IR); // STUPID KLUDGE!!!
 

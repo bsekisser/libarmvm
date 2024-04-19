@@ -112,7 +112,7 @@ int armvm_core_in_a_privaleged_mode(armvm_core_p const core);
 void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr);
 void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr);
 void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core);
-void armvm_core_step(armvm_core_p const core);
+int armvm_core_step(armvm_core_p const core);
 
 /* **** */
 

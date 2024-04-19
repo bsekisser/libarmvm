@@ -126,5 +126,5 @@ uint64_t armvm_spr64(armvm_p const avm, const unsigned r)
 	return(SPR64x(r));
 }
 
-void armvm_step(armvm_p const avm)
+int armvm_step(armvm_p const avm)
 { return(armvm_core_step(avm->core)); }

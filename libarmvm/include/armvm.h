@@ -45,4 +45,4 @@ void armvm_reset(armvm_p const avm);
 uint64_t armvm_run(armvm_p const avm, uint64_t cycles);
 uint32_t armvm_spr32(armvm_p const avm, const unsigned r);
 uint64_t armvm_spr64(armvm_p const avm, const unsigned r);
-void armvm_step(armvm_p const avm);
+int armvm_step(armvm_p const avm);

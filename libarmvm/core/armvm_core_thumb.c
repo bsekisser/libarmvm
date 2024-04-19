@@ -20,5 +20,5 @@
 
 /* **** */
 
-void armvm_core_thumb_step(armvm_core_p const core)
-{ LOG_ACTION(exit(-1)); UNUSED(core); }
+int armvm_core_thumb_step(armvm_core_p const core)
+{ LOG_ACTION(return(-1)); UNUSED(core); }
