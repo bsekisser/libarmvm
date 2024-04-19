@@ -26,6 +26,8 @@ static void __arm_decode_fail(armvm_trace_p const atp)
 
 static void _armvm_trace_b_bl_blx(armvm_trace_p const atp, const uint32_t new_pc, const int link, const int blx)
 {
+	if(!atp) return;
+
 	_armvm_trace(atp, "b%s%s(0x%08x)",
 		link ? "l" : "",
 		blx ? "x" : "", new_pc);
@@ -33,6 +35,8 @@ static void _armvm_trace_b_bl_blx(armvm_trace_p const atp, const uint32_t new_pc
 
 static void _armvm_trace_bx_blx_m(armvm_trace_p const atp, const int link)
 {
+	if(!atp) return;
+
 	_armvm_trace_start(atp, "b%sx(%s)",
 		link ? "l" : "", rR_NAME(M));
 
@@ -238,6 +242,8 @@ void armvm_trace_ldst(armvm_trace_p const atp)
 
 void armvm_trace_mcr_mrc(armvm_trace_p const atp)
 {
+	if(!atp) return;
+
 	_armvm_trace(atp, "m%s(p(%u), %u, %s, %s, %s, %u)",
 		ARM_IR_MCRC_L ? "rc" : "cr", ARM_IR_MCRC_CPx, ARM_IR_MCRC_OP1,
 		rR_NAME(D),
@@ -265,6 +271,8 @@ void armvm_trace_mla(armvm_trace_p const atp)
 
 void armvm_trace_mrs(armvm_trace_p const atp)
 {
+	if(!atp) return;
+
 	_armvm_trace_start(atp, "mrs(%s, %s)", rR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr");
 	_armvm_trace_comment(atp, "0x%08x", vR(D));
 	__trace_end(atp);

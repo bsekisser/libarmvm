@@ -288,7 +288,8 @@ static int _arm_inst_ldst(armvm_core_p const core, const uint32_t sop)
 			__ldst_str(core, sop);
 	}
 
-	armvm_trace_ldst(pARMVM_TRACE);
+	if(pARMVM_TRACE)
+		armvm_trace_ldst(pARMVM_TRACE);
 
 	return(0);
 }
@@ -316,7 +317,8 @@ static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 			return(__arm_decode_fail(core));;
 	}
 
-	armvm_trace_ldst(pARMVM_TRACE);
+	if(pARMVM_TRACE)
+		armvm_trace_ldst(pARMVM_TRACE);
 
 	return(0);
 }
@@ -338,7 +340,8 @@ static int _arm_inst_ldst_sh_register(armvm_core_p const core)
 
 static int _arm_inst_mcr_mrc(armvm_core_p const core)
 {
-	armvm_trace_mcr_mrc(pARMVM_TRACE);
+	if(pARMVM_TRACE)
+		armvm_trace_mcr_mrc(pARMVM_TRACE);
 
 	if(!CCX)
 		return(1);
