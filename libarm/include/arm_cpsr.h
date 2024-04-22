@@ -6,6 +6,10 @@
 
 /* **** */
 
+#include <stdint.h>
+
+/* **** */
+
 enum {
 	ARM_CPSR_M32 = 4,
 	ARM_CPSR_T = 5,
