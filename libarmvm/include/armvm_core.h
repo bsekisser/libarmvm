@@ -101,7 +101,7 @@ typedef struct armvm_core_t {
 	uint32_t* spsr;
 #define pSPSR pARMVM_CORE->spsr
 //
-	armvm_trace_p armvm_trace;
+	armvm_trace_t armvm_trace;
 	armvm_core_config_t config;
 //
 	armvm_p armvm;

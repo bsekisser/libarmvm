@@ -2,6 +2,10 @@
 
 /* **** */
 
+#include "armvm_core.h"
+
+/* **** */
+
 #include "libarm/include/arm_cpsr.h"
 #include "libarm/include/arm_ir.h"
 #include "libarm/include/arm_shiftbox.h"
@@ -10,6 +14,10 @@
 /* **** */
 
 #include "libbse/include/unused.h"
+
+/* **** */
+
+#include <stdint.h>
 
 /* **** */
 

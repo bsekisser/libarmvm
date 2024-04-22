@@ -5,7 +5,7 @@
 typedef struct armvm_trace_t** armvm_trace_h;
 typedef struct armvm_trace_t* armvm_trace_p;
 
-#include "armvm_core.h"
+//#include "armvm_core.h"
 //#include "armvm.h"
 
 /* **** */
@@ -47,7 +47,7 @@ typedef struct armvm_trace_t {
 //	unsigned rr64[_ARMVM_TRACE_R64_COUNT_];
 	unsigned rr[_ARMVM_TRACE_R_COUNT_];
 //
-	armvm_core_p armvm_core;
+//	armvm_core_p armvm_core;
 }armvm_trace_t;
 
 /* **** */

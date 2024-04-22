@@ -23,5 +23,6 @@ typedef struct armvm_core_config_t {
 	struct {
 		unsigned ir_checks:1;
 	}pedantic;
+	unsigned trace:1;
 	unsigned version;
 }armvm_core_config_t;

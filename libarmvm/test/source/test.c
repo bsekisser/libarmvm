@@ -142,11 +142,13 @@ int main(int argc, char** argv)
 {
 	_preflight_tests();
 
-	armvm_trace_t armvm_trace;
+//	armvm_trace_t armvm_trace;
 
 	armvm_alloc_init(armvm_alloc(&pARMVM));
-	pARMVM->core->armvm_trace = &armvm_trace;
-	armvm_trace.armvm_core = pARMVM->core;
+
+	pARMVM->core->config.trace = 1;
+//	pARMVM->core->armvm_trace = &armvm_trace;
+//	armvm_trace.armvm_core = pARMVM->core;
 
 	armvm_mem_mmap(pARMVM->mem, 0, sizeof(t->mem), 0, t->mem);
 

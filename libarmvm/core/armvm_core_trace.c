@@ -2,8 +2,10 @@
 
 /* **** */
 
-#include "armvm_trace_glue.h"
+//#include "armvm_trace_glue.h"
 #include "armvm_trace.h"
+
+#include "armvm_core_glue.h"
 
 /* **** */
 
@@ -17,12 +19,12 @@
 
 /* **** */
 
-void __trace_end(armvm_trace_p const atp)
-{ if(atp) printf(")\n"); }
+void __trace_end(armvm_core_p const core)
+{ if(core) printf(")\n"); }
 
-int __trace_start(armvm_trace_p const atp)
+int __trace_start(armvm_core_p const core)
 {
-	if(!atp) return(0);
+	if(!core->config.trace) return(0);
 
 	int thumb = IP & 1;
 
@@ -37,9 +39,9 @@ int __trace_start(armvm_trace_p const atp)
 	return(1);
 }
 
-void _armvm_trace_(armvm_trace_p const atp, const char* format, ...)
+void _armvm_trace_(armvm_core_p const core, const char* format, ...)
 {
-	if(!atp) return;
+	if(!core->config.trace) return;
 
 	va_list ap;
 	va_start(ap, format);
@@ -49,9 +51,9 @@ void _armvm_trace_(armvm_trace_p const atp, const char* format, ...)
 
 /* **** */
 
-void _armvm_trace_comment(armvm_trace_p const atp, const char* format, ...)
+void _armvm_trace_comment(armvm_core_p const core, const char* format, ...)
 {
-	if(!atp) return;
+	if(!core->config.trace) return;
 
 	printf("; /* ");
 
@@ -63,40 +65,42 @@ void _armvm_trace_comment(armvm_trace_p const atp, const char* format, ...)
 	printf(" */");
 }
 
-void _armvm_trace_end(armvm_trace_p const atp, const char* format, ...)
+void _armvm_trace_end(armvm_core_p const core, const char* format, ...)
 {
-	if(!atp) return;
+	if(!core->config.trace) return;
 
 	va_list ap;
 	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
 
-	__trace_end(atp);
+	__trace_end(core);
 }
 
-void _armvm_trace_start(armvm_trace_p const atp, const char* format, ...)
+int _armvm_trace_start(armvm_core_p const core, const char* format, ...)
 {
-	if(!atp) return;
+	if(!core->config.trace) return(0);
 
-	__trace_start(atp);
+	__trace_start(core);
 
 	va_list ap;
 	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
+
+	return(1);
 }
 
-void _armvm_trace(armvm_trace_p const atp, const char* format, ...)
+void _armvm_trace(armvm_core_p const core, const char* format, ...)
 {
-	if(!atp) return;
+	if(!core->config.trace) return;
 
-	__trace_start(atp);
+	__trace_start(core);
 
 	va_list ap;
 	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
 
-	__trace_end(atp);
+	__trace_end(core);
 }

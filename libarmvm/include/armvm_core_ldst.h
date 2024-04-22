@@ -16,13 +16,17 @@
 
 /* **** */
 
+#include "local/core_reg.h"
+
+/* **** */
+
 static uint32_t __ldst__ea(armvm_core_p const core, const uint32_t sop, uint32_t* wb_ea)
 {
 	const unsigned bit_p = ARM_IR_LDST_BIT(P);
 
 	assert(!(!bit_p && ARM_IR_LDST_BIT(W)));
 
-	const uint32_t rn = arm_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
+	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 	const uint32_t offset = ARM_IR_LDST_BIT(U) ? sop : -sop;
 
 	const uint32_t pre_offset = bit_p ? offset : 0;
@@ -65,7 +69,7 @@ static void __ldst_ldr(armvm_core_p const core, const uint32_t sop)
 	if(ea_xx && CP15_REG1_BIT(U))
 		rd = _ror(rd, (ea_xx << 3));
 
-	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
+	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(T, rd & 1);
@@ -83,7 +87,7 @@ static void __ldst_ldrb(armvm_core_p const core, const uint32_t sop)
 
 	__ldst__ea_wb(core, wb_ea);
 
-	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), (uint32_t)(uint8_t)rd);
+	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), (uint32_t)(uint8_t)rd);
 }
 
 static void __ldst_ldrh(armvm_core_p const core, const uint32_t sop)
@@ -106,7 +110,7 @@ static void __ldst_ldrh(armvm_core_p const core, const uint32_t sop)
 
 	__ldst__ea_wb(core, wb_ea);
 
-	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), (uint32_t)(uint16_t)rd);
+	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), (uint32_t)(uint16_t)rd);
 }
 
 static void __ldst_ldrsb(armvm_core_p const core, const uint32_t sop)
@@ -121,7 +125,7 @@ static void __ldst_ldrsb(armvm_core_p const core, const uint32_t sop)
 
 	__ldst__ea_wb(core, wb_ea);
 
-	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D),
+	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D),
 		(uint32_t)(int32_t)(int8_t)rd);
 }
 
@@ -145,7 +149,7 @@ static void __ldst_ldrsh(armvm_core_p const core, const uint32_t sop)
 
 	__ldst__ea_wb(core, wb_ea);
 
-	arm_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D),
+	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D),
 		(uint32_t)(int16_t)rd);
 }
 
@@ -157,7 +161,7 @@ static void __ldst_str(armvm_core_p const core, const uint32_t sop)
 //	if((ea & 3) && CP15_REG1_BIT(U))
 //		return(armvm_core_exception_data_abort(core));
 
-	const uint32_t rd = arm_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+	const uint32_t rd = core_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
 	if(0 > armvm_core_mem_write(core, ea, 4, rd))
 		return;
@@ -170,7 +174,7 @@ static void __ldst_strb(armvm_core_p const core, const uint32_t sop)
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
 
-	const uint32_t rd = arm_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+	const uint32_t rd = core_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
 	if(0 > armvm_core_mem_write(core, ea, 1, (uint32_t)(uint8_t)rd))
 		return;
@@ -188,7 +192,7 @@ static void __ldst_strh(armvm_core_p const core, const uint32_t sop)
 		return;
 	}
 
-	const uint32_t rd = arm_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+	const uint32_t rd = core_reg_src(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
 	if(0 > armvm_core_mem_write(core, ea, 2, (uint32_t)(uint16_t)rd))
 		return

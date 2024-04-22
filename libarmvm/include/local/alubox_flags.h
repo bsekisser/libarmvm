@@ -14,7 +14,7 @@
 
 /* **** */
 
-#include "local/alu_t.h"
+#include "local/core_reg.h"
 
 /* **** */
 
@@ -62,22 +62,22 @@ static void _alubox_flags_x_add_sub(armvm_core_p const core, const uint32_t rd,
 	ARM_CPSR_BMAS(V, vf);
 }
 
-static void alubox_flags_add(armvm_core_p const core, alu_p const alu)
-{ _alubox_flags_x_add_sub(core, alu->rd, alu->rn, alu->sop); }
+static void alubox_flags_add(armvm_core_p const core)
+{ _alubox_flags_x_add_sub(core, vR(D), vR(N), vR(SOP)); }
 
-//static void alubox_flags_sub(armvm_core_p const core, alu_p const alu)
-//{ _alubox_flags_x_add_sub(core, alu->rd, alu->rn, ~alu->sop); }
+//static void alubox_flags_sub(armvm_core_p const core)
+//{ _alubox_flags_x_add_sub(core, vR(D), vR(N), ~vR(SOP)); }
 
-static void alubox_flags_sub(armvm_core_p const core, alu_p const alu)
+static void alubox_flags_sub(armvm_core_p const core)
 {
-	_alubox_flags_nz(core, alu->rd);
+	_alubox_flags_nz(core, vR(D));
 
-	uint32_t rd = 0, sop = ~alu->sop;
+	uint32_t rd = 0, sop = ~vR(SOP);
 
-	unsigned cf = __builtin_sub_overflow(alu->rn, sop, &rd);
+	unsigned cf = __builtin_sub_overflow(vR(N), sop, &rd);
 	ARM_CPSR_BMAS(C, cf);
 
 	int32_t sardine = 0;
-	unsigned vf = __builtin_sub_overflow((int32_t)alu->rn, (int32_t)sop, &sardine);
+	unsigned vf = __builtin_sub_overflow((int32_t)vR(N), (int32_t)sop, &sardine);
 	ARM_CPSR_BMAS(V, vf);
 }
