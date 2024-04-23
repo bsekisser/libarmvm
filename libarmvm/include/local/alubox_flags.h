@@ -2,6 +2,7 @@
 
 /* **** */
 
+#include "armvm_core_shiftbox.h"
 #include "armvm_core.h"
 
 /* **** */
@@ -11,6 +12,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/unused.h"
 
 /* **** */
 
@@ -28,6 +30,7 @@ static void _alubox_flags_nz(armvm_core_p const core, const uint32_t rd)
 	ARM_CPSR_BMAS(Z, 0 == rd);
 }
 
+UNUSED_FN
 static void _alubox_flags_nzc(armvm_core_p const core, const uint32_t rd)
 {
 	ARM_CPSR_BMAS(C, _shifter_operand_c(core));
@@ -62,12 +65,15 @@ static void _alubox_flags_x_add_sub(armvm_core_p const core, const uint32_t rd,
 	ARM_CPSR_BMAS(V, vf);
 }
 
+UNUSED_FN
 static void alubox_flags_add(armvm_core_p const core)
 { _alubox_flags_x_add_sub(core, vR(D), vR(N), vR(SOP)); }
 
+//UNUSED_FN
 //static void alubox_flags_sub(armvm_core_p const core)
 //{ _alubox_flags_x_add_sub(core, vR(D), vR(N), ~vR(SOP)); }
 
+UNUSED_FN
 static void alubox_flags_sub(armvm_core_p const core)
 {
 	_alubox_flags_nz(core, vR(D));

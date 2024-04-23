@@ -9,6 +9,7 @@
 
 /* **** */
 
+#include "libarm/include/arm_cpsr.h"
 #include "libarm/include/arm_ir.h"
 #include "libarm/include/arm_strings.h"
 
@@ -26,7 +27,8 @@ int __trace_start(armvm_core_p const core)
 {
 	if(!core->config.trace) return(0);
 
-	int thumb = IP & 1;
+//	int thumb = IP & 1;
+	int thumb = ARM_CPSR_BEXT(Thumb);
 
 //	printf("%c", thumb ? 'T' : 'A');
 //	printf("(0x%08x(0x%08x):%s: ", IP & (~1 << (1 >> thumb)), IR, arm_cc_ucase_string[1][rSPR32(CC)]);

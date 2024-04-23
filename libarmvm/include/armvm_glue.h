@@ -15,6 +15,7 @@
 
 #define LR vmGPR(LR)
 #define PC vmGPR(PC)
+#define SP vmGPR(SP)
 
 #define rABT(_x) rSPR32(ABT_##_x)
 #define rFIQ(_x) rSPR32(FIQ_##_x)

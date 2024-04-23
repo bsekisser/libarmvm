@@ -71,7 +71,7 @@ void armvm_core_exception_reset(armvm_core_p const core)
 	PC = _high_vectors(core) | 0x00;
 }
 
-void armvm_core_exception_swi(armvm_core_p const core)
+int armvm_core_exception_swi(armvm_core_p const core)
 {
 	rSVC(R14) = ARM_PC_NEXT;
 	rSVC(SPSR) = CPSR;
@@ -85,9 +85,11 @@ void armvm_core_exception_swi(armvm_core_p const core)
 	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
 
 	PC = _high_vectors(core) | 0x08;
+
+	return(0);
 }
 
-void armvm_core_exception_undefined_instruction(armvm_core_p const core)
+int armvm_core_exception_undefined_instruction(armvm_core_p const core)
 {
 	rUND(R14) = ARM_PC_NEXT;
 	rUND(SPSR) = CPSR;
@@ -101,4 +103,6 @@ void armvm_core_exception_undefined_instruction(armvm_core_p const core)
 	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
 
 	PC = _high_vectors(core) | 0x04;
+
+	return(0);
 }

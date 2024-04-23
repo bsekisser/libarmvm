@@ -6,6 +6,10 @@
 
 /* **** */
 
+#include "libarm/include/arm_cpsr.h"
+
+/* **** */
+
 #include <stdint.h>
 
 /* **** */
