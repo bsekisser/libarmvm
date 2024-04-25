@@ -31,24 +31,12 @@ $(ARMVM_CORE_OBJS): $(ARMVM_CORE_SRCS)
 armvm_core.a: $(ARMVM_CORE_OBJS)
 	$(MAKE) -C core
 
-ARMVM_TRACE_SRCS = $(wildcard trace/*.c)
-ARMVM_TRACE_OBJS = $(patsubst trace/%.c, $(OBJ_DIR)/%.o, $(ARMVM_TRACE_SRCS))
-
-$(ARMVM_TRACE_OBJS): $(ARMVM_TRACE_SRCS)
-
-#$(OBJ_DIR)/armvm_trace.a: $(ARMVM_TRACE_OBJS)
-armvm_trace.a: $(ARMVM_TRACE_OBJS)
-	$(MAKE) -C trace
-
-#LIBS = armvm.a armvm_core.a armvm_trace.a
 LIBS = armvm.a armvm_core.a
 
 LIBARMVM_OBJS = $(ARMVM_OBJS) \
 	$(ARMVM_CORE_OBJS)
-#	$(ARMVM_TRACE_OBJS)
 
 $(OBJ_TARGET): $(LIBS) $(OBJ_TARGET)($(LIBARMVM_OBJS))
-
 
 	
 clean:
