@@ -12,7 +12,7 @@
 
 /* **** */
 
-#include "local/alubox.h"
+#include "local/alubox_arm.h"
 #include "local/core_arm_trace.h"
 #include "local/core_reg.h"
 #include "local/ldst.h"
@@ -182,12 +182,13 @@ static int _arm_inst_clz(armvm_core_p const core)
 	return(rR_IS_PC(D));
 }
 
-static int _arm_inst_dp(armvm_core_p const core)
+static int _arm_inst_dp(armvm_core_p const core,
+	const unsigned shift_type, const unsigned immediate)
 {
 	core_reg_src_setup(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 	core_reg_dst(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
-	alubox(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S, 1);
+	alubox_shift(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S, shift_type, immediate);
 
 	if(core->config.trace)
 		armvm_trace_dp(core);
@@ -200,11 +201,12 @@ static int _arm_inst_dp_immediate(armvm_core_p const core)
 	const uint32_t rm = setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_DPI_IMMEDIATE);
 	const uint32_t rs = setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DPI_ROTATE_AMOUNT);
 
-	const uint32_t sop = arm_shiftbox(ARM_SOP_ROR, rm, rs, IF_CPSR(C));
+//	const uint32_t sop = arm_shiftbox(ARM_SOP_ROR, rm, rs, IF_CPSR(C));
 
-	(void)setup_vR(core, ARMVM_TRACE_R(SOP), sop);
+//	(void)setup_vR(core, ARMVM_TRACE_R(SOP), sop);
 
-	return(_arm_inst_dp(core));
+	return(_arm_inst_dp(core, ARM_SOP_ROR, 0));
+	UNUSED(rm, rs);
 }
 
 static int _arm_inst_dp_shift(armvm_core_p const core, unsigned immediate)
@@ -213,12 +215,13 @@ static int _arm_inst_dp_shift(armvm_core_p const core, unsigned immediate)
 
 	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 
-	const uint32_t sop = (immediate ? arm_shiftbox_immediate : arm_shiftbox)
-		(ARM_IR_DP_SHIFT_TYPE, rm, vR(S), IF_CPSR(C));
+//	const uint32_t sop = (immediate ? arm_shiftbox_immediate : arm_shiftbox)
+//		(ARM_IR_DP_SHIFT_TYPE, rm, vR(S), IF_CPSR(C));
 
-	setup_vR(core, ARMVM_TRACE_R(SOP), sop);
+//	setup_vR(core, ARMVM_TRACE_R(SOP), sop);
 
-	return(_arm_inst_dp(core));
+	return(_arm_inst_dp(core, ARM_IR_DP_SHIFT_TYPE, immediate));
+	UNUSED(rm);
 }
 
 static int _arm_inst_dp_shift_register(armvm_core_p const core)
