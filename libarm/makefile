@@ -4,7 +4,7 @@ GIT_DIR = $(TOP_DIR)/git
 ARFLAGS += -U
 
 CFLAGS += -g -Wall -Wextra
-#CFLAGS += -O2 -march=native
+CFLAGS += -O2 -march=native
 CFLAGS += -MMD -MP
 CFLAGS += $(INCLUDE)
 
