@@ -54,11 +54,11 @@ void alubox_thumb(armvm_core_p const core, const unsigned operation, const unsig
 
 	if(s) switch(operation) {
 		case ARM_ADD:
-			_alubox_flags_x_add_sub(core, rd, rn, sop);
+			_alubox_flags_x_add(core, rd, rn, sop);
 		break;
 		case ARM_CMP:
 		case ARM_SUB:
-			_alubox_flags_x_add_sub(core, rd, ~rn, sop);
+			_alubox_flags_x_sub(core, rd, rn, sop);
 		break;
 		default:
 			_alubox_flags_nz(core, rd);

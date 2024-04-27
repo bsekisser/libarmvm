@@ -44,5 +44,14 @@ extern "C" {
 	fail_if(0 != rR(0));
 	check_nzcv(t, 0, 1, 1, 1);
 
+	rR(0) = 0; rR(2) = ~0; rR(3) = 1;
+	adds(r1, r2, r3);
+	adcs(r0, r0, r0);
+	run_test(t);
+	fail_if(0 != rR(1));
+	fail_if(1 != rR(0));
+	check_nzcv(t, 0, 0, 0, 0);
+
+
 	return(1);
 }}

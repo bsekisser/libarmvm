@@ -64,26 +64,3 @@ static void _alubox_flags_x_add_sub(armvm_core_p const core, const uint32_t rd,
 	const unsigned vf = BEXT(ovec, 31);
 	ARM_CPSR_BMAS(V, vf);
 }
-
-UNUSED_FN
-static void alubox_flags_add(armvm_core_p const core)
-{ _alubox_flags_x_add_sub(core, vR(D), vR(N), vR(SOP)); }
-
-//UNUSED_FN
-//static void alubox_flags_sub(armvm_core_p const core)
-//{ _alubox_flags_x_add_sub(core, vR(D), vR(N), ~vR(SOP)); }
-
-UNUSED_FN
-static void alubox_flags_sub(armvm_core_p const core)
-{
-	_alubox_flags_nz(core, vR(D));
-
-	uint32_t rd = 0, sop = ~vR(SOP);
-
-	unsigned cf = __builtin_sub_overflow(vR(N), sop, &rd);
-	ARM_CPSR_BMAS(C, cf);
-
-	int32_t sardine = 0;
-	unsigned vf = __builtin_sub_overflow((int32_t)vR(N), (int32_t)sop, &sardine);
-	ARM_CPSR_BMAS(V, vf);
-}

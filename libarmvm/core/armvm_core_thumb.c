@@ -15,14 +15,14 @@
 
 #include "armvm.h"
 
-#include "local/alubox_thumb.h"
-#include "local/core_reg_t.h"
+#include "local/alubox.h"
 #include "local/thumb_ldstm.h"
 
 /* **** */
 
 #include "libarm/include/arm_cc.h"
 #include "libarm/include/arm_disasm.h"
+#include "libarm/include/arm_strings.h"
 
 /* **** */
 
@@ -49,19 +49,17 @@ static int __thumb_fail_decode(armvm_core_p const core)
 }
 
 static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
-	const int bit_i, reg_p const p2rm)
+	const int bit_i)
 {
 	const uint8_t op2 = BEXT(IR, 9);
 
-	reg_t tRD, tRN;
-
-	reg_p p2rn = core_reg_t_rR(core, &tRN, ARMVM_TRACE_R(N), mlBFEXT(IR, 5, 3));
-	reg_p p2rd = core_reg_t_rR(core, &tRD, ARMVM_TRACE_R(D), mlBFEXT(IR, 2, 0));
+	setup_rRml(core, ARMVM_TRACE_R(N), 5, 3);
+	core_reg_dst_decode(core, ARMVM_TRACE_R(D), 2, 0);
 
 	const unsigned op_list[2] = { ARM_ADD, ARM_SUB };
 	const unsigned opcode = op_list[op2];
 
-	alubox_thumb(core, opcode, 1, p2rd, p2rn, p2rm->v);
+	alubox(core, opcode, 1, 0);
 
 	if(!__trace_start(core))
 		return(1);
@@ -70,20 +68,20 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 	{
 		if(op2 || vR(M)) {
 			_armvm_trace_(core, "%ss(%s, %s, %01u)",
-				arm_dp_inst_string[opcode], tR_NAME(D), tR_NAME(N), vR(M));
+				arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), vR(M));
 			_armvm_trace_comment(core, "0x%08x %s%01u = 0x%08x",
 				vR(N), arm_dp_op_string[opcode], vR(M), vR(D));
 		}
 		else // pseudo op mov is encoded as adds rd, rn, 0
 		{
-			_armvm_trace_(core, "mov(%s, %s)", tR_NAME(D), tR_NAME(N));
+			_armvm_trace_(core, "mov(%s, %s)", rR_NAME(D), rR_NAME(N));
 			_armvm_trace_comment(core, "0x%08x", vR(D));
 		}
 	}
 	else
 	{
 		_armvm_trace_(core, "%ss(%s, %s, %s)",
-			arm_dp_inst_string[opcode], tR_NAME(D), tR_NAME(N), rR_NAME(M));
+			arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rR_NAME(M));
 		_armvm_trace_comment(core, "0x%08x %s0x%08x = 0x%08x",
 			vR(N), arm_dp_op_string[opcode], vR(M), vR(D));
 	}
@@ -94,11 +92,9 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 
 static int _armvm_core_thumb_add_sub_rn_rd_imm3(armvm_core_p const core)
 {
-	reg_t tRM;
+	(void)setup_vRml(core, ARMVM_TRACE_R(M), 8, 6);
 
-	reg_p p2rm = core_reg_t_vR(core, &tRM, ARMVM_TRACE_R(M), mlBFEXT(IR, 8, 6));
-
-	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 1, p2rm));
+	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 1));
 }
 
 static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_p const core)
@@ -125,19 +121,18 @@ static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_p const core)
 
 static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
 {
-	reg_t tRD, tRM, tRN;
-
 	const uint8_t opcode = mlBFEXT(IR, 12, 11);
-	const reg_p rm = core_reg_t_vR(core, &tRM, ARMVM_TRACE_R(M), mlBFEXT(IR, 7, 0));
-	const reg_p rn = core_reg_t_rR(core, &tRN, ARMVM_TRACE_R(N), mlBFEXT(IR, 10, 8));
 
-	core_reg_t_rR(core, &tRD, ARMVM_TRACE_R(D), rn->r);
+	const uint32_t rm = setup_vRml(core, ARMVM_TRACE_R(M), 7, 0);
+	setup_rRml(core, ARMVM_TRACE_R(N), 10, 8);
+
+	setup_rR(core, ARMVM_TRACE_R(D), rR(N));
 
 	const unsigned op_list[4] = {
 		ARM_MOV, ARM_CMP, ARM_ADD, ARM_SUB
 	}, operation = op_list[opcode];
 
-	alubox_thumb(core, operation, 1, &tRD, rn, rm->v);
+	alubox(core, operation, 1, 0);
 
 	if(!__trace_start(core))
 		return(1);
@@ -146,12 +141,12 @@ static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
 	{
 		default:
 			_armvm_trace_(core, "%s(%s, 0x%03x)",
-				arm_dp_inst_string[operation], tR_NAME(D), tRM.v);
+				arm_dp_inst_string[operation], rR_NAME(D), vR(M));
 			_armvm_trace_comment(core, "0x%08x %s0x%03x = 0x%08x",
-					tRN.v, arm_dp_op_string[operation], tRM.v, tRD.v);
+					vR(N), arm_dp_op_string[operation], rm, vR(D));
 		break;
 		case ARM_MOV:
-			_armvm_trace_(core, "movs(%s, 0x%03x)", tR_NAME(D), tRM.v);
+			_armvm_trace_(core, "movs(%s, 0x%03x)", rR_NAME(D), rm);
 		break;
 	}
 
@@ -270,17 +265,16 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 	const int bit_l = BEXT(IR, 11);
 	const uint16_t imm8 = mlBFMOV(IR, 7, 0, 2);
 
-	reg_t tRD, tRN;
+	setup_rRml(core, ARMVM_TRACE_R(D), 10, 8);
 
-	core_reg_t_rR(core, &tRD, ARMVM_TRACE_R(D), mlBFEXT(IR, 10, 8));
-
+	uint32_t rn;
 	switch(operation)
 	{
 		case	0x4000:
-			_core_reg_t_rR_vR(core, &tRN, ARMVM_TRACE_R(N), ARMVM_GPR(PC), PC & ~3U);
+			rn = setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(PC), PC & ~3U);
 			break;
 		case	0x9000:
-			_core_reg_t_rR_vR(core, &tRN, ARMVM_TRACE_R(N), ARMVM_GPR(SP), SP);
+			rn = setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP), SP);
 			break;
 		default:
 			LOG("operation = 0x%03x", operation);
@@ -289,25 +283,25 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 			break;
 	}
 
-	const uint32_t ea = tRN.v + imm8;
+	const uint32_t ea = setup_vR(core, ARMVM_TRACE_R(EA), rn + imm8);
 	int read_rval = 0;
 
 	if(bit_l) {
-		read_rval = armvm_core_mem_read(core, &tRD.v, ea, sizeof(uint32_t));
+		read_rval = armvm_core_mem_read(core, &vR(D), ea, 4);
 		if(1 == read_rval)
-			core_reg_t_dst(core, &tRD);
+			core_reg_wb(core, ARMVM_TRACE_R(D));
 	} else {
-		core_reg_t_src(core, &tRD);
-		armvm_core_mem_write(core, ea, sizeof(uint32_t), tRD.v);
+		core_reg_src_load(core, ARMVM_TRACE_R(D));
+		armvm_core_mem_write(core, ea, 4, vR(D));
 	}
 
 	if(__trace_start(core)) {
 		_armvm_trace_(core, "%s(%s, %s[0x%03x])",
-			bit_l ? "ldr" : "str", tR_NAME(D), tR_NAME(N), imm8);
+			bit_l ? "ldr" : "str", rR_NAME(D), rR_NAME(N), imm8);
 
 		if(!bit_l || (1 == read_rval))
 			_armvm_trace_comment(core, "[0x%08x](0x%08x)",
-				ea, tRD.v);
+				ea, vR(D));
 
 		__trace_end(core);
 	}
@@ -321,10 +315,7 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
 		const int bit_l = BEXT(IR, 11);
 //	}bit;
 
-	reg_t tRN;
-
-	(void)core_reg_t_rR(core, &tRN, ARMVM_TRACE_R(N), mlBFEXT(IR, 10, 8));
-	const uint32_t rn = core_reg_t_src(core, &tRN);
+	const uint32_t rn = core_reg_src_decode(core, ARMVM_TRACE_R(N), 10, 8);
 
 	const uint8_t rlist = mlBFEXT(IR, 7, 0);
 
@@ -368,12 +359,12 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
 	const int wb = !bit_l || wb_l;
 
 	if(wb)
-		core_reg_t_dst_wb(core, &tRN, ea);
+		core_reg_wb_v(core, ARMVM_TRACE_R(N), ea);
 
 	reglist[8] = 0;
 
 	if(_armvm_trace_start(core, "%smia(%s%s, r{%s})",
-			bit_l ? "ld" : "st", tR_NAME(N),
+			bit_l ? "ld" : "st", rR_NAME(N),
 			wb ? "!" : "", reglist)) {
 		_armvm_trace_comment(core, "0x%08x", rn);
 
@@ -386,7 +377,7 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
 static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_p const core)
 {
 	const uint32_t shift_type = mlBFEXT(IR, 12, 11);
-	const uint32_t rs = setup_rR_vR(core, ARMVM_TRACE_R(S), ~0U, mlBFEXT(IR, 10, 6));
+	const uint32_t rs = setup_vR(core, ARMVM_TRACE_R(S), mlBFEXT(IR, 10, 6));
 
 	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), mlBFEXT(IR, 5, 3));
 

@@ -3,7 +3,8 @@ include ../makefile.setup
 $(info $(TOP_DIR))
 $(info $(OBJ_DIR))
 
-CFLAGS += -Os -march=native
+#CFLAGS += -Os -march=native
+CFLAGS += -O2 -march=native
 
 SRCS = $(wildcard *.c)
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))

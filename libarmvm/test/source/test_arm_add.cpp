@@ -40,5 +40,29 @@ extern "C" {
 	fail_if(0x00000009 != rR(0));
 	check_nzcv(t, 0, 0, 0, 0);
 
+	rR(1) = 0x7fffffff; rR(2) = 0x7fffffff;
+	adds(r0, r1, r2);
+	run_test(t);
+	fail_if(0xfffffffe != rR(0));
+	check_nzcv(t, 1, 0, 0, 1);
+
+	rR(1) = 0xffffffff; rR(2) = 0x00000001;
+	adds(r0, r1, r2);
+	run_test(t);
+	fail_if(0x00000000 != rR(0));
+	check_nzcv(t, 0, 1, 1, 0);
+
+	rR(1) = 0x60000000; rR(2) = 0x20000000;
+	adds(r0, r1, r2);
+	run_test(t);
+	fail_if(0x80000000 != rR(0));
+	check_nzcv(t, 1, 0, 0, 1);
+
+	rR(1) = 0x60000000; rR(2) = 0xc0000000;
+	adds(r0, r1, r2);
+	run_test(t);
+	fail_if(0x20000000 != rR(0));
+	check_nzcv(t, 0, 0, 1, 0);
+
 	return(1);
 }}

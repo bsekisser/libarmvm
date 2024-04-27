@@ -180,6 +180,12 @@ static uint32_t rsbs(arm_reg_t rd, arm_reg_t rn, arm_dp_sop_t sop)
 }
 
 UNUSED_FN
+static uint32_t sbcs(arm_reg_t rd, arm_reg_t rn, arm_reg_t rm)
+{
+	return(_gen_op_dps_sop(ARM_SBC, rd, rn, rm));
+}
+
+UNUSED_FN
 static uint32_t subs(arm_reg_t rd, arm_reg_t rn, arm_reg_t rm)
 {
 	return(_gen_op_dps_sop(ARM_SUB, rd, rn, rm));

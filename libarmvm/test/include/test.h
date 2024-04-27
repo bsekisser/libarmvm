@@ -38,3 +38,5 @@ int check_nzc(test_p t, int n, int z, int c);
 int check_nzcv(test_p t, int n, int z, int c, int v);
 void reset(test_p t);
 uint32_t run_test(test_p t);
+uint32_t run_test_flags(test_p t, const uint32_t flag_set);
+uint32_t step_test(test_p t);

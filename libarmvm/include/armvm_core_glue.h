@@ -15,7 +15,7 @@
 
 
 #define irR_NAME(_x) rR_NAMEx(ARM_IR_R(_x))
-#define rR_NAME irR_NAME
+#define rR_NAME(_x) rR_NAMEx(rR(_x))
 
 #define IP rSPR32(IP)
 #define IR rSPR32(IR)

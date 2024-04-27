@@ -83,6 +83,22 @@ static void _preflight_tests(void)
 	}
 }
 
+static uint32_t _run_test(test_p t, const uint32_t flag_set)
+{
+	CPSR &= ~ARM_CPSR_MASK_NZCV;
+	CPSR |= flag_set;
+
+	TEST_PC = RUN_PC;
+
+	while(GEN_COUNT) {
+		armvm_core_step(pCORE);
+		GEN_COUNT--;
+	}
+
+	GEN_PC = RUN_PC;
+	return(RUN_PC);
+}
+
 static int _test_cpsr_xpsr_mask(test_p t, unsigned cpsr, unsigned xpsr, unsigned mask)
 {
 	unsigned test_cpsr = cpsr & mask;
@@ -174,16 +190,20 @@ if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, RUN_PC: 0x%08x", GEN_COUNT, GEN_PC
 }
 
 uint32_t run_test(test_p t)
+{ return(_run_test(t, 0)); }
+
+uint32_t run_test_flags(test_p t, const uint32_t flag_set)
+{ return(_run_test(t, flag_set)); }
+
+uint32_t step_test(test_p t)
 {
-	CPSR &= ~ARM_CPSR_MASK_NZCV;
 	TEST_PC = RUN_PC;
 
-	while(GEN_COUNT) {
+	if(GEN_COUNT) {
 		armvm_core_step(pCORE);
 		GEN_COUNT--;
 	}
 
-//	GEN_COUNT = 0;
 	GEN_PC = RUN_PC;
 	return(RUN_PC);
 }

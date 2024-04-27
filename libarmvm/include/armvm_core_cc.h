@@ -2,7 +2,8 @@
 
 /* **** */
 
-#include "armvm.h"
+#include "armvm_core_glue.h"
+#include "armvm_core.h"
 
 /* **** */
 

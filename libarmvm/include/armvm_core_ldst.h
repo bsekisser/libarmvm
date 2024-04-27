@@ -11,12 +11,20 @@
 
 /* **** */
 
+#include "libarm/include/arm_ir.h"
+
+/* **** */
+
 #include "libbse/include/bswap.h"
 #include "libbse/include/shift_roll.h"
 
 /* **** */
 
 #include "local/core_reg.h"
+
+/* **** */
+
+#include <assert.h>
 
 /* **** */
 
