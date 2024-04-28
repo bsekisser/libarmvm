@@ -228,7 +228,6 @@ static int _armvm_core_thumb_bxx_prefix(armvm_core_p const core)
 	const uint8_t h_prefix = mlBFEXT(IR, 12, 11);
 
 	if(2 == h_prefix) {
-//		LR = THUMB_IP_NEXT + eao_prefix;
 		LR = THUMB_PC_NEXT + eao_prefix;
 	} else {
 		LOG_ACTION(return(__thumb_fail_decode(core)));
@@ -247,7 +246,7 @@ static int _armvm_core_thumb_bxx_prefix(armvm_core_p const core)
 			goto not_prefix_suffix; /* undefined instruction */
 
 		IR = (IR << 16) | ir_suffix;
-		PC = THUMB_IP_NEXT;
+		PC = THUMB_PC_NEXT;
 
 		const uint32_t eao_suffix = mlBFMOV(IR, 10, 0, 1);
 
