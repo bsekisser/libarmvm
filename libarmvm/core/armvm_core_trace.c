@@ -27,14 +27,20 @@ int __trace_start(armvm_core_p const core)
 {
 	if(!core->config.trace) return(0);
 
-//	int thumb = IP & 1;
+	char flags[5], *dst = flags;
+
+	*dst++ = IF_CPSR(C) ? 'C' : 'c';
+	*dst++ = IF_CPSR(N) ? 'N' : 'n';
+	*dst++ = IF_CPSR(V) ? 'V' : 'v';
+	*dst++ = IF_CPSR(Z) ? 'Z' : 'z';
+	*dst = 0;
+
 	int thumb = ARM_CPSR_BEXT(Thumb);
 
-//	printf("%c", thumb ? 'T' : 'A');
-//	printf("(0x%08x(0x%08x):%s: ", IP & (~1 << (1 >> thumb)), IR, arm_cc_ucase_string[1][rSPR32(CC)]);
-	printf("%c(0x%08x(0x%08x):%s(%c): ",
+	printf("%c(0x%08x(0x%08x):%s:%s(%c): ",
 		thumb ? 'T' : 'A',
 		IP & (~1U << (1 >> thumb)), IR,
+		flags,
 		arm_cc_ucase_string[1][rSPR32(CC)],
 		CCX ? '>' : 'X');
 
