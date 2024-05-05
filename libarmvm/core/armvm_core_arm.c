@@ -1,7 +1,7 @@
 #include "armvm_core_cc.h"
 #include "armvm_core_config.h"
 #include "armvm_core_glue.h"
-#include "armvm_core_ldst.h"
+//#include "armvm_core_ldst.h"
 #include "armvm_core_shiftbox.h"
 #include "armvm_core_trace.h"
 
@@ -15,6 +15,7 @@
 #include "local/alubox.h"
 #include "local/core_arm_trace.h"
 #include "local/core_reg.h"
+#include "local/ldst.h"
 
 /* **** */
 
@@ -219,19 +220,25 @@ static int _arm_inst_dp_shift_immediate(armvm_core_p const core)
 	return(_arm_inst_dp_shift(core, 1));
 }
 
-static int _arm_inst_ldst(armvm_core_p const core, const uint32_t sop)
+static int _arm_inst_ldst(armvm_core_p const core)
 {
+	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+
+	const uint32_t wb_ea = __ldst_arm__ea(core);
+
+	int (*ldst_fn)(armvm_core_p const core);
 	if(ARM_IR_LDST_BIT(L)) {
-		if(ARM_IR_LDST_BIT(B))
-			__ldst_ldrb(core, sop);
-		else
-			__ldst_ldr(core, sop);
+		ldst_fn = ARM_IR_LDST_BIT(B) ? __ldrb : __ldr_arm;
 	} else {
-		if(ARM_IR_LDST_BIT(B))
-			__ldst_strb(core, sop);
-		else
-			__ldst_str(core, sop);
+		ldst_fn = ARM_IR_LDST_BIT(B) ? __strb : __str;
 	}
+
+	int ldst_rval = -1;
+	if(ldst_fn)
+		ldst_rval = ldst_fn(core);
+
+	if(0 < ldst_rval)
+		__ldst_arm__ea_wb(core, wb_ea);
 
 	if(core->config.trace)
 		armvm_trace_ldst(core);
@@ -242,30 +249,43 @@ static int _arm_inst_ldst(armvm_core_p const core, const uint32_t sop)
 static int _arm_inst_ldst_immediate(armvm_core_p const core)
 {
 	const uint32_t rm = setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_LDST_IMMEDIATE_OFFSET);
-	const uint32_t sop = setup_vR(core, ARMVM_TRACE_R(SOP), rm);
+	(void)setup_vR(core, ARMVM_TRACE_R(SOP), rm);
 
-	return(_arm_inst_ldst(core, sop));
+	return(_arm_inst_ldst(core));
 }
 
 static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 {
+	(void)setup_vR(core, ARMVM_TRACE_R(SOP), rm);
+	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+
 	const unsigned bwh  = BMOV(IR, ARM_IR_LDST_BIT_L, 2) | mlBFEXT(IR, 6, 5);
 
+	const uint32_t wb_ea = __ldst_arm__ea(core);
+
+	int (*ldst_fn)(armvm_core_p const core);
 	switch(bwh) {
-		case 1: __ldst_strh(core, rm); break;
-//		case 2: __ldst_ldrd(core, rm); break;
-//		case 3: __ldst_strd(core, rm); break;
-		case 5: __ldst_ldrh(core, rm); break;
-		case 6: __ldst_ldrsb(core, rm); break;
-		case 7: __ldst_ldrsh(core, rm); break;
+		case 1: ldst_fn = __strh; break;
+//		case 2: ldst_fn = __ldrd; break;
+//		case 3: ldst_fn = __strd; break;
+		case 5: ldst_fn = __ldrh; break;
+		case 6: ldst_fn = __ldrsb; break;
+		case 7: ldst_fn = __ldrsh; break;
 		default:
 			return(__arm_decode_fail(core));;
 	}
 
+	int ldst_rval = -1;
+	if(ldst_fn)
+		ldst_rval = ldst_fn(core);
+
+	if(0 < ldst_rval)
+		__ldst_arm__ea_wb(core, wb_ea);
+
 	if(core->config.trace)
 		armvm_trace_ldst(core);
 
-	return(0);
+	return(ldst_rval);
 }
 
 static int _arm_inst_ldst_sh_immediate(armvm_core_p const core)

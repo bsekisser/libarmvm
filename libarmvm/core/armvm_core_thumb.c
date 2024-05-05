@@ -16,6 +16,7 @@
 #include "armvm.h"
 
 #include "local/alubox.h"
+#include "local/ldst.h"
 #include "local/thumb_ldstm.h"
 
 /* **** */
@@ -328,22 +329,18 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 	}
 
 	const uint32_t ea = setup_vR(core, ARMVM_TRACE_R(EA), rn + imm8);
-	int read_rval = 0;
+	int ldst_rval = 0;
 
-	if(bit_l) {
-		read_rval = armvm_core_mem_read(core, &vR(D), ea, 4);
-		if(1 == read_rval)
-			core_reg_wb(core, ARMVM_TRACE_R(D));
-	} else {
-		core_reg_src_load(core, ARMVM_TRACE_R(D));
-		armvm_core_mem_write(core, ea, 4, vR(D));
-	}
+	if(bit_l)
+		ldst_rval = __ldr_thumb(core);
+	else
+		ldst_rval = __str(core);
 
 	if(__trace_start(core)) {
 		_armvm_trace_(core, "%s(%s, %s[0x%03x])",
 			bit_l ? "ldr" : "str", rR_NAME(D), rR_NAME(N), imm8);
 
-		if(!bit_l || (1 == read_rval))
+		if(!bit_l || (1 == ldst_rval))
 			_armvm_trace_comment(core, "[0x%08x](0x%08x)",
 				ea, vR(D));
 
@@ -351,6 +348,53 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 	}
 
 	return(1);
+}
+
+static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_p const core)
+{
+//	struct {
+		const unsigned bit_b = BEXT(IR, 12);
+		const unsigned bit_h = BEXT(IR, 15);
+		const unsigned bit_l = BEXT(IR, 11);
+//	}bit;
+
+	const uint32_t rn = core_reg_src_decode(core, ARMVM_TRACE_R(N), 5, 3);
+	setup_rRml(core, ARMVM_TRACE_R(D), 2, 0);
+
+	const unsigned rm_shift = bit_h ? 1 : (bit_b ? 0 : 2);
+	const uint32_t rm = setup_vR(core, ARMVM_TRACE_R(M), mlBFMOV(IR, 10, 6, rm_shift));
+
+	const uint32_t ea = setup_vR(core, ARMVM_TRACE_R(EA), rn + rm);
+
+	int ldst_rval = -1, (*ldst_fn)(armvm_core_p const core);
+	const char* ss = "";
+
+	if(bit_h) {
+		ss = "h";
+
+		ldst_fn = bit_l ? __ldrh : __strh;
+	} else if(bit_b) {
+		ss = "b";
+
+		ldst_fn = bit_l ? __ldrb : __strb;
+	} else {
+		ldst_fn = bit_l ? __ldr_thumb : __str;
+	}
+
+	if(ldst_fn)
+		ldst_rval = ldst_fn(core);
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "%sr%s(%s, %s[0x%03x])",
+			bit_l ? "ld" : "st", ss, rR_NAME(D), rR_NAME(N), rm);
+
+		_armvm_trace_comment(core, "[(0x%08x + 0x%03x) = 0x%08x](0x%08x)",
+			rn, rm, ea, vR(D));
+
+		__trace_end(core);
+	}
+
+	return(ldst_rval);
 }
 
 static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
@@ -521,9 +565,10 @@ static int armvm_core_thumb__step_group7_e000_ffff(armvm_core_p const core)
 			return(_armvm_core_thumb_bxx_b(core));
 		case 0xe800:
 			if(IR & 1) { /* 1110 1xxx xxxx xxx1 */
-break;//				LOG_ACTION(return(soc_core_thumb_step_undefined(core)));
+;//				LOG_ACTION(return(soc_core_thumb_step_undefined(core)));
 			} else /* 1110 1xxx xxxx xxx0 */
-break;//				return(soc_core_thumb_bxx_blx(core));
+{};//				return(soc_core_thumb_bxx_blx(core));
+			break;
 		case 0xf800:
 			return(_armvm_core_thumb_bxx_bl(core));
 		case 0xf000:
@@ -554,11 +599,19 @@ int armvm_core_thumb_step(armvm_core_p const core)
 			return(_armvm_core_thumb_ascm_rd_i(core));
 		case 0x4000: /* 010x xxxx xxxx xxxx */
 			return(armvm_core_thumb__step_group2_4000_5fff(core));
+		case 0x6000: /* 011x xxxx xxxx xxxx */
+			return(_armvm_core_thumb_ldst_bwh_o_rn_rd(core));
+		case 0x8000: /* 100x xxxx xxxx xxxx */
+			if(BTST(IR, 12)) /* 1001 xxxx xxxx xxxx */
+				return(_armvm_core_thumb_ldst_rd_i(core));
+			else /* 1000 xxxx xxxx xxxx */
+				return(_armvm_core_thumb_ldst_bwh_o_rn_rd(core));
+			break;
 		case 0xa000: /* 101x xxxx xxxx xxxx */
 			if(BTST(IR, 12)) /* 1011 xxxx xxxx xxxx */
 				return(armvm_core_thumb__step_group5_b000_bfff(core));
 			else /* 1010 xxxx xxxx xxxx */
-break;//				return(soc_core_thumb_add_rd_pcsp_i(core));
+{};//				return(soc_core_thumb_add_rd_pcsp_i(core));
 			break;
 		case 0xc000: /* 110x xxxx xxxx xxxx */
 			return(armvm_core_thumb__step_group6_c000_dfff(core));
