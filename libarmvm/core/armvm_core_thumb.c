@@ -176,6 +176,35 @@ static int _armvm_core_thumb_bcc(armvm_core_p const core)
 	return(0);
 }
 
+static int _armvm_core_thumb_bx(armvm_core_p const core)
+{
+	assert(0 == mlBFEXT(IR, 2, 0));
+
+	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 6, 3);
+
+	const int link = BEXT(IR, 7);
+
+	const uint32_t new_pc = rm & ~1U;
+	const int thumb = rm & 1;
+
+	if(_armvm_trace_start(core, "b%sx(%s)",
+			link ? "l" : "", rR_NAME(M)))
+	{
+		_armvm_trace_comment(core, "%c(0x%08x)",
+			thumb ? 'T' : 'A', new_pc);
+
+		__trace_end(core);
+	}
+
+	if(link)
+		LR = THUMB_IP_NEXT | 1;
+
+	PC = new_pc;
+	ARM_CPSR_BMAS(Thumb, thumb);
+
+	return(0);
+}
+
 static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
 	const uint32_t eao, const unsigned blx)
 {
@@ -235,9 +264,9 @@ static int _armvm_core_thumb_bxx_prefix(armvm_core_p const core)
 //		DECODE_FAULT;
 	}
 
-	const uint32_t ir_suffix = 0;
+	uint32_t ir_suffix = 0;
 
-	if(0 > armvm_core_mem_ifetch(core, (void*)&ir_suffix, PC & ~1U, sizeof(uint16_t)))
+	if(0 > armvm_core_mem_ifetch(core, (void*)&ir_suffix, PC & ~1U, 2))
 		goto not_prefix_suffix;
 
 	if(0xe800 == (ir_suffix & 0xe800)) {
@@ -514,7 +543,7 @@ static int armvm_core_thumb__step_group2_4000_5fff(armvm_core_p const core)
 			case 0x4400: /* 0100 01xx xxxx xxxx */
 				switch(mlBFTST(IR, 15, 8)) {
 					case 0x4700: /* 0100 0111 xxxx xxxx */
-break;//						return(soc_core_thumb_bx(core));
+						return(_armvm_core_thumb_bx(core));
 					default: /* 0100 01xx xxxx xxxx */
 break;//						return(soc_core_thumb_sdp_rms_rdn(core));
 				}
