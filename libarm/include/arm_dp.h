@@ -22,4 +22,12 @@ enum {
 	ARM_MOV,
 	ARM_BIC,
 	ARM_MVN,
+// TUUMB EXTENSIONS
+	ARM_ASR,
+	ARM_LSL,
+	ARM_LSR,
+	ARM_ROR,
+//
+	ARM_MUL,
+	ARM_NEG,
 };

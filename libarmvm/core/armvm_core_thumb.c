@@ -59,7 +59,7 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 	const unsigned op_list[2] = { ARM_ADD, ARM_SUB };
 	const unsigned opcode = op_list[op2];
 
-	alubox(core, opcode, 1, 0);
+	alubox_thumb(core, opcode, 1);
 
 	if(!__trace_start(core))
 		return(1);
@@ -132,7 +132,7 @@ static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
 		ARM_MOV, ARM_CMP, ARM_ADD, ARM_SUB
 	}, operation = op_list[opcode];
 
-	alubox(core, operation, 1, 0);
+	const uint32_t rd = alubox_thumb(core, operation, 1);
 
 	if(!__trace_start(core))
 		return(1);
@@ -141,9 +141,9 @@ static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
 	{
 		default:
 			_armvm_trace_(core, "%s(%s, 0x%03x)",
-				arm_dp_inst_string[operation], rR_NAME(D), vR(M));
+				arm_dp_inst_string[operation], rR_NAME(D), rm);
 			_armvm_trace_comment(core, "0x%08x %s0x%03x = 0x%08x",
-					vR(N), arm_dp_op_string[operation], rm, vR(D));
+					vR(N), arm_dp_op_string[operation], rm, rd);
 		break;
 		case ARM_MOV:
 			_armvm_trace_(core, "movs(%s, 0x%03x)", rR_NAME(D), rm);
@@ -256,6 +256,51 @@ static int _armvm_core_thumb_bxx_prefix(armvm_core_p const core)
 not_prefix_suffix:
 	_armvm_trace(core, "BL/BLX(0x%08x)  /* LR = 0x%08x */", eao_prefix, LR);
 	return(0);
+}
+
+static int _armvm_core_thumb_dp_rms_rdn(armvm_core_p const core)
+{
+	const uint8_t operation = mlBFEXT(IR, 9, 6);
+	const unsigned op_list[16] = {
+		ARM_AND, ARM_EOR, ARM_LSL, ARM_LSR, ARM_ASR, ARM_ADC, ARM_SBC, ARM_ROR,
+		ARM_TST, ARM_NEG, ARM_CMP, ARM_CMN, ARM_ORR, ARM_MUL, ARM_BIC, ARM_MVN,
+	};
+	const unsigned opcode = op_list[operation];
+
+	const char* _dpr_ops[2][16] = {{
+		"ands", "eors", "lsls", "lsrs", "asrs", "adcs", "sbcs", "rors",
+		"tsts", "negs", "cmps", "cmns", "orrs", "muls", "bics", "mvns",
+		} , {
+		"& ",	"^ ",	"<< ",	">> ",	"<<< ",	"+",	"-",	">><<",
+		"& ",	"- ",	"- ",	"+ ",	"| ",	"* ",	"& ~",	"-",
+		}};
+
+	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 5, 3);
+	setup_rRml(core, ARMVM_TRACE_R(N), 2, 0);
+
+	setup_rR(core, ARMVM_TRACE_R(D), rR(N));
+
+	const uint32_t rd = alubox_thumb(core, opcode, 1);
+
+	if(_armvm_trace_start(core, "%s(%s, %s)",
+		_dpr_ops[0][operation], rR_NAME(D), rR_NAME(M))) {
+
+		switch(opcode)
+		{
+			default:
+				_armvm_trace_comment(core, "0x%08x %s0x%08x = 0x%08x",
+					vR(N), _dpr_ops[1][operation], rm, rd);
+				break;
+			case ARM_MVN:
+				_armvm_trace_comment(core, "~0x%08x = 0x%08x",
+					rm, rd);
+				break;
+		}
+
+		__trace_end(core);
+	}
+
+	return(1);
 }
 
 static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
@@ -421,7 +466,7 @@ static int armvm_core_thumb__step_group2_4000_5fff(armvm_core_p const core)
 	} else {
 		switch(mlBFTST(IR, 15, 10)) {
 			case 0x4000: /* 0100 00xx xxxx xxxx */
-break;//				return(soc_core_thumb_dp_rms_rdn(core));
+				return(_armvm_core_thumb_dp_rms_rdn(core));
 			case 0x4400: /* 0100 01xx xxxx xxxx */
 				switch(mlBFTST(IR, 15, 8)) {
 					case 0x4700: /* 0100 0111 xxxx xxxx */
