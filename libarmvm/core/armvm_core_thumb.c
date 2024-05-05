@@ -491,6 +491,84 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
 	return(1);
 }
 
+static int _armvm_core_thumb_pop_push(armvm_core_p const core)
+{
+//	struct {
+		const int bit_l = BEXT(IR, 11);
+		const int bit_r = BEXT(IR, 8);
+//	}bit;
+
+	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
+
+	const unsigned rrlist = mlBFEXT(IR, 8, 0);
+	const uint8_t rlist = mlBFEXT(IR, 7, 0);
+
+	const uint8_t _rcount = (uint8_t)__builtin_popcount(rrlist);
+	const uint8_t rcount_bytes = _rcount << 2;
+
+	const uint32_t start_address = rn + (bit_l ? 0 : -rcount_bytes);
+	const uint32_t end_address = rn + (bit_l ? rcount_bytes : -4);
+
+	int data_abort = 0;
+	if(0 != (start_address & 3)) {
+		if(CP15_REG1_BIT(A) || CP15_REG1_BIT(A))
+			data_abort = ~armvm_core_exception_data_abort(core);
+	}
+
+	uint32_t ea = setup_vR(core, ARMVM_TRACE_R(EA), start_address & ~3U);
+
+	char reglist[9] = "\0\0\0\0\0\0\0\0\0";
+
+	for(unsigned i = 0; i <= 7; i++)
+	{
+		const unsigned rxx = BEXT(rlist, i);
+		reglist[i] = rxx ? ('0' + i) : '.';
+
+		if(!data_abort && rxx)
+		{
+			CYCLE++;
+			if(bit_l)
+				thumb_ldmia(core, i, &ea);
+			else
+				thumb_stmia(core, i, &ea);
+		}
+	}
+
+	const char *pclrs = bit_r ? (bit_l ? ", PC" : ", LR") : "";
+	reglist[8] = 0;
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "%s(rSP, r{%s%s})", bit_l ? "pop" : "push", reglist, pclrs);
+		_armvm_trace_comment(core, "0x%08x", rn);
+		__trace_end(core);
+	}
+
+	if(!data_abort) {
+		if(bit_r)
+		{
+			if(bit_l)
+				thumb_ldmia_pc(core, &ea);
+			else
+				thumb_stmia(core, ARMVM_GPR(LR), &ea);
+		}
+
+		if(0) LOG("SP = 0x%08x, PC = 0x%08x", vR(N), PC);
+
+		if(bit_l)
+		{ /* pop */
+			assert(end_address == ea);
+			SP = end_address;
+		}
+		else
+		{ /* push */
+			assert(end_address == (ea - 4));
+			SP = start_address;
+		}
+	}
+
+	return(!(bit_r && bit_l));
+}
+
 static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_p const core)
 {
 	const uint32_t shift_type = mlBFEXT(IR, 12, 11);
@@ -563,7 +641,7 @@ static int armvm_core_thumb__step_group5_b000_bfff(armvm_core_p const core)
 		case 0xb500: /* 1011 0101 xxxx xxxx */
 		case 0xbc00: /* 1011 1100 xxxx xxxx */
 		case 0xbd00: /* 1011 1101 xxxx xxxx */
-break;//			return(soc_core_thumb_pop_push(core));
+			return(_armvm_core_thumb_pop_push(core));
 	}
 
 	LOG_ACTION(return(__thumb_fail_decode(core)));
