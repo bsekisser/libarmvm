@@ -11,6 +11,17 @@
 
 /* **** */
 
+static uint32_t __ldstm_ea(armvm_core_p const core, uint32_t *const p2ea)
+{
+	const uint32_t ea = *p2ea;
+	*p2ea += sizeof(uint32_t);
+
+	return(ea);
+	UNUSED(core);
+}
+
+/* **** */
+
 static int __ldm(armvm_core_p const core, const unsigned r, const uint32_t ea)
 { return(armvm_core_mem_read(core, &GPRx(r), ea, 4)); }
 

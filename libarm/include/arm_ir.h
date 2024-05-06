@@ -53,6 +53,12 @@ enum {
 #define ARM_IR_LDST_IPUBWL mlBFEXT(IR, 25, 20)
 
 enum {
+	ARM_IR_LDSTM_BIT_S = 22,
+};
+
+#define ARM_IR_LDSTM_BIT(_x) BEXT(IR, ARM_IR_LDSTM_BIT_##_x)
+
+enum {
 	ARM_IR_LDST_SH_BIT_I = 22,
 	ARM_IR_LDST_SH_BIT_S = 6,
 	ARM_IR_LDST_SH_BIT_H = 5,

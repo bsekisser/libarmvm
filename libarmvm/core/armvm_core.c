@@ -184,6 +184,30 @@ void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new
 void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core)
 { armvm_core_psr_mode_switch_cpsr(core, armvm_core_spsr(core, 0)); }
 
+uint32_t armvm_core_reg_user(armvm_core_p const core, const unsigned r, uint32_t *const v)
+{
+	unsigned reg = 0;
+
+	const unsigned mode = mlBFEXT(CPSR, 4, 0);
+	uint32_t *const usr_regs = _armvm_core_psr_mode_regs(core, mode, &reg, 0);
+
+	uint32_t vout = 0;
+	if(reg && ((r & 0x0f) < 15) && r >= reg)
+	{
+		const unsigned umreg = r - reg;
+		vout = usr_regs[umreg];
+		if(v)
+			usr_regs[umreg] = *v;
+	}
+	else
+	{
+		vout = GPRx(r);
+		if(v)
+			GPRx(r) = *v;
+	}
+	return(vout);
+}
+
 int armvm_core_step(armvm_core_p const core)
 {
 	CYCLE++;

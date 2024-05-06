@@ -16,6 +16,7 @@
 #include "local/core_arm_trace.h"
 #include "local/core_reg.h"
 #include "local/ldst.h"
+#include "local/ldstm_arm.h"
 
 /* **** */
 
@@ -91,6 +92,22 @@ static int __arm__b_bl_blx(armvm_core_p const core, int const link, const int bl
 }
 
 /* **** */
+
+static void _arm_inst__ldstm(armvm_core_p const core,
+	const unsigned user_mode_regs)
+{
+	if(ARM_IR_LDST_BIT(L)) {
+		if((7 < rR(D)) && user_mode_regs)
+			arm_ldm_user(core, rR(D), &vR(EA));
+		else
+			arm_ldm(core, rR(D), &vR(EA));
+	} else {
+		if((7 < rR(D)) && user_mode_regs)
+			arm_stm_user(core, rR(D), &vR(EA));
+		else
+			arm_stm(core, rR(D), &vR(EA));
+	}
+}
 
 static int _arm_inst_b_bl(armvm_core_p const core)
 {
@@ -299,6 +316,136 @@ static int _arm_inst_ldst_sh_register(armvm_core_p const core)
 
 	const uint rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	return(_arm_inst_ldst_sh(core, rm));
+}
+
+static int _arm_inst_ldstm(armvm_core_p const core)
+{
+	const uint32_t rm = setup_vRml(core, ARMVM_TRACE_R(M), 15, 0);
+	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
+
+	const uint8_t _rcount = (uint8_t)__builtin_popcount(rm);
+	const uint8_t rcount_bytes = _rcount << 2;
+
+	const uint32_t sp_in = rn;
+
+	/*
+	 * DA	!LDST_BIT(u23) && !LDST_BIT(p24)
+	 * DB	!LDST_BIT(u23) && LDST_BIT(p24)
+	 * IA	LDST_BIT(u23) && !LDST_BIT(p24)
+	 * IB	LDST_BIT(u23) && LDST_BIT(p24)
+	 *
+	 */
+
+	const int bit_l = ARM_IR_LDST_BIT(L);
+	const int bit_p = ARM_IR_LDST_BIT(P);
+	const int bit_u = ARM_IR_LDST_BIT(U);
+
+	const uint32_t pre_offset = bit_p << 2;
+	const uint32_t post_offset = !bit_p << 2;
+
+	const uint32_t rcount_offset = bit_u ? rcount_bytes : -rcount_bytes;
+
+	const uint32_t start_offset = (bit_u ? pre_offset : (rcount_offset + post_offset));
+	const uint32_t end_offset = (bit_u ? (rcount_offset - post_offset) : -pre_offset);
+
+	const uint32_t start_address = rn + start_offset;
+	const uint32_t end_address = rn + end_offset;
+
+	const uint32_t sp_out = sp_in + rcount_offset;
+
+	if(0) LOG("sp_in = 0x%08x, start_address = 0x%08x, end_address = 0x%08x",
+		sp_in, start_address, end_address);
+	if(0) LOG("sp_out = 0x%08x", sp_out);
+
+	const char *opstr; (void)opstr;
+	if(0 && (ARMVM_GPR(SP) == rR(N)))
+		opstr = bit_l ? "pop" : "push";
+	else
+		opstr = bit_l ? "ldm" : "stm";
+
+	char reglist[17]; (void)reglist;
+	for(int i = 0; i <= 15; i++)
+	{
+		uint8_t c = (i > 9 ? ('a' + (i - 10)) : '0' + i);
+		reglist[i] = BTST(vR(M), i) ? c : '.';
+	}
+	reglist[16] = 0;
+
+	const int bit_s = ARM_IR_LDSTM_BIT(S);
+	const int bit_w = ARM_IR_LDST_BIT(W);
+
+	const int flag_pc = BTST(rm, 15);
+	const int flag_sl = bit_s && bit_l;
+
+	const int load_spsr = flag_sl && flag_pc;
+
+	const int user_mode_regs_load = flag_sl && !bit_w && !flag_pc;
+	const int user_mode_regs_store = bit_s && !bit_l;
+
+	if(0) LOG("s = %01u, umrl = %01u, umrs = %01u", bit_s, user_mode_regs_load, user_mode_regs_store);
+
+	const int user_mode_regs = user_mode_regs_load || user_mode_regs_store;
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "%s%c%c(%s%s, {%s}%s%s)",
+			opstr, bit_u ? 'i' : 'd', bit_p ? 'b' : 'a',
+			irR_NAME(N), bit_w ? "!" : "", reglist,
+			user_mode_regs ? ", USER" : "",
+			load_spsr ? ", SPSR" : "");
+
+		_armvm_trace_comment(core, "0x%08x", sp_in);
+
+		__trace_end(core);
+	}
+
+	setup_vR(core, ARMVM_TRACE_R(EA), start_address);
+
+	if(CCX)
+	{
+		if(CP15_REG1_BIT(U)) {
+			if(vR(EA) & 3)
+				return(armvm_core_exception_data_abort(core));
+		}
+		else
+			vR(EA) &= ~3U;
+
+		for(rR(D) = 0; rR(D) < 15; rR(D)++)
+		{
+			if(BTST(vR(M), rR(D)))
+			{
+				CYCLE++;
+				_arm_inst__ldstm(core, user_mode_regs);
+			}
+		}
+
+		if(BTST(vR(M), 15)) {
+			if(bit_l)
+				arm_ldm_pc(core, &vR(EA));
+			else
+				arm_stm(core, ARMVM_GPR(PC), &vR(EA));
+		}
+
+		if(load_spsr && pSPSR) {
+			LOG_ACTION(armvm_core_psr_mode_switch(core, armvm_core_spsr(core, 0)));
+		}
+
+		if((bit_w && (user_mode_regs || load_spsr))
+			|| (user_mode_regs && load_spsr))
+				LOG_ACTION(exit(1));
+
+		if(bit_w)
+		{
+			if(0) LOG("ea = 0x%08x", vR(EA));
+
+			assert(end_address == vR(EA) - 4);
+			if(end_address == vR(EA) - 4)
+				core_reg_wb_v(core, ARMVM_TRACE_R(N), sp_out);
+			else
+{}//				UNDEFINED;
+		}
+	}
+
+	return(!flag_pc);
 }
 
 static int _arm_inst_mcr_mrc(armvm_core_p const core)
@@ -641,6 +788,8 @@ int armvm_core_arm_step(armvm_core_p const core)
 				return(armvm_core_arm__step_group1(core));
 			case 2: // xxxx 010x xxxx xxxx
 				return(_arm_inst_ldst_immediate(core));
+			case 4: /* xxxx 100x xxxx xxxx */
+				return(_arm_inst_ldstm(core));
 			case 5: // xxxx 101x xxxx xxxx
 				return(_arm_inst_b_bl(core));
 			case 7: // xxxx 111x xxxx xxxx
