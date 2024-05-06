@@ -17,7 +17,7 @@
 
 #include "local/alubox.h"
 #include "local/ldst.h"
-#include "local/thumb_ldstm.h"
+#include "local/ldstm_thumb.h"
 
 /* **** */
 
