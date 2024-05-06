@@ -82,7 +82,7 @@ static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_p const core)
 }
 
 static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
-	const int bit_i)
+	const int bit_i, const uint32_t rm)
 {
 	const uint8_t op2 = BEXT(IR, 9);
 
@@ -101,9 +101,9 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 	{
 		if(op2 || vR(M)) {
 			_armvm_trace_(core, "%ss(%s, %s, %01u)",
-				arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), vR(M));
+				arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rm);
 			_armvm_trace_comment(core, "0x%08x %s%01u = 0x%08x",
-				vR(N), arm_dp_op_string[opcode], vR(M), vR(D));
+				vR(N), arm_dp_op_string[opcode], rm, vR(D));
 		}
 		else // pseudo op mov is encoded as adds rd, rn, 0
 		{
@@ -116,7 +116,7 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 		_armvm_trace_(core, "%ss(%s, %s, %s)",
 			arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rR_NAME(M));
 		_armvm_trace_comment(core, "0x%08x %s0x%08x = 0x%08x",
-			vR(N), arm_dp_op_string[opcode], vR(M), vR(D));
+			vR(N), arm_dp_op_string[opcode], rm, vR(D));
 	}
 
 	__trace_end(core);
@@ -125,9 +125,16 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 
 static int _armvm_core_thumb_add_sub_rn_rd_imm3(armvm_core_p const core)
 {
-	(void)setup_vRml(core, ARMVM_TRACE_R(M), 8, 6);
+	const uint32_t rm = setup_vRml(core, ARMVM_TRACE_R(M), 8, 6);
 
-	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 1));
+	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 1, rm));
+}
+
+static int _armvm_core_thumb_add_sub_rn_rd_rm(armvm_core_p const core)
+{
+	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 8, 6);
+
+	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 0, rm));
 }
 
 static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_p const core)
@@ -681,7 +688,7 @@ static int armvm_core_thumb__step_group0_0000_1fff(armvm_core_p const core)
 {
 	switch(mlBFTST(IR, 15, 10)) {
 		case 0x1800: /* 0001 10xx xxxx xxxx */
-break;//			return(soc_core_thumb_add_sub_rn_rd_rm(core));
+			return(_armvm_core_thumb_add_sub_rn_rd_rm(core));
 		case 0x1c00: /* 0001 11xx xxxx xxxx */
 			return(_armvm_core_thumb_add_sub_rn_rd_imm3(core));
 		default:
