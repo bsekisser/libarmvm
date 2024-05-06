@@ -690,13 +690,13 @@ int armvm_core_thumb_step(armvm_core_p const core)
 	rSPR32(CC) = CC_AL_NV;
 	CCX = 1;
 
-	IP = setup_rR_vR(core, ARMVM_TRACE_R(IP), ~0, PC); // STUPID KLUDGE!!
+	IP = setup_vR(core, ARMVM_TRACE_R(IP), PC & ~1U); // STUPID KLUDGE!!
 	PC = THUMB_IP_NEXT;
 
-	if(0 > armvm_core_mem_ifetch(core, &IR, IP & ~1U, 2))
+	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 2))
 		return(0);
 
-	setup_rR_vR(core, ARMVM_TRACE_R(IR), ~0, IR); // STUPID KLUDGE!!!
+	setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
 
 	const uint32_t group = mlBFTST(IR, 15, 13);
 	switch(group) {

@@ -621,13 +621,13 @@ static int armvm_core_arm__step_group7(armvm_core_p const core)
 
 int armvm_core_arm_step(armvm_core_p const core)
 {
-	IP = setup_rR_vR(core, ARMVM_TRACE_R(IP), ~0, PC); // STUPID KLUDGE!!
+	IP = setup_vR(core, ARMVM_TRACE_R(IP), PC & ~3U); // STUPID KLUDGE!!
 	PC = ARM_IP_NEXT;
 
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 4))
 		return(1);
 
-	setup_rR_vR(core, ARMVM_TRACE_R(IR), ~0, IR); // STUPID KLUDGE!!!
+	setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
 
 //	armvm_trace(pARMVM_TRACE);
 //	arm_disasm(IP, IR);
