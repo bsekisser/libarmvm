@@ -757,7 +757,8 @@ static int armvm_core_arm__step_group7(armvm_core_p const core)
 	const uint32_t mask = mlBF(27, 24) | _BV(20) | _BV(4);
 
 	switch(IR & mask) {
-		case 0x0e000010:
+		case 0x0e000010: // mcr
+		case 0x0e100010: // mrc
 			return(_arm_inst_mcr_mrc(core));
 	}
 
