@@ -49,6 +49,38 @@ static int __thumb_fail_decode(armvm_core_p const core)
 	LOG_ACTION(return(-1));
 }
 
+/* **** */
+
+static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_p const core)
+{
+	const int pcsp = BEXT(IR, 11);
+
+	uint32_t rn = 0;
+	if(pcsp)
+		rn = core_reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
+	else
+		rn = setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(PC), THUMB_PC_NEXT & ~3U);
+
+	const uint16_t imm8 = mlBFMOV(IR, 7, 0, 2);
+
+	core_reg_dst_decode(core, ARMVM_TRACE_R(D), 10, 8);
+
+	const uint32_t rd = rn + imm8;
+
+	core_reg_wb_v(core, ARMVM_TRACE_R(D), rd);
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "add(%s, %s, 0x%03x)",
+				rR_NAME(D), rR_NAME(N), imm8);
+		_armvm_trace_comment(core, "0x%08x + 0x%03x = 0x%08x",
+				vR(N), imm8, vR(D));
+
+		__trace_end(core);
+	}
+
+	return(1);
+}
+
 static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 	const int bit_i)
 {
@@ -769,7 +801,7 @@ int armvm_core_thumb_step(armvm_core_p const core)
 			if(BTST(IR, 12)) /* 1011 xxxx xxxx xxxx */
 				return(armvm_core_thumb__step_group5_b000_bfff(core));
 			else /* 1010 xxxx xxxx xxxx */
-{};//				return(soc_core_thumb_add_rd_pcsp_i(core));
+				return(_armvm_core_thumb_add_rd_pcsp_i(core));
 			break;
 		case 0xc000: /* 110x xxxx xxxx xxxx */
 			return(armvm_core_thumb__step_group6_c000_dfff(core));
