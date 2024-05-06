@@ -345,7 +345,7 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 	switch(operation)
 	{
 		case	0x4000:
-			rn = setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(PC), PC & ~3U);
+			rn = setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(PC), THUMB_PC_NEXT & ~3U);
 			break;
 		case	0x9000:
 			rn = setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP), SP);
@@ -369,14 +369,14 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 		_armvm_trace_(core, "%s(%s, %s[0x%03x])",
 			bit_l ? "ldr" : "str", rR_NAME(D), rR_NAME(N), imm8);
 
-		if(!bit_l || (1 == ldst_rval))
-			_armvm_trace_comment(core, "[0x%08x](0x%08x)",
-				ea, vR(D));
+		_armvm_trace_comment(core, "[0x%08x](0x%08x)",
+			ea, vR(D));
 
 		__trace_end(core);
 	}
 
 	return(1);
+	UNUSED(ldst_rval);
 }
 
 static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_p const core)
