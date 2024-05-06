@@ -122,9 +122,7 @@ static int _arm_inst_bx_blx_m(armvm_core_p const core, const int link)
 			LR = PC;
 		}
 
-		PC = rm;
-
-		ARM_CPSR_BMAS(T, thumb);
+		armvm_core_pcx(core, rm);
 	}
 
 	/* **** */

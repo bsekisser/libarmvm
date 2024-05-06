@@ -40,10 +40,10 @@ static int __ldr(armvm_core_p const core, const int arm)
 			vR(D) = _ror(vR(D), (ea_xx << 3));
 	}
 
-	core_reg_wb(core, ARMVM_TRACE_R(D));
-
-	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
-		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
+	if(rR_IS_PC(D))
+		armvm_core_pcx_v5(core, vR(D));
+	else
+		core_reg_wb(core, ARMVM_TRACE_R(D));
 
 	return(rR_IS_PC(D));
 }

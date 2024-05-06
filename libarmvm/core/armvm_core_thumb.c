@@ -200,13 +200,13 @@ static int _armvm_core_thumb_bx(armvm_core_p const core)
 		__trace_end(core);
 	}
 
-	if(link)
+	if(link) {
 		LR = THUMB_IP_NEXT | 1;
 
-	PC = new_pc;
-	ARM_CPSR_BMAS(Thumb, thumb);
+		return(armvm_core_pcx_v5(core, rm));
+	}
 
-	return(0);
+	return(armvm_core_pcx(core, rm));
 }
 
 static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
@@ -223,10 +223,10 @@ static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
 	_armvm_trace(core, "bl%s(0x%08x); /* 0x%08x + %s0x%08x, LR = 0x%08x */",
 		blx ? "x" : "", new_pc & ~1U, PC, splat ? "x" : "", eao, LR & ~1U);
 
-	PC = new_pc;
-//	soc_core_reg_set_thumb(core, 1 >> blx);
+	if(blx)
+		return(armvm_core_pcx_v5(core, new_pc));
 
-	if(0) LOG("LR = 0x%08x, PC = 0x%08x", LR, PC);
+	PC = new_pc;
 	return(0);
 }
 

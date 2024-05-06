@@ -17,6 +17,10 @@ typedef struct armvm_core_t* armvm_core_p;
 
 /* **** */
 
+#include "libarm/include/arm_cpsr.h"
+
+/* **** */
+
 #include <stdint.h>
 
 /* **** */
@@ -134,3 +138,26 @@ static inline uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const 
 
 	return(data);
 }
+
+#ifdef CPSR
+	static inline int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc)
+	{
+		const unsigned set_thumb = core->config.features.thumb;
+
+		const unsigned thumb = set_thumb ? (new_pc & 1) : 0;
+
+		PC = new_pc & ~(3 >> thumb);
+
+		ARM_CPSR_BMAS(Thumb, thumb);
+
+		return(0);
+	}
+
+	static inline int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc)
+	{
+		if(arm_v5t <= core->config.version)
+			return(armvm_core_pcx(core, new_pc));
+
+		return(0);
+	}
+#endif
