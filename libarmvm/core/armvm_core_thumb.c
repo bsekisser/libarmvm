@@ -109,10 +109,14 @@ static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_p const core)
 
 	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARMVM_GPR(SP), rd);
 
-	if(_armvm_trace_start(core, "%s(rSP, 0x%04x)",
-			arm_dp_inst_string[sub ? ARM_SUB : ARM_ADD], imm7)) {
+	if(__trace_start(core)) {
+		const unsigned opcode = sub ? ARM_SUB : ARM_ADD;
+
+		_armvm_trace_(core, "%s(rSP, 0x%04x)",
+			arm_dp_inst_string[opcode], imm7);
+
 		_armvm_trace_comment(core, "0x%08x %s0x%04x = 0x%08x",
-			rn, imm7, rd);
+			rn, arm_dp_op_string[opcode], imm7, rd);
 
 		__trace_end(core);
 	}
