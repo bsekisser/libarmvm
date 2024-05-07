@@ -461,17 +461,15 @@ static int _arm_inst_mcr_mrc(armvm_core_p const core)
 	if(!CCX)
 		return(1);
 
-	uint32_t rd = ARM_IR_MCRC_L ? 0 : irGPR(D);
-	uint32_t *const p2rd = ARM_IR_MCRC_L ? &irGPR(D) : 0;
-
-	rd = armvm_coprocessor_access(core->cp, p2rd);
-
 	if(ARM_IR_MCRC_L) {
+		uint32_t rd = armvm_coprocessor_access(core->cp, 0);
+
 		if(rR_IS_PC(D)) {
 			ARM_CPSR_BIC(ARM_CPSR_MASK_NZCV, rd);
 		} else
 			irGPR(D) = rd;
-	}
+	} else
+		armvm_coprocessor_access(core->cp, &irGPR(D));
 
 	return(rR_IS_NOT_PC(D));
 }
