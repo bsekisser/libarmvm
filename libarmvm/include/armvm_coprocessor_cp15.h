@@ -28,3 +28,8 @@ enum {
 #define _CP15_REG1_BIT(_x) CP15_REG1_BIT_##_x
 #define CP15_REG1_BIT(_x) BEXT(rCP15x(cp15(0, 1, 0, 0), 0), _CP15_REG1_BIT(_x))
 
+static inline void _cp15_reg1_bclr(armvm_coprocessor_p const cp, const unsigned cpx, const unsigned bit)
+{ armvm_coprocessor_cp15r_bmas(cp, cpx, bit, 0); }
+
+#define CP15_REG1_BCLR(_x) \
+	_cp15_reg1_bclr(pARMVM->coprocessor, cp15(0, 1, 0, 0), _CP15_REG1_BIT(_x))
