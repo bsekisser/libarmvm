@@ -143,6 +143,12 @@ armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm,
 uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_p const cp, const uint32_t cpx, uint32_t *const write)
 { return(_armvm_coprocessor_cp15r(cp, cpx, write)); }
 
+void armvm_coprocessor_cp15r_bclr(armvm_coprocessor_p const cp, const uint32_t cpx, const unsigned bit)
+{
+	uint32_t *const p2r = armvm_coprocessor_cp15r_rmw(cp, cpx);
+	BCLR(*p2r, bit);
+}
+
 void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_p const cp, const uint32_t cpx,
 	const unsigned bit, const unsigned set)
 {
