@@ -156,6 +156,27 @@ armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core)
 int armvm_core_in_a_privaleged_mode(armvm_core_p const core)
 { return(0 != mlBFEXT(CPSR, 3, 0)); }
 
+int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc)
+{
+	const unsigned set_thumb = core->config.features.thumb;
+
+	const unsigned thumb = set_thumb ? (new_pc & 1) : 0;
+
+	PC = new_pc & ~(3 >> thumb);
+
+	ARM_CPSR_BMAS(Thumb, thumb);
+
+	return(0);
+}
+
+int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc)
+{
+	if(arm_v5t <= core->config.version)
+		return(armvm_core_pcx(core, new_pc));
+
+	return(0);
+}
+
 void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr)
 {
 	const uint32_t old_mode = mlBFEXT(CPSR, 4, 0);
@@ -206,6 +227,16 @@ uint32_t armvm_core_reg_user(armvm_core_p const core, const unsigned r, uint32_t
 			GPRx(r) = *v;
 	}
 	return(vout);
+}
+
+uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const write)
+{
+	const uint32_t data = core->spsr ? *core->spsr : (write ? *write : 0);
+
+	if(write && core->spsr)
+		*core->spsr = *write;
+
+	return(data);
 }
 
 int armvm_core_step(armvm_core_p const core)
