@@ -57,6 +57,8 @@ int armvm_core_exception_prefetch_abort(armvm_core_p const core)
 
 void armvm_core_exception_reset(armvm_core_p const core)
 {
+	if(core->armvm->config.trace.reset) LOG();
+
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;
 

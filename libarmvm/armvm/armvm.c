@@ -91,7 +91,11 @@ uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write)
 }
 
 void armvm_reset(armvm_p const avm)
-{ armvm(avm, ARMVM_ACTION_RESET); }
+{
+//	if(avm->config.trace.reset) LOG();
+
+	armvm(avm, ARMVM_ACTION_RESET);
+}
 
 uint64_t armvm_run(armvm_p const avm, const uint64_t run_cycles)
 {

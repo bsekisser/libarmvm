@@ -20,5 +20,6 @@ typedef struct armvm_config_t {
 		unsigned alloc_init:1;
 		unsigned exit:1;
 		unsigned init:1;
+		unsigned reset:1;
 	}trace;
 }armvm_config_t;
