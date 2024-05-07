@@ -25,6 +25,7 @@ armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm, armvm_coprocessor
 uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_p const cp, const uint32_t cpx, uint32_t *const write);
 void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_p const cp, const uint32_t cpx,
 	const unsigned bit, const unsigned set);
+uint32_t* armvm_coprocessor_cp15r_rmw(armvm_coprocessor_p const cp, const uint32_t cpx);
 
 void armvm_coprocessor_register_callback(armvm_coprocessor_p const cp,
 	const uint32_t cpx,

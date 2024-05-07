@@ -51,6 +51,17 @@ static void __armvm_coprocessor_exit(armvm_coprocessor_p const cp)
 	handle_free((void*)cp->h2cp);
 }
 
+/* **** */
+
+static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_p const  cp,
+	const uint32_t ir)
+{
+	uint32_t *const p2r = &cp->cp15r[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)];
+	return(p2r);
+}
+
+/* **** */
+
 static armvm_coprocessor_callback_p _armvm_coprocessor_callback(armvm_coprocessor_p const  cp,
 	const uint32_t ir)
 {
@@ -60,8 +71,7 @@ static armvm_coprocessor_callback_p _armvm_coprocessor_callback(armvm_coprocesso
 static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_p const  cp,
 	const uint32_t ir, uint32_t* write)
 {
-	uint32_t *const p2r = &cp->cp15r[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)];
-	return(mem_32_access(p2r, write));
+	return(mem_32_access(_armvm_coprocessor__cp15r_rmw(cp, ir), write));
 }
 
 /*static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
@@ -136,11 +146,12 @@ uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_p const cp, const uint32_t cp
 void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_p const cp, const uint32_t cpx,
 	const unsigned bit, const unsigned set)
 {
-	uint32_t v = _armvm_coprocessor_cp15r(cp, cpx, 0);
-	BMAS(v, bit, set);
-
-	_armvm_coprocessor_cp15r(cp, cpx, &v);
+	uint32_t *const p2v = _armvm_coprocessor__cp15r_rmw(cp, cpx);
+	BMAS(*p2v, bit, set);
 }
+
+uint32_t* armvm_coprocessor_cp15r_rmw(armvm_coprocessor_p const cp, const uint32_t cpx)
+{ return(_armvm_coprocessor__cp15r_rmw(cp, cpx)); }
 
 void armvm_coprocessor_register_callback(armvm_coprocessor_p const cp,
 	uint32_t cpx,
