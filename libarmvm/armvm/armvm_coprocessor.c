@@ -151,8 +151,8 @@ uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_p const cp, const uint32_t cp
 
 void armvm_coprocessor_cp15r_bclr(armvm_coprocessor_p const cp, const uint32_t cpx, const unsigned bit)
 {
-	uint32_t *const p2r = armvm_coprocessor_cp15r_rmw(cp, cpx);
-	BCLR(*p2r, bit);
+	uint32_t *const p2v = armvm_coprocessor_cp15r_rmw(cp, cpx);
+	BCLR(*p2v, bit);
 }
 
 void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_p const cp, const uint32_t cpx,
