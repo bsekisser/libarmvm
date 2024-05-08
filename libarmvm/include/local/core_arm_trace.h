@@ -186,6 +186,24 @@ void armvm_trace_ldst(armvm_core_p const core)
 			ARM_IR_LDST_BIT(U) ? '+' : '-',
 			ARM_IR_LDST_IMMEDIATE_OFFSET);
 	break;
+	case 3:
+		if(!mlBFEXT(IR, 11, 4))
+			_armvm_trace_(core, ", %s)", irR_NAME(M));
+		else {
+			const char* sos = arm_sop_lcase_string[ARM_IR_DP_SHIFT_TYPE];
+			const char* rrx = arm_sop_lcase_string[ARM_SOP_RRX];
+
+			switch(ARM_IR_DP_SHIFT_TYPE) {
+				case ARM_SOP_ROR:
+					if(!vR(S))
+						_armvm_trace_(core, ", %s(%s))", rrx, irR_NAME(M));
+					break;
+				default:
+						_armvm_trace_(core, ", %s(%s, %u))", sos, irR_NAME(M), vR(S));
+					break;
+			}
+		}
+	break;
 	default:
 		LOG("ARM_IR_GROUP: %01u", ARM_IR_GROUP);
 		LOG_ACTION(arm_disasm(IP, IR); exit(-1));

@@ -269,6 +269,17 @@ static int _arm_inst_ldst_immediate(armvm_core_p const core)
 	return(_arm_inst_ldst(core));
 }
 
+static int _arm_inst_ldst_scaled_register_offset(armvm_core_p const core)
+{
+	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rs = setup_vRml(core, ARMVM_TRACE_R(S), 11, 7);
+
+	const uint32_t sop = arm_shiftbox_immediate(ARM_IR_DP_SHIFT_TYPE, rm, rs, IF_CPSR(C));
+	(void)setup_vR(core, ARMVM_TRACE_R(SOP), sop);
+
+	return(_arm_inst_ldst(core));
+}
+
 static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 {
 	(void)setup_vR(core, ARMVM_TRACE_R(SOP), rm);
@@ -788,6 +799,12 @@ int armvm_core_arm_step(armvm_core_p const core)
 				return(armvm_core_arm__step_group1(core));
 			case 2: // xxxx 010x xxxx xxxx
 				return(_arm_inst_ldst_immediate(core));
+			case 3: // xxxx 011x xxxx xxxx
+				if(!BTST(IR, 4))
+					return(_arm_inst_ldst_scaled_register_offset(core));
+				else
+					return(__arm_decode_fail(core));
+				break;
 			case 4: /* xxxx 100x xxxx xxxx */
 				return(_arm_inst_ldstm(core));
 			case 5: // xxxx 101x xxxx xxxx
