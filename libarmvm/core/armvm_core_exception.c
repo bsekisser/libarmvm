@@ -96,7 +96,7 @@ int armvm_core_exception_undefined_instruction(armvm_core_p const core)
 	rUND(R14) = ARM_PC_NEXT;
 	rUND(SPSR) = CPSR;
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32_BMAS(Undefined));
+	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Undefined));
 
 	ARM_CPSR_BMAS(Thumb, 0);
 //	ARM_CPSR_BMAS(FIQ, 1);
