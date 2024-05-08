@@ -45,7 +45,7 @@ static int armvm_core_check_cc(armvm_core_p const core, const uint8_t cc)
 		default:
 			LOG("IR = 0x%08x, cc = %02x, cpsr = 0x%08x, cpsr_cc %02x",
 				IR, cc, CPSR, mlBFEXT(CPSR, 31, 28));
-			LOG_ACTION(exit(1));
+			LOG_ACTION(exit(-1));
 			break;
 	}
 

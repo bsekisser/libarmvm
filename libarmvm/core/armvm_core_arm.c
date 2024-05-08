@@ -431,7 +431,7 @@ static int _arm_inst_ldstm(armvm_core_p const core)
 
 		if((bit_w && (user_mode_regs || load_spsr))
 			|| (user_mode_regs && load_spsr))
-				LOG_ACTION(exit(1));
+				LOG_ACTION(exit(-1));
 
 		if(bit_w)
 		{
@@ -441,7 +441,8 @@ static int _arm_inst_ldstm(armvm_core_p const core)
 			if(end_address == vR(EA) - 4)
 				core_reg_wb_v(core, ARMVM_TRACE_R(N), sp_out);
 			else
-{}//				UNDEFINED;
+					LOG_ACTION(exit(-1));
+//				UNDEFINED;
 		}
 	}
 

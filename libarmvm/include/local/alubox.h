@@ -5,15 +5,12 @@
 #include "armvm_core.h"
 
 #include "local/alubox_flags.h"
+#include "local/core_reg.h"
 
 /* **** */
 
 #include "libarm/include/arm_disasm.h"
 #include "libarm/include/arm_dp.h"
-
-/* **** */
-
-#include "libbse/include/unused.h"
 
 /* **** */
 
@@ -150,34 +147,4 @@ if(0)		LOG("rn: 0x%08x, sop: 0x%08x, rd = 0x%08x, carry_in: %1u",
 	}
 
 	return(rd);
-}
-
-UNUSED_FN
-static uint32_t alubox_thumb(armvm_core_p const core, const unsigned operation,
-	const unsigned s)
-{
-	unsigned shift_type = ~0U;
-	switch(operation) {
-		case ARM_ASR:
-			shift_type = ARM_SOP_ASR;
-			break;
-		case ARM_LSL:
-			shift_type = ARM_SOP_LSL;
-			break;
-		case ARM_LSR:
-			shift_type = ARM_SOP_LSR;
-			break;
-		case ARM_ROR:
-			shift_type = ARM_SOP_ROR;
-			break;
-		default:
-			setup_vR(core, ARMVM_TRACE_R(SOP), vR(M));
-			return(alubox(core, operation, s, 0));
-	}
-
-	const uint32_t valid_rs = vR(M) & 0xff;
-
-	vR(SOP) = arm_shiftbox(~shift_type, vR(N), valid_rs, IF_CPSR(C));
-	ARM_CPSR_BMAS(C, !!arm_shiftbox_c(~shift_type, vR(N), valid_rs));
-	return(alubox(core, ARM_MOV, s, 0));
 }

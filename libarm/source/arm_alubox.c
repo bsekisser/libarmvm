@@ -6,6 +6,10 @@
 
 /* **** */
 
+#include "libbse/include/log.h"
+
+/* **** */
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -63,7 +67,7 @@ uint32_t arm_alubox(unsigned operation, uint32_t *const rd, uint32_t rn,
 		result -= rn;
 	break;
 	default:
-		exit(-1);
+		LOG_ACTION(exit(-1));
 	}
 
 	switch(operation) {

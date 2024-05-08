@@ -15,7 +15,7 @@
 
 #include "armvm.h"
 
-#include "local/alubox.h"
+#include "local/alubox_thumb.h"
 #include "local/ldst.h"
 #include "local/ldstm_thumb.h"
 
@@ -396,7 +396,7 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 		default:
 			LOG("operation = 0x%03x", operation);
 			arm_disasm_thumb(IP, IR);
-			LOG_ACTION(exit(1));
+			LOG_ACTION(exit(-1));
 			break;
 	}
 
@@ -704,7 +704,7 @@ static int _armvm_core_thumb_sdp_rms_rdn(armvm_core_p const core)
 				break;
 			default:
 				arm_disasm_thumb(IP, IR);
-				LOG_ACTION(exit(1));
+				LOG_ACTION(exit(-1));
 				break;
 		}
 

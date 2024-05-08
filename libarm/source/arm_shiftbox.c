@@ -7,6 +7,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/log.h"
 #include "libbse/include/shift_roll.h"
 
 /* **** */
@@ -35,7 +36,7 @@ uint32_t arm_shiftbox(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned ca
 		return(_rrx_v(rm, carry_in));
 	break;
 	default:
-		exit(-1);
+		LOG_ACTION(exit(-1));
 	}
 
 	return(0xdeadbeef);
@@ -60,7 +61,7 @@ uint32_t arm_shiftbox_c(unsigned shift_type, uint32_t rm, uint32_t rs)
 		return(_rrx_c(rm));
 	break;
 	default:
-		exit(-1);
+		LOG_ACTION(exit(-1));
 	}
 
 	return(0xdeadbeef);
