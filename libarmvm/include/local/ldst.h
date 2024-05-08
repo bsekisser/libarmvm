@@ -24,6 +24,10 @@
 
 /* **** */
 
+typedef int (*ldst_fn)(armvm_core_p const core);
+
+/* **** */
+
 static int __ldr(armvm_core_p const core, const int arm)
 {
 	const unsigned ea_xx = vR(EA) & 3;

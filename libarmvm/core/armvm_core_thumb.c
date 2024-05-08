@@ -469,6 +469,40 @@ static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_p const core)
 	return(ldst_rval);
 }
 
+static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_p const core)
+{
+//	struct {
+		const int bit_l = BEXT(IR, 11) | (3 == mlBFEXT(IR, 10, 9));
+		const uint8_t bwh = mlBFEXT(IR, 11, 9);
+//	}bit;
+
+	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 8, 6);
+	const uint32_t rn = core_reg_src_decode(core, ARMVM_TRACE_R(N), 5, 3);
+	setup_rRml(core, ARMVM_TRACE_R(D), 2, 0);
+
+	const uint32_t ea = setup_vR(core, ARMVM_TRACE_R(EA), rn + rm);
+
+	static const char *_ss[8] = { "", "h", "b", "sb", "", "h", "b", "sh" };
+
+	ldst_fn bwh_fn[8] = {
+		__str, __strh, __strb, __ldrsb,
+		__ldr_thumb, __ldrh, __ldrb, __ldrsh,
+	};
+
+	(void)bwh_fn[bwh](core);
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "%sr%s(%s, %s, %s)",
+			bit_l ? "ld" : "st", _ss[bwh], rR_NAME(D), rR_NAME(N), rR_NAME(M));
+		_armvm_trace_comment(core, "0x%08x[0x%08x](0x%08x) = 0x%08x",
+			rm, rn, ea, vR(D));
+
+		__trace_end(core);
+	}
+
+	return(1);
+}
+
 static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
 {
 //	struct {
@@ -701,7 +735,7 @@ static int armvm_core_thumb__step_group0_0000_1fff(armvm_core_p const core)
 static int armvm_core_thumb__step_group2_4000_5fff(armvm_core_p const core)
 {
 	if(0x5000 == mlBFTST(IR, 15, 12)) { /* 0101 xxxx xxxx xxxx */
-;//		return(soc_core_thumb_ldst_rm_rn_rd(core));
+		return(_armvm_core_thumb_ldst_rm_rn_rd(core));
 	} else if(0x4800 == mlBFTST(IR, 15, 11)) { /* 0100 1xxx xxxx xxxx */
 		return(_armvm_core_thumb_ldst_rd_i(core));
 	} else {
