@@ -655,6 +655,7 @@ static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_p const core)
 
 	const uint32_t rd = arm_shiftbox(shift_type, rm, rs, IF_CPSR(C));
 	ARM_CPSR_BMAS(C, arm_shiftbox_c(shift_type, rm, rs));
+	_alubox_flags_nz(core, rd);
 
 	core_reg_dst_wb(core, ARMVM_TRACE_R(D), mlBFEXT(IR, 2, 0), rd);
 
