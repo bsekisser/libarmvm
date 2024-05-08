@@ -636,7 +636,7 @@ static int _arm_inst_msr_register(armvm_core_p const core)
 		assert(0 == ARM_IR_R(S));
 	}
 
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(S));
+	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	const uint32_t sop = setup_vR(core, ARMVM_TRACE_R(SOP), rm);
 
 	return(_arm_inst_msr(core, sop));
