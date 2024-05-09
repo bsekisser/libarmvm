@@ -179,8 +179,8 @@ int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc)
 
 void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr)
 {
-	const uint32_t old_mode = mlBFEXT(CPSR, 4, 0);
-	const uint32_t new_mode = mlBFEXT(new_cpsr, 4, 0);
+	const uint32_t old_mode = ARM_CPSR_M(32) | mlBFEXT(CPSR, 4, 0);
+	const uint32_t new_mode = ARM_CPSR_M(32) | mlBFEXT(new_cpsr, 4, 0);
 
 	if(old_mode == new_mode)
 		return;
@@ -199,7 +199,7 @@ void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr
 void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr)
 {
 	armvm_core_psr_mode_switch(core, new_cpsr);
-	CPSR = new_cpsr;
+	CPSR = ARM_CPSR_M(32) | new_cpsr;
 }
 
 void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core)
