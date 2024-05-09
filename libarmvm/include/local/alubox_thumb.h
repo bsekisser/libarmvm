@@ -44,6 +44,7 @@ static uint32_t alubox_thumb(armvm_core_p const core, const unsigned operation,
 
 	assert(~0U != shift_type);
 
+	core_reg_src_load(core, ARMVM_TRACE_R(N));
 	const uint32_t valid_rs = vR(M) & 0xff;
 
 	vR(SOP) = arm_shiftbox(shift_type, vR(N), valid_rs, IF_CPSR(C));
