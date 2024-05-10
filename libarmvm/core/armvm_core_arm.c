@@ -298,7 +298,7 @@ static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 		case 6: ldst_fn = __ldrsb; break;
 		case 7: ldst_fn = __ldrsh; break;
 		default:
-			return(__arm_decode_fail(core));;
+			LOG_ACTION(return(__arm_decode_fail(core)));;
 	}
 
 	int ldst_rval = -1;
@@ -700,7 +700,7 @@ static int armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 			return(_arm_inst_ldst_sh_register(core));
 	}
 
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
 
 static int armvm_core_arm__step__group0_misc(armvm_core_p const core)
@@ -724,7 +724,7 @@ static int armvm_core_arm__step__group0_misc(armvm_core_p const core)
 		case 0x01600010: return(_arm_inst_clz(core));
 	}
 
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
 
 static int armvm_core_arm__step_group0(armvm_core_p const core)
@@ -744,12 +744,12 @@ static int armvm_core_arm__step_group0(armvm_core_p const core)
 			return(_arm_inst_dp_shift_immediate(core));
 	}
 
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
 
 static int armvm_core_arm__step__group1_misc(armvm_core_p const core)
 {
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
 
 static int armvm_core_arm__step_group1(armvm_core_p const core)
@@ -759,7 +759,7 @@ static int armvm_core_arm__step_group1(armvm_core_p const core)
 	else
 		return(_arm_inst_dp_immediate(core));
 
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
 
 static int armvm_core_arm__step_group7(armvm_core_p const core)
@@ -772,7 +772,7 @@ static int armvm_core_arm__step_group7(armvm_core_p const core)
 			return(_arm_inst_mcr_mrc(core));
 	}
 
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
 
 int armvm_core_arm_step(armvm_core_p const core)
@@ -803,7 +803,7 @@ int armvm_core_arm_step(armvm_core_p const core)
 				if(!BTST(IR, 4))
 					return(_arm_inst_ldst_scaled_register_offset(core));
 				else
-					return(__arm_decode_fail(core));
+					LOG_ACTION(return(__arm_decode_fail(core)));
 				break;
 			case 4: /* xxxx 100x xxxx xxxx */
 				return(_arm_inst_ldstm(core));
@@ -812,7 +812,7 @@ int armvm_core_arm_step(armvm_core_p const core)
 			case 7: // xxxx 111x xxxx xxxx
 				return(armvm_core_arm__step_group7(core));
 			default:
-				return(__arm_decode_fail(core));
+				LOG_ACTION(return(__arm_decode_fail(core)));
 		}
 		break;
 	case CC_NV:
@@ -820,10 +820,10 @@ int armvm_core_arm_step(armvm_core_p const core)
 			case 5: // xxxx 101x xxxx xxxx
 				return(_arm_inst_blx(core));
 			default:
-				return(__arm_decode_fail(core));
+				LOG_ACTION(return(__arm_decode_fail(core)));
 		}
 		break;
 	}
 
-	return(__arm_decode_fail(core));
+	LOG_ACTION(return(__arm_decode_fail(core)));
 }
