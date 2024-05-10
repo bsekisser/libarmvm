@@ -298,7 +298,7 @@ static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 		case 6: ldst_fn = __ldrsb; break;
 		case 7: ldst_fn = __ldrsh; break;
 		default:
-			LOG_ACTION(return(__arm_decode_fail(core)));;
+			LOG_ACTION(return(__arm_decode_fail(core)));
 	}
 
 	int ldst_rval = -1;
@@ -654,6 +654,32 @@ static int _arm_inst_msr_register(armvm_core_p const core)
 	return(_arm_inst_msr(core, sop));
 }
 
+static int _arm_inst_mul(armvm_core_p const core)
+{
+	const uint32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
+	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+
+	rSPR64(RESULT) = rm * rs;
+	const uint32_t rd = rSPR64lo(RESULT);
+
+	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
+	if(CCX) _alubox_flags_nz(core, rd);
+
+	/* **** */
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "mul%s(%s, %s, %s)",
+			ARM_IR_DP_S ? "s" : "", irR_NAME(D), irR_NAME(M), irR_NAME(S));
+
+		_armvm_trace_comment(core, "0x%08x * 0x%08x = 0x%08x",
+			rm, rs, rd);
+
+		__trace_end(core);
+	}
+
+	return(rR_IS_NOT_PC(D));
+}
+
 static int _arm_inst_umull(armvm_core_p const core)
 {
 	const uint32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
@@ -698,6 +724,12 @@ static int armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 			return(_arm_inst_ldst_sh_immediate(core));
 		else
 			return(_arm_inst_ldst_sh_register(core));
+	} else {
+		switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
+			case 0x00000090:
+			case 0x00100090:
+				return(_arm_inst_mul(core));
+		}
 	}
 
 	LOG_ACTION(return(__arm_decode_fail(core)));
@@ -711,8 +743,6 @@ static int armvm_core_arm__step__group0_misc(armvm_core_p const core)
 	}
 
 	switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
-//		case 0x00000090:
-//		case 0x00100090: return(_arm_inst_mul(core));
 		case 0x00200090:
 		case 0x00300090: return(_arm_inst_mla(core));
 		case 0x00800090:
