@@ -693,7 +693,7 @@ static int _arm_inst_umull(armvm_core_p const core)
 
 static int armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 {
-	if(9 != mlBFTST(IR, 7, 4)) {
+	if(9 != mlBFEXT(IR, 7, 4)) {
 		if(ARM_IR_LDST_SH_BIT(I))
 			return(_arm_inst_ldst_sh_immediate(core));
 		else
