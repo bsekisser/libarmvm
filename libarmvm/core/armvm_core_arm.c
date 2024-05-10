@@ -37,6 +37,8 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 /* **** */
@@ -680,6 +682,40 @@ static int _arm_inst_mul(armvm_core_p const core)
 	return(rR_IS_NOT_PC(D));
 }
 
+static int _arm_inst_smull(armvm_core_p const core)
+{
+	const int32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const int32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
+
+	rSPR64(RESULT) = (int64_t)(rm * rs);
+
+	const uint32_t lo = rSPR64lo(RESULT);
+	const uint32_t hi = rSPR64hi(RESULT);
+
+	core_reg_dst_wb(core, ARMVM_TRACE_R(DLo), ARM_IR_R(DLo), lo);
+	core_reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
+
+	if(CCX && ARM_IR_DP_S) {
+		ARM_CPSR_BMAS(N, BEXT(hi, 31));
+		ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+	}
+
+	/* **** */
+
+	if(__trace_start(core)) {
+		_armvm_trace_(core, "smull%s(%s:%s, %s, %s)",
+			ARM_IR_DP_S ? "s" : "",
+			irR_NAME(DLo), irR_NAME(DHi), irR_NAME(M), irR_NAME(S));
+
+		_armvm_trace_comment(core, "0x%08x * 0x%08x = 0x%016" PRIx64,
+			rm, rs, rSPR64(RESULT));
+
+		__trace_end(core);
+	}
+
+	return(rR_IS_NOT_PC(D));
+}
+
 static int _arm_inst_umull(armvm_core_p const core)
 {
 	const uint32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
@@ -729,6 +765,9 @@ static int armvm_core_arm__step__group0_ldst(armvm_core_p const core)
 			case 0x00000090:
 			case 0x00100090:
 				return(_arm_inst_mul(core));
+			case 0x00c00090:
+			case 0x00d00090:
+				return(_arm_inst_smull(core));
 		}
 	}
 
