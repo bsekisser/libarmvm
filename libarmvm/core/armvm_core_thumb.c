@@ -251,7 +251,7 @@ static int _armvm_core_thumb_bx(armvm_core_p const core)
 static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
 	const uint32_t eao, const unsigned blx)
 {
-	const uint32_t new_pc = LR + eao;
+	const uint32_t new_pc = (LR + eao) & ~(blx ? 3U : 1U);
 
 	if(0) LOG("LR = 0x%08x, PC = 0x%08x", LR, PC);
 
@@ -260,7 +260,7 @@ static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
 //	int splat = _trace_bx_0 && (new_pc == THUMB_PC_NEXT);
 	int splat = (new_pc == THUMB_PC_NEXT);
 	_armvm_trace(core, "bl%s(0x%08x); /* 0x%08x + %s0x%08x, LR = 0x%08x */",
-		blx ? "x" : "", new_pc & ~1U, PC, splat ? "x" : "", eao, LR & ~1U);
+		blx ? "x" : "", new_pc, THUMB_PC_NEXT, splat ? "x" : "", eao, LR & ~1U);
 
 	if(blx)
 		return(armvm_core_pcx_v5(core, new_pc));
