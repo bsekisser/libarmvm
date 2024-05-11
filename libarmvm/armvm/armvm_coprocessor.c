@@ -74,12 +74,18 @@ static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_p const  cp,
 	return(mem_32_access(_armvm_coprocessor__cp15r_rmw(cp, ir), write));
 }
 
-/*static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
+static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
 {
-	armvm_coprocessor_p cp = param;
+	const armvm_coprocessor_p cp = param;
+	const armvm_core_p core = cp->armvm->core;
 
-	return(mem_32_access(&cp->armvm->cp15r1, write));
-}*/
+	uint32_t *cp15r1 = _armvm_coprocessor__cp15r_rmw(cp, IR);
+
+	const uint32_t sbo = _BV(18) | _BV(16) | mlBF(6, 4);
+	const uint32_t sbz = mlBF(31, 26) | _BV(20) | _BV(19) | _BV(17);
+
+	return((mem_32_access(cp15r1, write) & ~sbz) | sbo);
+}
 
 void armvm_coprocessor(armvm_coprocessor_p const cp, const unsigned action)
 {
@@ -134,8 +140,8 @@ armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm,
 
 	/* **** */
 
-//	armvm_coprocessor_register_callback(cp, cp15(0, 1, 0, 0),
-//		_armvm_cp15_0_1_0_0_access, cp);
+	armvm_coprocessor_register_callback(cp, cp15(0, 1, 0, 0),
+		_armvm_cp15_0_1_0_0_access, cp);
 
 	return(cp);
 }
