@@ -2,7 +2,7 @@
 
 /* **** */
 
-enum {
+enum arm_condition_t {
 	CC_EQ, CC_NE,
 	CC_CS, CC_CC,
 	CC_MI, CC_PL,
@@ -11,9 +11,7 @@ enum {
 	CC_GE, CC_LT,
 	CC_GT, CC_LE,
 	CC_AL, CC_NV,
-};
-
-enum {
+//
 	CC_HS = CC_CS,
 	CC_LO = CC_CC,
 };

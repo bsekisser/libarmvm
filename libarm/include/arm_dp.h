@@ -2,7 +2,7 @@
 
 /* **** */
 
-enum {
+enum arm_dp_opcode_t {
 	ARM_AND,
 	ARM_EOR,
 	ARM_SUB,
