@@ -2,28 +2,14 @@
 
 /* **** */
 
-enum {
-	ARMVM_EXCEPTION_Reset,
-	ARMVM_EXCEPTION_DataAbort,
-	ARMVM_EXCEPTION_FIQ,
-	ARMVM_EXCEPTION_IRQ,
-	ARMVM_EXCEPTION_PrefetchAbort,
-	ARMVM_EXCEPTION_SWI,
-	ARMVM_EXCEPTION_UNDEFINED,
-};
-
-/* **** */
-
 #include "libarm/include/arm_disasm.h"
 #include "armvm.h"
 
 /* **** */
 
-#include "libbse/include/log.h"
-
-/* **** */
-
 void arm_exception(unsigned exception, armvm_p avm);
+int armvm_exception_fiq(armvm_p const avm);
+int armvm_exception_irq(armvm_p const avm);
 
 /* **** */
 
