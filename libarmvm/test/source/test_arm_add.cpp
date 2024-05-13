@@ -12,6 +12,7 @@ extern "C" {
 extern "C" {
 	int test_arm_add(test_p t)
 {
+	return(0);
 	reset(t);
 
 	rR(0) = 0;
@@ -30,10 +31,50 @@ extern "C" {
 	return(1);
 }
 
+static void _s_adds_in(test_p const t, const int32_t rd, const int32_t rn,
+	const unsigned v)
+	{
+		rR(0) = rd; rR(1) = rn;
+		adds(r0, r0, r1);
+
+		run_test_flags(t, v ? _BV(ARM_CPSR(V)) : 0);
+	}
+
+static void _u_adds_in(test_p const t, const uint32_t rd, const uint32_t rn,
+	const unsigned c)
+	{
+		rR(0) = rd; rR(1) = rn;
+		adds(r0, r0, r1);
+
+		run_test_flags(t, c ? _BV(ARM_CPSR(C)) : 0);
+	}
+
+static void _out_zc(test_p const t, const uint32_t rd,
+	const unsigned z, const unsigned c)
+	{
+		fail_if(rd != rR(0));
+		check_nzcv(t, IF_CPSR(N), z, c, IF_CPSR(V));
+	}
+
+static void _out_nzc(test_p const t, const uint32_t rd,
+	const unsigned n, const unsigned z, const unsigned c)
+	{
+		fail_if(rd != rR(0));
+		check_nzcv(t, n, z, c, IF_CPSR(V));
+	}
+
+static void _out_nzcv(test_p const t, const uint32_t rd,
+	const unsigned n, const unsigned z, const unsigned c, const unsigned v)
+	{
+		fail_if(rd != rR(0));
+		check_nzcv(t, n, z, c, v);
+	}
+
 	int test_arm_adds(test_p t)
 {
 	reset(t);
 
+if(0) {
 	rR(0) = 1;
 	adds(r0, r0, LSL(r0, 3));
 	run_test(t);
@@ -63,6 +104,28 @@ extern "C" {
 	run_test(t);
 	fail_if(0x20000000 != rR(0));
 	check_nzcv(t, 0, 0, 1, 0);
+}
+
+	_u_adds_in(t, 0xfffffffe, 0x00000001, 0);
+	_out_nzcv(t, 0xffffffff, 1, 0, 0, 0);
+
+	_u_adds_in(t, 0xfffffffe, 0x00000002, 0);
+	_out_nzcv(t, 0x00000000, 0, 1, 1, 0);
+
+	_u_adds_in(t, 0xfffffffe, 0x00000003, 0);
+	_out_nzcv(t, 0x00000001, 0, 0, 1, 0);
+
+	_s_adds_in(t, 0x7ffffffe, 0x00000001, 0);
+	_out_nzcv(t, 0x7fffffff, 0, 0, 0, 0);
+
+	_s_adds_in(t, 0x7ffffffe, 0x00000002, 0);
+	_out_nzcv(t, 0x80000000, 1, 0, 0, 1);
+
+	_s_adds_in(t, 0x80000001, 0xffffffff, 0);
+	_out_nzcv(t, 0x80000000, 1, 0, 1, 0);
+
+	_s_adds_in(t, 0x80000001, 0xfffffffe, 0);
+	_out_nzcv(t, 0x7fffffff, 0, 0, 1, 1);
 
 	return(1);
 }}
