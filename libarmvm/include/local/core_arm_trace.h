@@ -155,8 +155,8 @@ void armvm_trace_ldst(armvm_core_p const core)
 	case 2:
 //		is_ld = ARM_IR_LDST_BIT(L);
 		_armvm_trace_(core, ARM_IR_LDST_BIT(L) ? "ldr" :  "str");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_BIT(B) ? "B" : "");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_FLAG_T ? "T" : "");
+		_armvm_trace_(core, "%s", ARM_IR_LDST_BIT(B) ? "b" : "");
+		_armvm_trace_(core, "%s", ARM_IR_LDST_FLAG_T ? "t" : "");
 	break;
 	default:
 		LOG_ACTION(arm_disasm(IP, IR); exit(-1));
