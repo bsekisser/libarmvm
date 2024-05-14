@@ -2,7 +2,9 @@
 
 /* **** */
 
-typedef enum arm_reg_t {
+#define ARM_GPR_R(_x) (ARM_GPR_R ## _x)
+
+typedef enum arm_gpr_t {
 	ARM_GPR_R0, ARM_GPR_R1, ARM_GPR_R2, ARM_GPR_R3, ARM_GPR_R4, ARM_GPR_R5, ARM_GPR_R6, ARM_GPR_R7,
 	ARM_GPR_R8, ARM_GPR_R9,	ARM_GPR_R10, ARM_GPR_R11, ARM_GPR_R12, ARM_GPR_R13, ARM_GPR_R14, ARM_GPR_R15,
 //
@@ -10,5 +12,5 @@ typedef enum arm_reg_t {
 //
 	ARM_GPR_RLR = ARM_GPR_R14,
 	ARM_GPR_RPC = ARM_GPR_R15,
-	ARM_GPR_RSP = ARM_GOR_R13,
-}arm_reg_t;
+	ARM_GPR_RSP = ARM_GPR_R13,
+}arm_gpr_t;
