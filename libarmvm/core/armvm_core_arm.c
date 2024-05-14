@@ -15,7 +15,7 @@
 #include "local/alubox.h"
 #include "local/core_arm_trace.h"
 #include "local/core_reg.h"
-#include "local/ldst.h"
+#include "local/ldst_arm.h"
 #include "local/ldstm_arm.h"
 
 /* **** */
@@ -241,8 +241,6 @@ static int _arm_inst_ldst(armvm_core_p const core)
 {
 	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
-	const uint32_t wb_ea = __ldst_arm__ea(core);
-
 	int (*ldst_fn)(armvm_core_p const core);
 	if(ARM_IR_LDST_BIT(L)) {
 		ldst_fn = ARM_IR_LDST_BIT(B) ? __ldrb : __ldr_arm;
@@ -250,17 +248,12 @@ static int _arm_inst_ldst(armvm_core_p const core)
 		ldst_fn = ARM_IR_LDST_BIT(B) ? __strb : __str;
 	}
 
-	int ldst_rval = -1;
-	if(ldst_fn)
-		ldst_rval = ldst_fn(core);
-
-	if(0 < ldst_rval)
-		__ldst_arm__ea_wb(core, wb_ea);
+	const int ldst_rval = __ldst_arm_ea_fn(core, ldst_fn);
 
 	if(core->config.trace)
 		armvm_trace_ldst(core);
 
-	return(0);
+	return(ldst_rval);
 }
 
 static int _arm_inst_ldst_immediate(armvm_core_p const core)
@@ -289,8 +282,6 @@ static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 
 	const unsigned bwh  = BMOV(IR, ARM_IR_LDST_BIT_L, 2) | mlBFEXT(IR, 6, 5);
 
-	const uint32_t wb_ea = __ldst_arm__ea(core);
-
 	int (*ldst_fn)(armvm_core_p const core);
 	switch(bwh) {
 		case 1: ldst_fn = __strh; break;
@@ -303,12 +294,7 @@ static int _arm_inst_ldst_sh(armvm_core_p const core, const uint32_t rm)
 			LOG_ACTION(return(__arm_decode_fail(core)));
 	}
 
-	int ldst_rval = -1;
-	if(ldst_fn)
-		ldst_rval = ldst_fn(core);
-
-	if(0 < ldst_rval)
-		__ldst_arm__ea_wb(core, wb_ea);
+	const int ldst_rval = __ldst_arm_ea_fn(core, ldst_fn);
 
 	if(core->config.trace)
 		armvm_trace_ldst(core);

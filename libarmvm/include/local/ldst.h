@@ -5,6 +5,7 @@
 #include "armvm_coprocessor_cp15.h"
 #include "armvm_core_exception.h"
 #include "armvm_core_mem.h"
+#include "armvm_core.h"
 
 /* **** */
 
@@ -13,6 +14,9 @@
 /* **** */
 
 #include "libarm/include/arm_cpsr.h"
+#include "libarm/include/arm_ir.h"
+
+/* **** */
 
 /* **** */
 
@@ -49,12 +53,8 @@ static int __ldr(armvm_core_p const core, const int arm)
 	else
 		core_reg_wb(core, ARMVM_TRACE_R(D));
 
-	return(rR_IS_PC(D));
+	return(1);
 }
-
-UNUSED_FN
-static int __ldr_arm(armvm_core_p const core)
-{ return(__ldr(core, 1)); }
 
 UNUSED_FN
 static int __ldr_thumb(armvm_core_p const core)
@@ -71,7 +71,7 @@ static int __ldrb(armvm_core_p const core)
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
 
-	return(rR_IS_PC(D));
+	return(1);
 }
 
 static int __ldrh(armvm_core_p const core)
@@ -88,7 +88,7 @@ static int __ldrh(armvm_core_p const core)
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
 
-	return(rR_IS_PC(D));
+	return(1);
 }
 
 UNUSED_FN
@@ -105,7 +105,7 @@ static int __ldrsb(armvm_core_p const core)
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
 
-	return(rR_IS_PC(D));
+	return(1);
 }
 
 UNUSED_FN
@@ -125,33 +125,7 @@ static int __ldrsh(armvm_core_p const core)
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
 
-	return(rR_IS_PC(D));
-}
-
-UNUSED_FN
-static uint32_t __ldst_arm__ea(armvm_core_p const core)
-{
-	const unsigned bit_p = ARM_IR_LDST_BIT(P);
-
-	assert(!(!bit_p && ARM_IR_LDST_BIT(W)));
-
-	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
-	const uint32_t offset = ARM_IR_LDST_BIT(U) ? vR(SOP) : -vR(SOP);
-
-	const uint32_t pre_offset = bit_p ? offset : 0;
-	const uint32_t post_offset = bit_p ? 0 : offset;
-
-	const uint32_t ea = setup_rR_vR(core, ARMVM_TRACE_R(EA), ~0, rn + pre_offset);
-	return(ea + post_offset);
-}
-
-UNUSED_FN
-static void __ldst_arm__ea_wb(armvm_core_p const core, uint32_t wb_ea)
-{
-	if(!CCX) return;
-
-	if(!ARM_IR_LDST_BIT(P) || ARM_IR_LDST_BIT(W))
-		irGPR(N) = wb_ea;
+	return(1);
 }
 
 static int __str(armvm_core_p const core)
