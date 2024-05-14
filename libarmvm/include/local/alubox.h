@@ -107,6 +107,25 @@ if(0)		LOG("rn: 0x%08x, sop: 0x%08x, rd = 0x%08x, carry_in: %1u",
 	vR(D) = rd;
 	if(!CCX) return(rd);
 
+	if(s && nzc) {
+		switch(operation) {
+			case ARM_ADC:
+			case ARM_ADD:
+			case ARM_CMN:
+			case ARM_NEG:
+				break;
+			case ARM_CMP:
+			case ARM_RSB:
+			case ARM_RSC:
+			case ARM_SBC:
+			case ARM_SUB:
+				break;
+			default:
+				ARM_CPSR_BMAS(C, _shifter_operand_c(core));
+				break;
+		}
+	}
+
 	switch(operation) {
 		case ARM_CMN:
 		case ARM_CMP:
@@ -137,10 +156,7 @@ if(0)		LOG("rn: 0x%08x, sop: 0x%08x, rd = 0x%08x, carry_in: %1u",
 					_alubox_flags_x_add_sub(core, rd, rn, ~sop);
 					break;
 				default:
-					if(nzc)
-						_alubox_flags_nzc(core, rd);
-					else
-						_alubox_flags_nz(core, rd);
+					_alubox_flags_nz(core, rd);
 					break;
 			}
 		}
