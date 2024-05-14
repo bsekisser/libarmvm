@@ -234,6 +234,14 @@ uint32_t armvm_mem_generic_page_ro(void *const param,
 	uint32_t *const write)
 {
 	uint8_t *const p = param + ppa;
+
+	if(1) {
+		const uint64_t *prefetch_next = (void*)p + size;
+		__builtin_prefetch(prefetch_next);
+		__builtin_prefetch(&prefetch_next[8]);
+		__builtin_prefetch(&prefetch_next[16]);
+	}
+
 	return(mem_access_le(p, size, 0));
 	UNUSED(write);
 }
@@ -243,6 +251,14 @@ uint32_t armvm_mem_generic_page_rw(void *const param,
 	uint32_t *const write)
 {
 	uint8_t *const p = param + ppa;
+
+	if(1) {
+		const uint64_t *prefetch_next = (void*)p + size;
+		__builtin_prefetch(prefetch_next);
+		__builtin_prefetch(&prefetch_next[8]);
+		__builtin_prefetch(&prefetch_next[16]);
+	}
+
 	return(mem_access_le(p, size, write));
 }
 
