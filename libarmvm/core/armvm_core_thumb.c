@@ -184,7 +184,7 @@ static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
 	switch(operation)
 	{
 		default:
-			_armvm_trace_(core, "%s(%s, 0x%03x)",
+			_armvm_trace_(core, "%ss(%s, 0x%03x)",
 				arm_dp_inst_string[operation], rR_NAME(D), rm);
 			_armvm_trace_comment(core, "0x%08x %s0x%03x = 0x%08x",
 					vR(N), arm_dp_op_string[operation], rm, rd);
@@ -341,8 +341,8 @@ static int _armvm_core_thumb_dp_rms_rdn(armvm_core_p const core)
 	const unsigned opcode = op_list[operation];
 
 	const char* _dpr_ops[2][16] = {{
-		"ands", "eors", "lsls", "lsrs", "asrs", "adcs", "sbcs", "rors",
-		"tsts", "negs", "cmps", "cmns", "orrs", "muls", "bics", "mvns",
+		"and", "eor", "lsl", "lsr", "asr", "adc", "sbc", "ror",
+		"tst", "neg", "cmp", "cmn", "orr", "mul", "bic", "mvn",
 		} , {
 		"& ",	"^ ",	"<< ",	">> ",	"<<< ",	"+",	"-",	">><<",
 		"& ",	"- ",	"- ",	"+ ",	"| ",	"* ",	"& ~",	"-",
@@ -355,7 +355,7 @@ static int _armvm_core_thumb_dp_rms_rdn(armvm_core_p const core)
 
 	const uint32_t rd = alubox_thumb(core, opcode, 1);
 
-	if(_armvm_trace_start(core, "%s(%s, %s)",
+	if(_armvm_trace_start(core, "%ss(%s, %s)",
 		_dpr_ops[0][operation], rR_NAME(D), rR_NAME(M))) {
 
 		switch(opcode)
@@ -685,12 +685,13 @@ static int _armvm_core_thumb_sdp_rms_rdn(armvm_core_p const core)
 		ARM_ADD, ARM_CMP, ARM_MOV, ~0U
 	}, opcode = op_list[operation];
 
-	alubox_thumb(core, opcode, ARM_CMP == opcode);
+	const unsigned s = (ARM_CMP == opcode);
+	alubox_thumb(core, opcode, s);
 
 	if(__trace_start(core))
 	{
-		_armvm_trace_(core, "%s(%s, %s)",
-			arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(M));
+		_armvm_trace_(core, "%s%s(%s, %s)",
+			arm_dp_inst_string[opcode], (s ? "s" : ""), rR_NAME(D), rR_NAME(M));
 
 		switch(opcode)
 		{
