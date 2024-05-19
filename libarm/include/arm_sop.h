@@ -2,7 +2,7 @@
 
 /* **** */
 
-enum {
+enum arm_sop_t {
 	ARM_SOP_LSL,
 	ARM_SOP_LSR,
 	ARM_SOP_ASR,
