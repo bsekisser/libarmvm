@@ -11,7 +11,7 @@ CFLAGS += $(INCLUDE)
 CPPFLAGS += $(CFLAGS)
 
 INCLUDE += -Isource
-INCLUDE += -I.
+INCLUDE += -Iinclude
 INCLUDE += -I$(GIT_DIR)
 
 LDLIBS += -L$(GIT_DIR)/libbse -lbse
