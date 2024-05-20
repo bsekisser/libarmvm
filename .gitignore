@@ -56,4 +56,4 @@ dkms.conf
 
 # Log / Other / Misc
 *.log
-build*/
+/**/build*/
