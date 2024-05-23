@@ -1,8 +1,0 @@
-$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-#	$(COMPILE.c) $(OUTPUT_OPTIONS) $<
-
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
--include $(OBJ_DIR)/*.d

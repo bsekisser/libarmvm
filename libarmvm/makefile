@@ -1,49 +1,29 @@
-#TOP_DIR = $(PWD)
-#GIT_GIT = $(TOP_DIR)/..
+CFLAGS += -O2 -march=native
 
-include makefile.setup
+LDLIBS += -Lgit/libarm -larm
+LDLIBS += -Lgit/libbse -lbse
+LDLIBS += lcapstone
 
-TARGET = libarmvm.a
-OBJ_TARGET = $(OBJ_DIR)/$(TARGET)
+SRC_DIR=.
+SRCS_ARMVM = $(wildcard armvm/*.c)
+SRCS_CORE += $(wildcard core/*.c)
 
-all: $(OBJ_TARGET) $(TARGET)
+TARGET_LIB = libarmvm.a
 
-$(TARGET): $(OBJ_TARGET)
-	ln -sr $(OBJ_TARGET)
+VPATH = armvm
+VPATH += core
 
-ARMVM_SRCS = $(wildcard armvm/*.c)
-ARMVM_OBJS = $(patsubst armvm/%.c, $(OBJ_DIR)/%.o, $(ARMVM_SRCS))
 
-#armvm.a: $(OBJ_DIR)/armvm.a
 
-$(ARMVM_OBJS): $(ARMVM_SRCS)
+include ../makefile.setup
 
-#$(OBJ_DIR)/armvm.a: $(ARMVM_OBJS)
-armvm.a: $(ARMVM_OBJS)
-	$(MAKE) -C armvm
 
-ARMVM_CORE_SRCS = $(wildcard core/*.c)
-ARMVM_CORE_OBJS = $(patsubst core/%.c, $(OBJ_DIR)/%.o, $(ARMVM_CORE_SRCS))
+OBJS = $(patsubst armvm/%.c, $(OBJ_DIR)/%.o, $(SRCS_ARMVM))
+OBJS += $(patsubst core/%.c, $(OBJ_DIR)/%.o, $(SRCS_CORE))
 
-$(ARMVM_CORE_OBJS): $(ARMVM_CORE_SRCS)
 
-#$(OBJ_DIR)/armvm_core.a: $(ARMVM_CORE_OBJS)
-armvm_core.a: $(ARMVM_CORE_OBJS)
-	$(MAKE) -C core
+.PHONY: all
+all: $(TARGET_LIB)
 
-LIBS = armvm.a armvm_core.a
 
-LIBARMVM_OBJS = $(ARMVM_OBJS) \
-	$(ARMVM_CORE_OBJS)
-
-$(OBJ_TARGET): $(LIBS) $(OBJ_TARGET)($(LIBARMVM_OBJS))
-
-	
-clean:
-	-rm -r */*.d */*.o
-
-clean_all: clean clean_logs
-	-rm -r */*.a
-
-clean_logs:
-	-rm *.debug *.log *.trace
+include ../makefile.build
