@@ -1,0 +1,21 @@
+ARFLAGS += -U
+
+CFLAGS += -g -Wall -Wextra
+CFLAGS += -MMD -MP
+CFLAGS += $(INCLUDE)
+
+CPPFLAGS = $(CFLAGS)
+
+GIT_DIR = $(TOP_DIR)/git
+
+INCLUDE += -I$(SRC_DIR)
+INCLUDE += -Iinclude
+INCLUDE += -I$(GIT_DIR)
+
+OBJ_DIR = build-$(shell $(CC) -dumpmachine)
+OBJ_TARGET = $(OBJ_DIR)/$(TARGET)
+
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+OBJS_CPP = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS_CPP))
+
+TOP_DIR = $(PWD)
