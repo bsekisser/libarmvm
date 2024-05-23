@@ -1,13 +1,7 @@
-ARFLAGS += -U
-
-CFLAGS += -g -Wall -Wextra
-CFLAGS += -O2
-CFLAGS += -MMD -MP
-CFLAGS += $(INCLUDE)
-
-CPPFLAGS += $(CFLAGS)
+CFLAGS += -Os -march=native
 
 LDLIBS += -Lgit/libarmvm -larmvm
+LDLIBS += -Lgit/libarmcc -larmcc
 LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
 LDLIBS += -lcapstone
@@ -19,31 +13,15 @@ INCLUDE += -I..
 VPATH += source
 VPATH += git/libarmvm
 
-all: test
+SRC_DIR = source
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+SRCS_CPP = $(wildcard $(SRC_DIR)/*.cpp)
 
-test: test.o test_armvm_mem.o test_arm.a libarmvm.a
+TARGET_EXE = test
 
-TEST_ARM_OBJS = \
-	test_arm_adc.o \
-	test_arm_add.o \
-	test_arm_and.o \
-	test_arm_b_bl.o \
-	test_arm_bic.o \
-	test_arm_mov.o \
-	test_arm_sub.o \
-	test_arm_rsb.o \
-	test_arm_shift.o \
-	test_arm.o
 
-test_arm.a: test_arm.a($(TEST_ARM_OBJS))
+all: $(TARGET_EXE)
 
-clean:
-	-rm *.d *.o
 
-clean_all: clean clean_logs
-	-rm *.a
-
-clean_logs:
-	-rm *.debug *.log *.trace
-
--include *.d
+include ../../makefile.setup
+include ../../makefile.build

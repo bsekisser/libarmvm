@@ -3,7 +3,7 @@ all: libarm.a libarmcc.a libarmvm.a
 
 .PHONY: libarm.a
 libarm.a: libarm/libarm.a
-	@[ -L $@ ] || ln -sr libarm/libarm.a
+	@[ -L $@ ] || ln -sr $^
 
 .PHONY: libarm/libarm.a
 libarm/libarm.a:
@@ -11,7 +11,7 @@ libarm/libarm.a:
 
 .PHONY: libarmcc.a
 libarmcc.a: libarmcc/libarmcc.a
-	@[ -L $@ ] || ln -sr libarmcc/libarmcc.a
+	@[ -L $@ ] || ln -sr $^
 
 .PHONY: libarmcc/libarmcc.a
 libarmcc/libarmcc.a:
@@ -19,7 +19,7 @@ libarmcc/libarmcc.a:
 
 .PHONY: libarmvm.a
 libarmvm.a: libarmvm/libarmvm.a
-	@[ -L $@ ] || ln -sr libarmvm/libarmvm.a
+	@[ -L $@ ] || ln -sr $^
 
 .PHONY: libarmvm/libarmvm.a
 libarmvm/libarmvm.a:

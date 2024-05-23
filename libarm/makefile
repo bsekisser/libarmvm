@@ -1,13 +1,16 @@
 CFLAGS += -O2 -march=native
 
+LDLIBS += -Lgit/libbse -lbse
+LDLIBS += -lcapstone
+
 SRC_DIR = source
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 
-TARGET = libarm.a
+TARGET_LIB = libarm.a
 
 
 .PHONY: all
-all: $(TARGET)
+all: $(TARGET_LIB)
 
 
 include ../makefile.setup

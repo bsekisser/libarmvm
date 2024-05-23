@@ -9,13 +9,20 @@ $(OBJS_CPP): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 
 .PHONY: $(TARGET)
 $(TARGET): $(OBJ_TARGET) | $(OBJ_DIR)
-	@[ -L $@ ] || ln -sr $(OBJ_TARGET)
+	@[ -L $@ ] || ln -sr $^
+
+.PHONY: $(TARGET_EXE)
+$(TARGET_EXE): $(OBJ_TARGET_EXE) | $(OBJ_DIR)
+	@[ -L $@ ] || ln -sr $^
 
 $(OBJ_TARGET): $(OBJ_TARGET)($(OBJS) $(OBJS_CPP)) | $(OBJ_DIR)
+
+$(OBJ_TARGET_EXE): $(OBJS) $(OBJS_CPP) | $(OBJ_DIR)
 
 .PHONY: $(OBJ_DIR)
 $(OBJ_DIR):
 	@[ -d $@ ] || mkdir -p $@
+
 
 .PHONY: clean
 clean:

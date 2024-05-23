@@ -1,10 +1,14 @@
 CFLAGS += -O2 -march=native
 
+LDLIBS += -Lgit/libarm -larm
+LDLIBS += -Lgit/libbse -lbse
+LDLIBS += lcapstone
+
 SRC_DIR=.
 SRCS_ARMVM = $(wildcard armvm/*.c)
 SRCS_CORE += $(wildcard core/*.c)
 
-TARGET = libarmvm.a
+TARGET_LIB = libarmvm.a
 
 VPATH = armvm
 VPATH += core
@@ -19,7 +23,7 @@ OBJS += $(patsubst core/%.c, $(OBJ_DIR)/%.o, $(SRCS_CORE))
 
 
 .PHONY: all
-all: $(TARGET)
+all: $(TARGET_LIB)
 
 
 include ../makefile.build
