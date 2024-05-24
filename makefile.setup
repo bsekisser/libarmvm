@@ -12,6 +12,7 @@ DEPS_CPP = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.d, $(SRCS_CPP))
 GIT_DIR = $(TOP_DIR)/git
 
 INCLUDE += -I$(SRC_DIR)
+INCLUDE += -I$(SRC_DIR)/include
 INCLUDE += -Iinclude
 INCLUDE += -I$(GIT_DIR)
 
