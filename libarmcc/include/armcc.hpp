@@ -2,6 +2,10 @@
 
 /* **** */
 
+#include "armcc_t.h"
+
+/* **** */
+
 extern "C" {
 	#include "libarm/include/arm_cc.h"
 }
@@ -13,13 +17,6 @@ extern "C" {
 /* **** */
 
 typedef uint32_t arm_sop_t;
-
-typedef struct armcc_t {
-	uint32_t cs, ip, pc;
-	uint32_t ds, dp;
-//
-	void *p2data, *p2cs, *p2ds;
-}armcc_t;
 
 enum arm_reg_t {
 	r0, r1, r2, r3, r4, r5, r6, r7,
