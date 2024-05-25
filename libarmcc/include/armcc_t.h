@@ -2,6 +2,7 @@
 
 /* **** */
 
+typedef struct armcc_t** armcc_h;
 typedef struct armcc_t* armcc_p;
 
 /* **** */

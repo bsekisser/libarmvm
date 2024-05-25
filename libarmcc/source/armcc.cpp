@@ -39,16 +39,10 @@ uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_ADD, 0, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
-armcc::armcc(void *const p2data)
-{
-//	LOG("p2data: 0x%016" PRIxPTR, (uintptr_t)p2data);
+armcc::armcc(void *const p2data):armcc(p2data, 0, 0) {}
 
-	ERR_NULL(p2data);
-	cc.p2data = p2data;
-
-	org_data(0);
-	org_text(0);
-}
+armcc::armcc(void *const p2data, armcc_h h2armcc_t):armcc(p2data)
+{ *h2armcc_t = p2armcc_t(); }
 
 armcc::armcc(void *const p2data, const uint32_t cs, const uint32_t ds)
 {
@@ -149,6 +143,9 @@ uint32_t armcc::org_text(const uint32_t cs)
 
 	return(cs_pc);
 }
+
+armcc_p armcc::p2armcc_t(void)
+{ return(&cc); }
 
 uint32_t armcc::str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 {
