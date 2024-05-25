@@ -41,6 +41,7 @@ armvm_p armvm_alloc(armvm_h const h2avm);
 void armvm_alloc_init(armvm_p const avm);
 void armvm_exit(armvm_p const avm);
 uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write);
+uint32_t* armvm_p2gpr(armvm_p const avm, const unsigned r);
 void armvm_reset(armvm_p const avm);
 uint64_t armvm_run(armvm_p const avm, uint64_t cycles);
 uint32_t armvm_spr32(armvm_p const avm, const unsigned r);

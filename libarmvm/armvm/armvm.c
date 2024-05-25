@@ -90,6 +90,12 @@ uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write)
 	return(mem_32_access(&GPRx(r), write));
 }
 
+uint32_t* armvm_p2gpr(armvm_p const avm, const unsigned r)
+{
+	assert(_ARMVM_GPR_COUNT_ > r);
+	return(&GPRx(r));
+}
+
 void armvm_reset(armvm_p const avm)
 {
 //	if(avm->config.trace.reset) LOG();
