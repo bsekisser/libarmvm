@@ -36,9 +36,34 @@ extern "C" {
 
 /* **** */
 
-uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
+uint32_t armcc::adcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_ADC, 1, rd, rn, rm));
+}
+
+uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_ADD, 0, rd, rn, sop));
+}
+
+uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const int imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_ADD, 0, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
+}
+
+uint32_t armcc::adds(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_ADD, 1, rd, rn, rm));
+}
+
+uint32_t armcc::adds(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_ADD, 1, rd, rn, sop));
+}
+
+uint32_t armcc::adds(const arm_reg_t rd, const arm_reg_t rn, const int imm)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_ADD, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
 uint32_t armcc::ands(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)

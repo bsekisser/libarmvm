@@ -31,7 +31,12 @@ class armcc {
 	private:
 		armcc_t cc;
 	public:
-		uint32_t add(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm);
+		uint32_t adcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
+		uint32_t add(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop);
+		uint32_t add(const arm_reg_t rd, const arm_reg_t rn, const int imm);
+		uint32_t adds(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
+		uint32_t adds(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop);
+		uint32_t adds(const arm_reg_t rd, const arm_reg_t rn, const int imm);
 		uint32_t ands(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
 //		armcc();
 		armcc(void *const p2data);
