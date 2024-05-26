@@ -100,8 +100,27 @@ uint32_t armcc::asrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
 uint32_t armcc::b(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat))); }
 
+uint32_t armcc::bl(const uint32_t pat)
+{ return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat) | _BV(24))); }
+
+uint32_t armcc::blx(const arm_reg_t rm)
+{ return(gen_arm__group_ir(&cc, 0, gen_arm__blx_bx_rm(1, rm))); }
+
+uint32_t armcc::blx(const uint32_t pat)
+{
+	const uint32_t ea = _gen_arm__byte_offset(cc.cs + cc.pc, pat);
+	const uint32_t h = BMOV(ea, 2, 24);
+
+	const uint32_t ir = h | gen_arm__b_offset(&cc, pat);
+
+	return(gen_arm__cc_group_ir(&cc, CC_NV, 5, ir));
+}
+
 uint32_t armcc::bne(const uint32_t pat)
 { return(gen_arm__cc_group_ir(&cc, CC_NE, 5, gen_arm__b_offset(&cc, pat))); }
+
+uint32_t armcc::bx(const arm_reg_t rm)
+{ return(gen_arm__group_ir(&cc, 0, gen_arm__blx_bx_rm(0, rm))); }
 
 uint32_t armcc::cmp(const arm_reg_t rn, const arm_reg_t rm)
 { return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_CMP, 1, r0, rn, rm)); }

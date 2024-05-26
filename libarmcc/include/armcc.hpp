@@ -46,6 +46,10 @@ class armcc {
 		uint32_t asrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs);
 		uint32_t b(const uint32_t pat);
 		uint32_t b(const arm_condition_t cc, const uint32_t pat);
+		uint32_t bl(const uint32_t pat);
+		uint32_t blx(const arm_reg_t rm);
+		uint32_t blx(const uint32_t pat);
+		uint32_t bx(const arm_reg_t rm);
 		uint32_t bne(const uint32_t pat);
 		uint32_t cmp(const arm_reg_t rn, const arm_reg_t rm);
 		uint32_t dw(const uint32_t data);
