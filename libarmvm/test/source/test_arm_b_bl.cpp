@@ -1,11 +1,10 @@
-extern "C" {
-	#include "test_utility.h"
-	#include "test.h"
-}
+#include "test_arm.hpp"
+#include "test_utility.hpp"
+#include "test.hpp"
 
 /* **** */
 
-#include "test_arm_gen.hpp"
+#include "libarmcc/include/armcc.hpp"
 
 /* **** */
 
@@ -15,39 +14,47 @@ extern "C" {
 
 /* **** */
 
-extern "C" {
-	int test_arm_b_bl(test_p t)
+int test_arm::b_bl(void)
 {
-	reset(t);
+	reset();
 
-	b(0x10);
-	run_test(t);
+	cc.b(0x10);
+	run_test();
 	fail_if(0x10 != rR(PC));
 
-	bl(0x20);
-	run_test(t);
+	cc.bl(0x20);
+	run_test();
 	fail_if(0x20 != rR(PC));
 	fail_if(4 != (rR(LR) - TEST_PC));
 
 	const uint32_t bl_LR = rR(LR);
 
-	blx(rLR);
-	run_test(t);
+	cc.blx(rLR);
+	run_test();
 	fail_if(bl_LR != rR(PC));
 	fail_if(4 != (rR(LR) - TEST_PC));
 	fail_if(ARM_CPSR_BEXT(Thumb));
 
 	const uint32_t blx_LR = rR(LR);
 
-	bx(rLR);
-	run_test(t);
+	cc.bx(rLR);
+	run_test();
 	fail_if(blx_LR != rR(PC));
 	fail_if(ARM_CPSR_BEXT(Thumb));
 
-	blx(0x43);
-	run_test(t);
+	cc.bx(rPC);
+	run_test();
+	fail_if(8 != (rR(PC) - TEST_PC));
+
+	cc.blx(rPC);
+	run_test();
+	fail_if(4 != (rR(LR) - TEST_PC));
+	fail_if(8 != (rR(PC) - TEST_PC));
+
+	cc.blx(0x43);
+	run_test();
 	fail_if(0x42 != rR(PC));
 	fail_if(!ARM_CPSR_BEXT(Thumb));
 
 	return(1);
-}}
+}
