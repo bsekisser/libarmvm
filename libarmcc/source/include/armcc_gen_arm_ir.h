@@ -4,6 +4,7 @@
 
 #include "libarm/include/arm_cc.h"
 #include "libarm/include/arm_dp.h"
+#include "libarm/include/arm_sop.h"
 
 /* **** */
 
@@ -50,6 +51,12 @@ static uint32_t gen_arm_ir__rm(const arm_reg_t rm)
 {
 	assert(0 == (rm & ~15));
 	return(rm & 15);
+}
+
+static uint32_t gen_arm_ir__shift_type(const arm_sop_t shift_type)
+{
+	assert(0 == (shift_type & ~3));
+	return(pbBFMOV(shift_type, 0, 2, 5));
 }
 
 /* **** */

@@ -18,7 +18,7 @@
 
 static uint32_t gen_arm_dp__op_s_rd_rn(armcc_p const p2cc, const unsigned group,
 	const arm_dp_opcode_t opcode, const unsigned s,
-	const arm_reg_t rd, const arm_reg_t rn, const arm_sop_t sop)
+	const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
 {
 	return(gen_arm__group_ir(p2cc, group,
 		gen_arm_ir__dp_opcode_s(opcode, s)

@@ -16,7 +16,7 @@ extern "C" {
 
 /* **** */
 
-typedef uint32_t arm_sop_t;
+typedef uint32_t armcc_sop_t;
 
 enum arm_reg_t {
 	r0, r1, r2, r3, r4, r5, r6, r7,
@@ -36,20 +36,25 @@ class armcc {
 		armcc(void *const p2data);
 		armcc(void *const p2data, armcc_h h2armcc_t);
 		armcc(void *const p2data, const uint32_t cs, const uint32_t ds);
+		armcc_sop_t asr(const arm_reg_t rm, const uint8_t rs);
 		uint32_t b(const uint32_t pat);
 		uint32_t b(const arm_condition_t cc, const uint32_t pat);
 		uint32_t bne(const uint32_t pat);
 		uint32_t cmp(const arm_reg_t rn, const arm_reg_t rm);
 		uint32_t dw(const uint32_t data);
 		uint32_t ldr(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat);
+		armcc_sop_t lsl(const arm_reg_t rm, const uint8_t rs);
+		armcc_sop_t lsr(const arm_reg_t rm, const uint8_t rs);
 		uint32_t mov(const arm_reg_t rd, const arm_reg_t rm);
 		uint32_t mov(const arm_reg_t rd, const uint8_t imm);
 		uint32_t org_text(const uint32_t cs);
 		uint32_t org_data(const uint32_t ds);
 		armcc_p p2armcc_t(void);
+		armcc_sop_t ror(const arm_reg_t rm, const uint8_t rs);
 		uint32_t sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm);
 		uint32_t sbcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
 		uint32_t str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat);
 		uint32_t subs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm);
 		uint32_t subs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
+		uint32_t subs(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop);
 };

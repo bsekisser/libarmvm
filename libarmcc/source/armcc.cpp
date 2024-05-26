@@ -16,6 +16,7 @@ extern "C" {
 	#include "libarm/include/arm_cc.h"
 	#include "libarm/include/arm_dp.h"
 	#include "libarm/include/arm_ir.h"
+	#include "libarm/include/arm_sop.h"
 }
 
 extern "C" {
@@ -59,6 +60,9 @@ armcc::armcc(void *const p2data, const uint32_t cs, const uint32_t ds)
 	org_text(cs);
 }
 
+armcc_sop_t armcc::asr(const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_ASR, rs)); }
+
 uint32_t armcc::b(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat))); }
 
@@ -98,6 +102,12 @@ uint32_t armcc::ldr(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 
 	return(gen_arm__group_rd_rn_x(&cc, 2, rd, rn, ir + offset));
 }
+
+armcc_sop_t armcc::lsl(const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_LSL, rs)); }
+
+armcc_sop_t armcc::lsr(const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_LSR, rs)); }
 
 uint32_t armcc::mov(const arm_reg_t rd, const arm_reg_t rm)
 { return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_MOV, 0, rd, r0, rm)); }
@@ -147,6 +157,9 @@ uint32_t armcc::org_text(const uint32_t cs)
 armcc_p armcc::p2armcc_t(void)
 { return(&cc); }
 
+armcc_sop_t armcc::ror(const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_ROR, rs)); }
+
 uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_SBC, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
@@ -176,4 +189,9 @@ uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
 uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_SUB, 1, rd, rn, rm));
+}
+
+uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_SUB, 1, rd, rn, sop));
 }
