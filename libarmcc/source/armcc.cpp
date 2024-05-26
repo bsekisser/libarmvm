@@ -100,6 +100,11 @@ uint32_t armcc::asrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
 uint32_t armcc::b(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat))); }
 
+uint32_t armcc::bics(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_BIC, 1, rd, rn, rm));
+}
+
 uint32_t armcc::bl(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat) | _BV(24))); }
 
