@@ -2,7 +2,7 @@
 
 /* **** */
 
-#include "test.h"
+#include "test.hpp"
 
 /* **** */
 

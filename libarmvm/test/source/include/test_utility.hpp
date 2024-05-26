@@ -4,17 +4,19 @@
 
 #define pARMVM t->armvm
 #define pARMVM_CORE pARMVM->core
-//#define pARMVM_MEM pARMVM->mem
+#define pARMVM_MEM pARMVM->mem
 
-#include "libarmvm/include/armvm_glue.h"
-//#include "libarmvm/include/armvm_mem.h"
-#include "libarmvm/include/armvm.h"
+extern "C" {
+	#include "libarmvm/include/armvm_glue.h"
+	//#include "libarmvm/include/armvm_mem.h"
+	#include "libarmvm/include/armvm.h"
 
-#include "libarm/include/arm_cc.h"
-#include "libarm/include/arm_cpsr.h"
-#include "libarm/include/arm_dp.h"
-#include "libarm/include/arm_sop.h"
-#include "libarm/include/arm_strings.h"
+	#include "libarm/include/arm_cc.h"
+	#include "libarm/include/arm_cpsr.h"
+	#include "libarm/include/arm_dp.h"
+	#include "libarm/include/arm_sop.h"
+	#include "libarm/include/arm_strings.h"
+}
 
 /* **** */
 
@@ -24,21 +26,13 @@
 
 /* **** */
 
-enum arm_reg_t {
-	r0, r1,  r2,  r3,  r4,  r5,  r6,  r7,
-	r8, r9, r10, r11, r12, r13, r14, r15,
-//
-	rSP = 13,
-	rLR = r14,
-	rPC = 15,
-};
-
-#define rRx(_x) pCORE->gpr[_x]
+#define rRx(_x) armvm_p2gpr(t->armvm, _x)[0]
 #define rR(_x) rRx(r##_x)
 
-#define GEN_COUNT t->gen.count
-#define GEN_IP t->gen.ip
-#define GEN_PC t->gen.pc
+#define GEN_COUNT t->cc->icount
+
+#define GEN_IP t->cc->ip
+#define GEN_PC t->cc->pc
 
 #define RUN_PC rR(PC)
 

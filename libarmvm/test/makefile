@@ -5,6 +5,8 @@ LDLIBS += -Lgit/libarmcc -larmcc
 LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
 LDLIBS += -lcapstone
+LDLIBS += -lstdc++
+
 
 INCLUDE += -Iinclude
 INCLUDE += -Igit
@@ -24,4 +26,13 @@ all: $(TARGET_EXE)
 
 
 include ../../makefile.setup
+
+$(OBJ_TARGET_EXE): git/libarmvm/libarmvm.a
+
+$(OBJ_TARGET_EXE): git/libarmcc/libarmcc.a
+
+$(OBJ_TARGET_EXE): git/libarm/libarm.a
+
+$(OBJ_TARGET_EXE): git/libbse/libbse.a
+
 include ../../makefile.build
