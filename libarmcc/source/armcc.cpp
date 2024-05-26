@@ -239,6 +239,16 @@ armcc_sop_t armcc::ror(const uint8_t rm, const uint8_t rs)
 //armcc_sop_t armcc::ror(const int rm, const int rs)
 { return(gen_arm_dp_sop__ror_i(rm, rs)); }
 
+uint32_t armcc::rsbs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_RSB, 1, rd, rn, rm));
+}
+
+uint32_t armcc::rsbs(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_RSB, 1, rd, rn, sop));
+}
+
 uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_SBC, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
