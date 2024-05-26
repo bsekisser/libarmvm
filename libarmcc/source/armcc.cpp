@@ -40,6 +40,11 @@ uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_ADD, 0, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
+uint32_t armcc::ands(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_AND, 1, rd, rn, rm));
+}
+
 armcc::armcc(void *const p2data):armcc(p2data, 0, 0) {}
 
 armcc::armcc(void *const p2data, armcc_h h2armcc_t):armcc(p2data)
