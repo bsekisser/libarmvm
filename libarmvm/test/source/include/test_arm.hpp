@@ -13,6 +13,7 @@ class test_arm : public test {
 	int ands(void);
 	int b_bl(void);
 	int bics(void);
+	int mov(void);
 	int movs(void);
 	int rsbs(void);
 	int subs(void);

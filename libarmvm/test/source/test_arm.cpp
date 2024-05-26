@@ -14,6 +14,7 @@ int test_arm::run_tests(void)
 	LOG_ACTION(ands());
 	LOG_ACTION(b_bl());
 	LOG_ACTION(bics());
+	LOG_ACTION(mov());
 	LOG_ACTION(movs());
 	LOG_ACTION(subs());
 	LOG_ACTION(rsbs());
