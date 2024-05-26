@@ -69,6 +69,9 @@ armcc::armcc(void *const p2data, const uint32_t cs, const uint32_t ds)
 armcc_sop_t armcc::asr(const arm_reg_t rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_ASR, rs)); }
 
+uint32_t armcc::asrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, asr(rm, rs))); }
+
 uint32_t armcc::b(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat))); }
 
@@ -113,16 +116,28 @@ uint32_t armcc::ldr(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 armcc_sop_t armcc::lsl(const arm_reg_t rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_LSL, rs)); }
 
+uint32_t armcc::lsls(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, lsl(rm, rs))); }
+
 armcc_sop_t armcc::lsr(const arm_reg_t rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_LSR, rs)); }
+
+uint32_t armcc::lsrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, lsr(rm, rs))); }
 
 uint32_t armcc::mov(const arm_reg_t rd, const arm_reg_t rm)
 { return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_MOV, 0, rd, r0, rm)); }
 
-uint32_t armcc::mov(const arm_reg_t rd, const uint8_t imm)
+uint32_t armcc::mov(const arm_reg_t rd, const int imm)
 {
-	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_MOV, 0, rd, r0, gen_arm_dp_sop__ror_i(imm, 0)));
+	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_MOV, 0, rd, r0, ror(imm, 0)));
 }
+
+uint32_t armcc::movs(const arm_reg_t rd, const arm_reg_t rm)
+{ return(gen_arm_dp__op_s_rd_rn_sop(&cc, ARM_MOV, 1, rd, r0, lsl(rm, 0))); }
+
+uint32_t armcc::movs(const arm_reg_t rd, const armcc_sop_t sop)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, sop)); }
 
 uint32_t armcc::org_data(const uint32_t ds)
 {
@@ -170,6 +185,10 @@ armcc_p armcc::p2armcc_t(void)
 
 armcc_sop_t armcc::ror(const arm_reg_t rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_ROR, rs)); }
+
+armcc_sop_t armcc::ror(const uint8_t rm, const uint8_t rs)
+//armcc_sop_t armcc::ror(const int rm, const int rs)
+{ return(gen_arm_dp_sop__ror_i(rm, rs)); }
 
 uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
 {

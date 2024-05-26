@@ -18,4 +18,4 @@ static armcc_sop_t gen_arm_dp_sop__rm_i(const arm_reg_t rm, const arm_sop_t shif
 { return(pbBFMOV(rs, 0, 5, 7) | gen_arm_ir__shift_type(shift_type) | gen_arm_ir__rm(rm)); }
 
 static armcc_sop_t gen_arm_dp_sop__ror_i(const int imm, const int rs)
-{ return((imm & 0xff) | pbBFMOV(rs, 1, 4, 8)); }
+{ return(_BV(25) | (imm & 0xff) | pbBFMOV(rs, 1, 4, 8)); }
