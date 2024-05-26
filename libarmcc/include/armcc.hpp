@@ -47,5 +47,9 @@ class armcc {
 		uint32_t org_text(const uint32_t cs);
 		uint32_t org_data(const uint32_t ds);
 		armcc_p p2armcc_t(void);
+		uint32_t sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm);
+		uint32_t sbcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
 		uint32_t str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat);
+		uint32_t subs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm);
+		uint32_t subs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
 };

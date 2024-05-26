@@ -147,6 +147,16 @@ uint32_t armcc::org_text(const uint32_t cs)
 armcc_p armcc::p2armcc_t(void)
 { return(&cc); }
 
+uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_SBC, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
+}
+
+uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_SBC, 1, rd, rn, rm));
+}
+
 uint32_t armcc::str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 {
 	unsigned bit_u = 0;
@@ -156,4 +166,14 @@ uint32_t armcc::str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 		| (1 << ARM_IR_LDST_BIT_P);
 
 	return(gen_arm__group_rd_rn_x(&cc, 2, rd, rn, ir + offset));
+}
+
+uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
+{
+	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_SUB, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
+}
+
+uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+{
+	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_SUB, 1, rd, rn, rm));
 }
