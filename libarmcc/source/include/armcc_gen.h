@@ -10,6 +10,7 @@
 
 /* **** */
 
+#include <endian.h>
 #include <inttypes.h>
 #include <stdint.h>
 
@@ -38,7 +39,8 @@ static uint32_t armcc__gen(armcc_p const p2cc, const uint32_t ir)
 		LOG_END(", p: 0x%016" PRIxPTR, (uintptr_t)p);
 	}
 
-	*p = ir;
+	*p = htole32(ir);
+	p2cc->icount++;
 
 	return(cs_pc);
 }

@@ -30,6 +30,7 @@ extern "C" {
 
 extern "C" {
 	#include <assert.h>
+	#include <endian.h>
 	#include <stdint.h>
 }
 
@@ -91,7 +92,8 @@ uint32_t armcc::dw(const uint32_t data)
 
 	uint8_t* p2ds = (uint8_t*)cc.p2ds;
 	uint32_t* p = (uint32_t*)(p2ds + (dp & 0xffff));
-	*p = data;
+	*p = htole32(data);
+	cc.dcount++;
 
 	return(ds_dp);
 }
@@ -129,6 +131,8 @@ uint32_t armcc::org_data(const uint32_t ds)
 	cc.p2ds = ((uint8_t*)cc.p2data) + ds;
 	cc.dp = 0;
 
+	cc.dcount = 0;
+
 	if(0) {
 		LOG("p2data: 0x%016" PRIxPTR ", p2ds: 0x%016" PRIxPTR,
 			(uintptr_t)cc.p2data, (uintptr_t)cc.p2ds);
@@ -143,6 +147,8 @@ uint32_t armcc::org_text(const uint32_t cs)
 
 	cc.p2cs = ((uint8_t*)cc.p2data) + cs;
 	cc.pc = 0;
+
+	cc.icount = 0;
 
 	const uint32_t cs_ip = cc.cs + cc.ip;
 	const uint32_t cs_pc = cc.cs + cc.pc;

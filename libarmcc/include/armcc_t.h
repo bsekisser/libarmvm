@@ -16,4 +16,7 @@ typedef struct armcc_t {
 	uint32_t ds, dp;
 //
 	void *p2data, *p2cs, *p2ds;
+//
+	unsigned dcount;
+	unsigned icount;
 }armcc_t;
