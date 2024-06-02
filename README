@@ -6,5 +6,14 @@ where git/ includes ...
 
 git/
 	libbse/
+	libarm/ --> arm/libarm
+	libarmcc/ --> arm/libarmcc
+	libarmvm/ --> arm/libarmvm
+
+....
+
+git/arm/
 	libarm/
+	libarmcc/
 	libarmvm/
+		test/
