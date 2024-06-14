@@ -71,9 +71,19 @@ static int __arm__b_bl_blx(armvm_core_p const core, int const link, const int bl
 {
 	const uint32_t new_pc  = ARM_PC_NEXT + offset;
 
+	/* trace needs to occur before action as thumb state may change,
+	 *	this will errantly be reflected in the trace
+	 */
+
+	_armvm_trace(core, "b%s%s(0x%08x)",
+		link ? "l" : "",
+		blx ? "x" : "", new_pc);
+
+	/* **** */
+
 	if(CCX) {
 		if(link) {
-//			CYCLE++;
+			CYCLE++;
 			LR = PC;
 		}
 
@@ -83,13 +93,6 @@ static int __arm__b_bl_blx(armvm_core_p const core, int const link, const int bl
 		if(blx) ARM_CPSR_BSET(Thumb);
 	}
 
-	/* **** */
-
-	_armvm_trace(core, "b%s%s(0x%08x)",
-		link ? "l" : "",
-		blx ? "x" : "", new_pc);
-
-	/* **** */
 	return(0);
 }
 
@@ -133,18 +136,9 @@ static int _arm_inst_bx_blx_m(armvm_core_p const core, const int link)
 	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	const unsigned thumb = CONFIG->features.thumb ? (rm & 1) : 0;
 
-	if(CCX) {
-		CYCLE++;
-
-		if(link) {
-			CYCLE++;
-			LR = PC;
-		}
-
-		armvm_core_pcx(core, rm);
-	}
-
-	/* **** */
+	/* trace needs to occur before action as thumb state may change,
+	 *	this will errantly be reflected in the trace
+	 */
 
 	if(_armvm_trace_start(core, "b%sx(%s)",
 		link ? "l" : "", irR_NAME(M))) {
@@ -155,6 +149,16 @@ static int _arm_inst_bx_blx_m(armvm_core_p const core, const int link)
 	}
 
 	/* **** */
+
+	if(CCX) {
+		if(link) {
+			CYCLE++;
+			LR = PC;
+		}
+
+		CYCLE++;
+		armvm_core_pcx(core, rm);
+	}
 
 	return(0);
 }
