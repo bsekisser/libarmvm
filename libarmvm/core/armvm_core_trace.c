@@ -35,11 +35,12 @@ int __trace_start(armvm_core_p const core)
 	*dst++ = IF_CPSR(Z) ? 'Z' : 'z';
 	*dst = 0;
 
-	int thumb = ARM_CPSR_BEXT(Thumb);
+//	const unsigned thumb = ARM_CPSR_BEXT(Thumb); //  should be the CORRECT way...
+	const unsigned thumb = IP & 1; // the STUPID KLUDGE way...  UGH!!!
 
 	printf("%c(0x%08x(0x%08x):%s:%s(%c): ",
 		thumb ? 'T' : 'A',
-		IP & (~1U << (1 >> thumb)), IR,
+		IP & ~(3U >> thumb), IR,
 		flags,
 		arm_cc_ucase_string[1][rSPR32(CC)],
 		CCX ? '>' : 'X');

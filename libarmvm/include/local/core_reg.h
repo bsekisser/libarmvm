@@ -29,8 +29,11 @@ static uint32_t __core_reg_src_fetch(armvm_core_p const core, const unsigned rrx
 	const unsigned rr = r & 15;
 	uint32_t v = GPRx(rr);
 
-	if(ARMVM_GPR(PC) == r)
-		v += (4 >> IF_CPSR(Thumb));
+	if(ARMVM_GPR(PC) == r) {
+		const unsigned thumb = IF_CPSR(Thumb);
+		v += (4 >> thumb);
+		v &= ~(3U >> thumb);
+	}
 
 	vRx(rrx) = v;
 

@@ -42,7 +42,7 @@ static int __thumb_fail_decode(armvm_core_p const core)
 {
 	for(unsigned lsb = 13; lsb > 8; lsb--) {
 		uint32_t group = mlBFTST(IR, 15, lsb);
-		LOG("IP[15:%2u]: 0x%08x", lsb, group);
+		LOG("IR[15:%2u]: 0x%08x", lsb, group);
 	}
 
 	arm_disasm_thumb(IP, IR);
@@ -816,10 +816,10 @@ int armvm_core_thumb_step(armvm_core_p const core)
 	rSPR32(CC) = CC_AL_NV;
 	CCX = 1;
 
-	IP = setup_vR(core, ARMVM_TRACE_R(IP), PC & ~1U); // STUPID KLUDGE!!
+	IP = setup_vR(core, ARMVM_TRACE_R(IP), PC | 1); // STUPID KLUDGE!!
 	PC = THUMB_IP_NEXT;
 
-	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 2))
+	if(0 > armvm_core_mem_ifetch(core, &IR, IP & ~1U, 2))
 		return(0);
 
 	setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
@@ -851,7 +851,7 @@ int armvm_core_thumb_step(armvm_core_p const core)
 		case 0xe000: /* 111x xxxx xxxx xxxx */
 			return(armvm_core_thumb__step_group7_e000_ffff(core));
 		default:
-			LOG("IP[15:13]: 0x%08x", group);
+			LOG("IR[15:13]: 0x%08x", group);
 	}
 
 	return(__thumb_fail_decode(core));
