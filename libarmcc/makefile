@@ -1,5 +1,7 @@
 CFLAGS += -O2 -march=native
 
+CPPFLAGS += $(CFLAGS)
+
 LDLIBS += -Lgit/libarmvm -larmvm
 LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
@@ -15,5 +17,5 @@ TARGET_LIB = libarmcc.a
 all: $(TARGET_LIB)
 
 
-include ../makefile.setup
-include ../makefile.build
+include git/libbse/makefile.setup
+include git/libbse/makefile.build

@@ -1,4 +1,4 @@
-CFLAGS += -O2 -march=native
+CFLAGS += -O1 -march=native
 
 LDLIBS += -Lgit/libbse -lbse
 LDLIBS += -lcapstone
@@ -13,5 +13,5 @@ TARGET_LIB = libarm.a
 all: $(TARGET_LIB)
 
 
-include ../makefile.setup
-include ../makefile.build
+include git/libbse/makefile.setup
+include git/libbse/makefile.build

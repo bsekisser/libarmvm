@@ -25,7 +25,7 @@ TARGET_EXE = test
 all: $(TARGET_EXE)
 
 
-include ../../makefile.setup
+include git/libbse/makefile.setup
 
 $(OBJ_TARGET_EXE): git/libarmvm/libarmvm.a
 
@@ -35,4 +35,4 @@ $(OBJ_TARGET_EXE): git/libarm/libarm.a
 
 $(OBJ_TARGET_EXE): git/libbse/libbse.a
 
-include ../../makefile.build
+include git/libbse/makefile.build

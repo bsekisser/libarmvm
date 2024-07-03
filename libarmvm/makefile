@@ -1,4 +1,4 @@
-CFLAGS += -O2 -march=native
+CFLAGS += -O1 -march=native
 
 LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
@@ -15,7 +15,7 @@ VPATH += core
 
 
 
-include ../makefile.setup
+include git/libbse/makefile.setup
 
 
 OBJS = $(patsubst armvm/%.c, $(OBJ_DIR)/%.o, $(SRCS_ARMVM))
@@ -26,4 +26,4 @@ OBJS += $(patsubst core/%.c, $(OBJ_DIR)/%.o, $(SRCS_CORE))
 all: $(TARGET_LIB)
 
 
-include ../makefile.build
+include git/libbse/makefile.build
