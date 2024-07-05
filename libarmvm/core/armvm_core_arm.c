@@ -493,15 +493,17 @@ static int _arm_inst_mla(armvm_core_p const core)
 
 	/* **** */
 
-	if(core->config.trace) {
+	if(__trace_start(core)) {
 		_armvm_trace_(core, "mla%s(", ARM_IR_DP_S ? "s" : "");
 		_armvm_trace_(core, "%s", irR_NAME(D));
 		_armvm_trace_(core, ", %s", irR_NAME(M));
 		_armvm_trace_(core, ", %s", irR_NAME(S));
-		_armvm_trace_(core, ", %s", irR_NAME(N));
+		_armvm_trace_(core, ", %s)", irR_NAME(N));
 
 		_armvm_trace_comment(core, "(0x%08x * 0x%08x) + 0x%08x = 0x%08x",
 			rm, rs, rn, rd);
+
+		__trace_end(core);
 	}
 
 	return(rR_IS_NOT_PC(D));
