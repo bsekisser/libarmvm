@@ -732,7 +732,7 @@ static int _arm_inst_umull(armvm_core_p const core)
 		_armvm_trace_(core, "%s", irR_NAME(DLo));
 		_armvm_trace_(core, ":%s", irR_NAME(DHi));
 		_armvm_trace_(core, ", %s", irR_NAME(M));
-		_armvm_trace_(core, ", %s", irR_NAME(S));
+		_armvm_trace_(core, ", %s)", irR_NAME(S));
 
 		_armvm_trace_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
 			vR(M), vR(S), vR(DHi), vR(DLo));
