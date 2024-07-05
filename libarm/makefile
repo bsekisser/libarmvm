@@ -14,4 +14,7 @@ all: $(TARGET_LIB)
 
 
 include git/libbse/makefile.setup
+
+$(OBJ_TARGET_LIB): git/libbse/libbse.a
+
 include git/libbse/makefile.build

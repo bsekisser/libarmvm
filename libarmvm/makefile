@@ -2,7 +2,7 @@ CFLAGS += -O1 -march=native
 
 LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
-LDLIBS += lcapstone
+LDLIBS += -lcapstone
 
 SRC_DIR=.
 SRCS_ARMVM = $(wildcard armvm/*.c)
@@ -24,6 +24,11 @@ OBJS += $(patsubst core/%.c, $(OBJ_DIR)/%.o, $(SRCS_CORE))
 
 .PHONY: all
 all: $(TARGET_LIB)
+
+
+$(OBJ_TARGET_LIB): git/libarm/libarm.a
+
+$(OBJ_TARGET_LIB): git/libbse/libbse.a
 
 
 include git/libbse/makefile.build
