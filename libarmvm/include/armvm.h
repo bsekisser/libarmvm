@@ -2,14 +2,18 @@
 
 /* **** */
 
-typedef struct armvm_t** armvm_h;
-typedef struct armvm_t* armvm_p;
+typedef struct armvm_tag** armvm_h;
+typedef armvm_h const armvm_href;
+
+typedef struct armvm_tag* armvm_p;
+typedef armvm_p const armvm_ref;
 
 /* **** */
 
 
 /* **** */
 
+#include "armvm_cache.h"
 #include "armvm_config.h"
 #include "armvm_coprocessor.h"
 #include "armvm_core.h"
@@ -24,8 +28,9 @@ typedef struct armvm_t* armvm_p;
 
 /* **** */
 
-typedef struct armvm_t {
+typedef struct armvm_tag {
 	armvm_coprocessor_p coprocessor;
+	armvm_cache_p cache;
 	armvm_core_p core;
 	armvm_mem_p mem;
 	armvm_mmu_p mmu;

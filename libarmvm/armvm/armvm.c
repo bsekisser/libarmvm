@@ -43,6 +43,7 @@ void armvm(armvm_p const avm, unsigned const action)
 			_armvm_alloc_init(avm);
 	}
 //
+	armvm_cache(avm->cache, action);
 	armvm_coprocessor(avm->coprocessor, action);
 	armvm_core(avm->core, action);
 	armvm_mem(avm->mem, action);
@@ -65,6 +66,7 @@ armvm_p armvm_alloc(armvm_h const h2avm)
 
 	/* **** */
 
+	armvm_cache_alloc(avm, &avm->cache);
 	armvm_coprocessor_alloc(avm, &avm->coprocessor);
 	armvm_core_alloc(avm, &avm->core);
 	armvm_mem_alloc(avm, &avm->mem);

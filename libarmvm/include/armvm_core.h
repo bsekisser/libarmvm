@@ -3,11 +3,15 @@
 /* **** */
 
 typedef struct armvm_core_t** armvm_core_h;
+typedef armvm_core_h const armvm_core_href;
+
 typedef struct armvm_core_t* armvm_core_p;
+typedef armvm_core_p const armvm_core_ref;
 
 /* **** */
 
 #include "armvm_mmu.h"
+#include "armvm_coprocessor.h"
 #include "armvm_core_config.h"
 #include "armvm.h"
 
