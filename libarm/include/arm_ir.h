@@ -6,6 +6,8 @@
 
 /* **** */
 
+#define ARM_IR_4and7 (BTST(IR, 4) && BTST(IR, 7))
+
 #define ARM_IR_BIT(_x) BEXT(IR, _x)
 #define ARM_IR_CC mlBFEXT(IR, 31, 28)
 #define ARM_IR_GROUP mlBFEXT(IR, 27, 25)
