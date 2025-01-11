@@ -25,9 +25,14 @@ const char* arm_creg_name_string[16] = {
 	"c8",  "c9", "c10", "c11", "c12", "c13", "c14", "c15",
 };
 
-const char* arm_dp_inst_string[16] = {
+const char* arm_dp_inst_lcase_string[16] = {
 	"and", "eor", "sub", "rsb", "add", "adc", "sbc", "rsc",
 	"tst", "teq", "cmp", "cmn", "orr", "mov", "bic", "mvn",
+};
+
+const char* arm_dp_inst_ucase_string[16] = {
+	"AND", "EOR", "SUB", "RSB", "ADD", "ADC", "SBC", "RSC",
+	"TST", "TEQ", "CMP", "CMN", "ORR", "MOV", "BIC", "MVN",
 };
 
 const char* arm_dp_op_string[16] = {
