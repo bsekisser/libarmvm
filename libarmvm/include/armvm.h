@@ -34,7 +34,7 @@ typedef struct armvm_tag {
 	armvm_cache_p cache;
 	armvm_core_p core;
 	armvm_mem_p mem;
-	armvm_mmu_p mmu;
+	armvm_mmu_ptr mmu;
 //
 	armvm_config_t config;
 	armvm_h h2avm;

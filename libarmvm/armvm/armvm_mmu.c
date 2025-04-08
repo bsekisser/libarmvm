@@ -19,7 +19,7 @@
 
 /* **** */
 
-typedef struct armvm_mmu_t {
+typedef struct armvm_mmu_tag {
 	armvm_mem_callback_p l1[PAGE_SIZE];
 //
 	armvm_p armvm;
@@ -29,7 +29,7 @@ typedef struct armvm_mmu_t {
 #define pARMVM_CORE mmu->core
 
 	armvm_coprocessor_p cp;
-	armvm_mmu_h h2mmu;
+	armvm_mmu_hptr h2mmu;
 	armvm_mem_p mem;
 	armvm_tlb_ptr tlb;
 }armvm_mmu_t;
@@ -46,7 +46,7 @@ typedef struct armvm_mmu_t {
 
 /* **** */
 
-static void __armvm_mmu_alloc_init(armvm_mmu_p const mmu)
+static void __armvm_mmu_alloc_init(armvm_mmu_ref mmu)
 {
 	if(action_log.at.alloc_init) LOG();
 
@@ -57,7 +57,7 @@ static void __armvm_mmu_alloc_init(armvm_mmu_p const mmu)
 	mmu->mem = avm->mem;
 }
 
-static void __armvm_mmu_init(armvm_mmu_p mmu)
+static void __armvm_mmu_init(armvm_mmu_ref mmu)
 {
 	if(action_log.at.init) LOG();
 
@@ -65,14 +65,14 @@ static void __armvm_mmu_init(armvm_mmu_p mmu)
 }
 
 
-static void __armvm_mmu_exit(armvm_mmu_p mmu)
+static void __armvm_mmu_exit(armvm_mmu_ref mmu)
 {
 	if(action_log.at.exit) LOG();
 
 	handle_free((void*)mmu->h2mmu);
 }
 
-static void __armvm_mmu_reset(armvm_mmu_p const mmu)
+static void __armvm_mmu_reset(armvm_mmu_ref mmu)
 {
 	if(action_log.at.reset) LOG();
 
@@ -88,7 +88,7 @@ static void __armvm_mmu_reset(armvm_mmu_p const mmu)
 #define L1PTD_10_SectionBaseAddress(_x) mlBFTST(_x, 31, 20)
 #define L1PTD_10_SectionIndex(_x) mlBFEXT(_x, 19, 0)
 
-static int __l1ptd_10(armvm_mmu_p const mmu, uint32_t *const ppa, const uint32_t l1ptd)
+static int __l1ptd_10(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1ptd)
 {
 	const uint32_t sba = L1PTD_10_SectionBaseAddress(l1ptd);
 	const uint32_t sbi = L1PTD_10_SectionIndex(*ppa);
@@ -109,7 +109,7 @@ static int __l1ptd_10(armvm_mmu_p const mmu, uint32_t *const ppa, const uint32_t
 #define L1PTD_11_FinePageTable(_x) mlBFTST(_x, 31, 12)
 #define L1PTD_11_FinePageTableIndex(_x) mlBFEXT(_x, 19, 10)
 
-static int __l1ptd_11(armvm_mmu_p const mmu, uint32_t *const ppa, const uint32_t l1ptd)
+static int __l1ptd_11(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1ptd)
 {
 	const uint32_t fba = L1PTD_11_FinePageTable(l1ptd);
 	const uint32_t fbi = L1PTD_11_FinePageTableIndex(*ppa);
@@ -134,7 +134,7 @@ static int __l1ptd_11(armvm_mmu_p const mmu, uint32_t *const ppa, const uint32_t
 	return(0);
 }
 
-static int __l1ptd_xx(armvm_mmu_p const mmu, uint32_t *const ppa)
+static int __l1ptd_xx(armvm_mmu_ref mmu, uint32_t *const ppa)
 {
 	const unsigned x = TTBCR_N;
 
@@ -174,7 +174,7 @@ static int __l1ptd_xx(armvm_mmu_p const mmu, uint32_t *const ppa)
 
 /* **** */
 
-void armvm_mmu(armvm_mmu_p const mmu, action_ref action)
+void armvm_mmu(armvm_mmu_ref mmu, action_ref action)
 {
 	switch(action) {
 		case _ACTION_ALLOC_INIT: __armvm_mmu_alloc_init(mmu); break;
@@ -191,7 +191,7 @@ void armvm_mmu(armvm_mmu_p const mmu, action_ref action)
 	}
 }
 
-static int armvm_mmu__vpa2ppa(armvm_mmu_p const mmu, uint32_t *const ppa)
+static int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 {
 	if(!CP15_REG1_BIT(M))
 		return(0);
@@ -199,14 +199,14 @@ static int armvm_mmu__vpa2ppa(armvm_mmu_p const mmu, uint32_t *const ppa)
 	return(__l1ptd_xx(mmu, ppa));
 }
 
-armvm_mmu_p armvm_mmu_alloc(armvm_p const avm, armvm_mmu_h const h2mmu)
+armvm_mmu_ptr armvm_mmu_alloc(armvm_p const avm, armvm_mmu_href h2mmu)
 {
 	if(action_log.at.alloc) LOG();
 
 	ERR_NULL(h2mmu);
 	ERR_NULL(avm);
 
-	armvm_mmu_p mmu = handle_calloc((void*)h2mmu, 1, sizeof(armvm_mmu_t));
+	armvm_mmu_ref mmu = handle_calloc((void*)h2mmu, 1, sizeof(armvm_mmu_t));
 
 	mmu->armvm = avm;
 	mmu->h2mmu = h2mmu;
@@ -220,7 +220,7 @@ armvm_mmu_p armvm_mmu_alloc(armvm_p const avm, armvm_mmu_h const h2mmu)
 	return(mmu);
 }
 
-int armvm_mmu_ifetch(armvm_mmu_p const mmu, uint32_t *const ir,
+int armvm_mmu_ifetch(armvm_mmu_ref mmu, uint32_t *const ir,
 	const uint32_t va, const size_t size)
 {
 	uint32_t ppa = va;
@@ -249,7 +249,7 @@ int armvm_mmu_ifetch(armvm_mmu_p const mmu, uint32_t *const ir,
 	return(1);
 }
 
-int armvm_mmu_read(armvm_mmu_p const mmu, uint32_t *const read,
+int armvm_mmu_read(armvm_mmu_ref mmu, uint32_t *const read,
 	const uint32_t va, const size_t size)
 {
 	uint32_t ppa = va;
@@ -278,7 +278,7 @@ int armvm_mmu_read(armvm_mmu_p const mmu, uint32_t *const read,
 	return(1);
 }
 
-int armvm_mmu_write(armvm_mmu_p const mmu, const uint32_t va,
+int armvm_mmu_write(armvm_mmu_ref mmu, const uint32_t va,
 	const size_t size, const uint32_t write)
 {
 	uint32_t ppa = va;

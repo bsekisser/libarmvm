@@ -9,7 +9,7 @@
 	#define DEBUG(...)
 #endif
 
-static uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_p const mmu, uint32_t *const write, const unsigned r)
+static uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const write, const unsigned r)
 {
 	const uint32_t mask = mlBF(31, 14 - TTBCR_N) | mlBF(4, 3) | _BV(2) | _BV(1) | _BV(0);
 
@@ -42,7 +42,7 @@ static uint32_t _mmu_cp15__0_2_0_1_ttbr1(void *const param, uint32_t *const writ
 
 static uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const write)
 {
-	const armvm_mmu_p mmu = param;
+	armvm_mmu_ref mmu = param;
 
 	const uint32_t ttbcr = armvm_coprocessor_cp15r(mmu->cp, rSPR32(IR), write);
 
@@ -55,7 +55,7 @@ static uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const writ
 	return(ttbcr);
 }
 
-static void _mmu_cp15_init(armvm_mmu_p const mmu)
+static void _mmu_cp15_init(armvm_mmu_ref mmu)
 {
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 0), _mmu_cp15__0_2_0_0_ttbr0, mmu);
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 1), _mmu_cp15__0_2_0_1_ttbr1, mmu);

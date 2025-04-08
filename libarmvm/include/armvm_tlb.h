@@ -24,7 +24,7 @@ typedef armvm_tlbe_ptr const armvm_tlbe_ref;
 /* **** */
 
 void armvm_tlb(armvm_tlb_ref tlb, action_ref action);
-armvm_tlb_ptr armvm_tlb_alloc(armvm_p const avm, armvm_mmu_p const mmu, armvm_tlb_href h2tlb);
+armvm_tlb_ptr armvm_tlb_alloc(armvm_p const avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb);
 void armvm_tlb_fill_data_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_p const cb);
 void armvm_tlb_fill_instruction_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_p const cb);
 armvm_mem_callback_p armvm_tlb_ifetch(armvm_tlb_ref tlb, const uint32_t va, armvm_tlbe_href h2tlbe);
