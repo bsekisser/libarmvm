@@ -31,7 +31,7 @@ typedef struct armvm_mmu_t {
 	armvm_coprocessor_p cp;
 	armvm_mmu_h h2mmu;
 	armvm_mem_p mem;
-	armvm_tlb_p tlb;
+	armvm_tlb_ptr tlb;
 }armvm_mmu_t;
 
 /* **** */
@@ -226,7 +226,7 @@ int armvm_mmu_ifetch(armvm_mmu_p const mmu, uint32_t *const ir,
 	uint32_t ppa = va;
 	armvm_mem_callback_p src = 0;
 	int tlb = 0;
-	armvm_tlbe_p tlbe = 0;
+	armvm_tlbe_ptr tlbe = 0;
 
 	if(CP15_REG1_BIT(M)) {
 		src = armvm_tlb_ifetch(mmu->tlb, va, &tlbe);
@@ -255,7 +255,7 @@ int armvm_mmu_read(armvm_mmu_p const mmu, uint32_t *const read,
 	uint32_t ppa = va;
 	armvm_mem_callback_p src = 0;
 	int tlb = 0;
-	armvm_tlbe_p tlbe = 0;
+	armvm_tlbe_ptr tlbe = 0;
 
 	if(CP15_REG1_BIT(M)) {
 		src = armvm_tlb_read(mmu->tlb, va, &tlbe);
@@ -284,7 +284,7 @@ int armvm_mmu_write(armvm_mmu_p const mmu, const uint32_t va,
 	uint32_t ppa = va;
 	armvm_mem_callback_p dst = 0;
 	int tlb = 0;
-	armvm_tlbe_p tlbe = 0;
+	armvm_tlbe_ptr tlbe = 0;
 
 	if(CP15_REG1_BIT(M)) {
 		dst = armvm_tlb_write(mmu->tlb, va, &tlbe);

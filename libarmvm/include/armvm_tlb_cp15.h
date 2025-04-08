@@ -2,9 +2,9 @@
 
 /* **** */
 
-static void armvm_tlb_invalidate_all(armvm_tlb_p tlb);
-static void armvm_tlb_invalidate_data(armvm_tlb_p tlb);
-static void armvm_tlb_invalidate_instruction(armvm_tlb_p tlb);
+static void armvm_tlb_invalidate_all(armvm_tlb_ref tlb);
+static void armvm_tlb_invalidate_data(armvm_tlb_ref tlb);
+static void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb);
 
 /* **** */
 
@@ -50,7 +50,7 @@ static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *
 	return(data);
 }
 
-static void _armvm_tlb_cp15_init(armvm_tlb_p tlb)
+static void _armvm_tlb_cp15_init(armvm_tlb_ref tlb)
 {
 	armvm_coprocessor_p cp = tlb->armvm->coprocessor;
 
