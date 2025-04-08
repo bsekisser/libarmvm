@@ -6,7 +6,11 @@
 
 /* **** */
 
-void armvm_core_exception(armvm_core_p const core, const unsigned action);
+#include "libbse/include/action.h"
+
+/* **** */
+
+void armvm_core_exception(armvm_core_p const core, action_ref action);
 int armvm_core_exception_data_abort(armvm_core_p const core);
 int armvm_core_exception_prefetch_abort(armvm_core_p const core);
 void armvm_core_exception_reset(armvm_core_p const core);

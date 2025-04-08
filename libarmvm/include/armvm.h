@@ -10,9 +10,6 @@ typedef armvm_p const armvm_ref;
 
 /* **** */
 
-
-/* **** */
-
 #include "armvm_cache.h"
 #include "armvm_config.h"
 #include "armvm_coprocessor.h"
@@ -20,6 +17,10 @@ typedef armvm_p const armvm_ref;
 #include "armvm_mem.h"
 #include "armvm_mmu.h"
 #include "armvm_trace.h"
+
+/* **** */
+
+#include "libbse/include/action.h"
 
 /* **** */
 
@@ -41,7 +42,7 @@ typedef struct armvm_tag {
 
 /* **** */
 
-void armvm(armvm_p const avm, const unsigned action);
+void armvm(armvm_p const avm, action_ref action);
 armvm_p armvm_alloc(armvm_h const h2avm);
 void armvm_alloc_init(armvm_p const avm);
 void armvm_exit(armvm_p const avm);

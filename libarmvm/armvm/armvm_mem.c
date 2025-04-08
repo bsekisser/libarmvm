@@ -2,12 +2,12 @@
 
 /* **** */
 
-#include "armvm_action.h"
 #include "armvm_mem_config.h"
 #include "armvm.h"
 
 /* **** */
 
+#include "libbse/include/action.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/mem_access_le.h"
@@ -46,12 +46,12 @@ typedef struct armvm_mem_t {
 
 static void __armvm_mem_alloc_init(armvm_mem_p const mem)
 {
-	if(mem->avm->config.trace.alloc_init) LOG();
+	if(action_log.at.alloc_init) LOG();
 }
 
 static void __armvm_mem_exit(armvm_mem_p mem)
 {
-	if(mem->avm->config.trace.exit) LOG();
+	if(action_log.at.exit) LOG();
 
 	handle_free((void*)mem->h2mem);
 }
@@ -165,11 +165,12 @@ static armvm_mem_callback_p _armvm_mem_mmap_alloc(armvm_mem_p const mem,
 	return(p2l2);
 }
 
-void armvm_mem(armvm_mem_p const mem, const unsigned action)
+void armvm_mem(armvm_mem_p const mem, action_ref action)
 {
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: return(__armvm_mem_alloc_init(mem));
-		case ARMVM_ACTION_EXIT: return(__armvm_mem_exit(mem));
+		case _ACTION_ALLOC_INIT: return(__armvm_mem_alloc_init(mem));
+		case _ACTION_EXIT: return(__armvm_mem_exit(mem));
+		default: break;
 	}
 }
 
@@ -195,10 +196,10 @@ armvm_mem_callback_p armvm_mem_access_write(armvm_mem_p const mem, const uint32_
 
 armvm_mem_p armvm_mem_alloc(armvm_p const avm, armvm_mem_h const h2mem)
 {
+	if(action_log.at.alloc) LOG();
+
 	ERR_NULL(h2mem);
 	ERR_NULL(avm);
-
-	if(avm->config.trace.alloc) LOG();
 
 	armvm_mem_p mem = handle_calloc((void*)h2mem, 1, sizeof(armvm_mem_t));
 	ERR_NULL(mem);

@@ -6,11 +6,11 @@
 #include "armvm_mmu.h"
 #include "armvm_coprocessor.h"
 #include "armvm_coprocessor_glue.h"
-#include "armvm_action.h"
 #include "armvm.h"
 
 /* **** */
 
+#include "libbse/include/action.h"
 #include "libbse/include/bitfield.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
@@ -48,18 +48,16 @@ typedef struct armvm_tlb_t {
 
 static void _armvm_tlb_exit(armvm_tlb_p tlb)
 {
+	if(action_log.at.exit) LOG();
 	ERR_NULL(tlb);
-
-	if(tlb->armvm->config.trace.exit) LOG();
 
 	handle_free((void*)tlb->h2tlb);
 }
 
 static void _armvm_tlb_init(armvm_tlb_p const tlb)
 {
+	if(action_log.at.init) LOG();
 	ERR_NULL(tlb);
-
-	if(tlb->armvm->config.trace.init) LOG();
 
 	/* **** */
 
@@ -121,24 +119,26 @@ static armvm_mem_callback_p _tlb_write(armvm_tlbe_p const tlbe_table, const unsi
 
 /* **** */
 
-void armvm_tlb(armvm_tlb_p const tlb, const unsigned action)
+void armvm_tlb(armvm_tlb_p const tlb, action_ref action)
 {
 	switch(action) {
-//		case ARMVM_ACTION_ALLOC_INIT: return(_armvm_tlb_alloc_init(tlb));
-		case ARMVM_ACTION_INIT: return(_armvm_tlb_init(tlb));
+//		case _ACTION_ALLOC_INIT: return(_armvm_tlb_alloc_init(tlb));
+		case _ACTION_INIT: return(_armvm_tlb_init(tlb));
+		default: break;
 	}
 
 	switch(action) {
-		case ARMVM_ACTION_EXIT: return(_armvm_tlb_exit(tlb));
+		case _ACTION_EXIT: return(_armvm_tlb_exit(tlb));
+		default: break;
 	}
 }
 
 armvm_tlb_p armvm_tlb_alloc(armvm_p const avm, armvm_mmu_p const mmu, armvm_tlb_h const h2tlb)
 {
+	if(action_log.at.alloc) LOG();
+
 	ERR_NULL(h2tlb);
 	ERR_NULL(avm);
-
-	if(avm->config.trace.alloc) LOG();
 
 	/* **** */
 

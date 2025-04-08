@@ -5,7 +5,6 @@
 
 /* **** */
 
-#include "armvm_action.h"
 #include "armvm_config.h"
 #include "armvm_core.h"
 
@@ -15,6 +14,7 @@
 
 /* **** */
 
+#include "libbse/include/action.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
@@ -24,6 +24,8 @@
 
 static void _armvm_alloc_init(armvm_p const avm)
 {
+	if(action_log.at.alloc_init) LOG();
+
 	ERR_NULL(avm);
 
 	/* **** */
@@ -31,16 +33,18 @@ static void _armvm_alloc_init(armvm_p const avm)
 
 static void _armvm_exit(armvm_p avm)
 {
+	if(action_log.at.exit) LOG();
+
 	handle_free((void**)avm->h2avm);
 }
 
 /* **** */
 
-void armvm(armvm_p const avm, unsigned const action)
+void armvm(armvm_p const avm, action_ref action)
 {
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT:
-			_armvm_alloc_init(avm);
+		case _ACTION_ALLOC_INIT: _armvm_alloc_init(avm); break;
+		default: break;
 	}
 //
 	armvm_cache(avm->cache, action);
@@ -50,13 +54,15 @@ void armvm(armvm_p const avm, unsigned const action)
 	armvm_mmu(avm->mmu, action);
 //
 	switch(action) {
-		case ARMVM_ACTION_EXIT:
-			return(_armvm_exit(avm));
+		case _ACTION_EXIT: return(_armvm_exit(avm));
+		default: break;
 	}
 }
 
 armvm_p armvm_alloc(armvm_h const h2avm)
 {
+	if(action_log.at.alloc) LOG();
+
 	ERR_NULL(h2avm);
 
 	const armvm_p avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
@@ -79,12 +85,12 @@ armvm_p armvm_alloc(armvm_h const h2avm)
 
 void armvm_alloc_init(armvm_p const avm)
 {
-	armvm(avm, ARMVM_ACTION_ALLOC_INIT);
-	armvm(avm, ARMVM_ACTION_INIT);
+	armvm(avm, _ACTION_ALLOC_INIT);
+	armvm(avm, _ACTION_INIT);
 }
 
 void armvm_exit(armvm_p const avm)
-{ armvm(avm, ARMVM_ACTION_EXIT); }
+{ armvm(avm, _ACTION_EXIT); }
 
 uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write)
 {
@@ -100,9 +106,9 @@ uint32_t* armvm_p2gpr(armvm_p const avm, const unsigned r)
 
 void armvm_reset(armvm_p const avm)
 {
-//	if(avm->config.trace.reset) LOG();
+	if(action_log.at.reset) LOG();
 
-	armvm(avm, ARMVM_ACTION_RESET);
+	armvm(avm, _ACTION_RESET);
 }
 
 uint64_t armvm_run(armvm_p const avm, const uint64_t run_cycles)

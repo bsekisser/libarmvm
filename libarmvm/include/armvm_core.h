@@ -23,6 +23,8 @@ typedef armvm_core_p const armvm_core_ref;
 
 #include "libarm/include/arm_cpsr.h"
 
+#include "libbse/include/action.h"
+
 /* **** */
 
 #include <stdint.h>
@@ -121,7 +123,7 @@ typedef struct armvm_core_t {
 
 /* **** */
 
-void armvm_core(armvm_core_p const core, const unsigned action);
+void armvm_core(armvm_core_p const core, action_ref action);
 armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core);
 int armvm_core_in_a_privaleged_mode(armvm_core_p const core);
 int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc);

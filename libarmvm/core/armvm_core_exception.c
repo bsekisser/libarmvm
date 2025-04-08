@@ -17,6 +17,8 @@
 
 #include "libarm/include/arm_cpsr.h"
 
+#include "libbse/include/action.h"
+
 /* **** */
 
 int armvm_core_exception_data_abort(armvm_core_p const core)
@@ -57,7 +59,7 @@ int armvm_core_exception_prefetch_abort(armvm_core_p const core)
 
 void armvm_core_exception_reset(armvm_core_p const core)
 {
-	if(core->armvm->config.trace.reset) LOG();
+	if(action_log.at.reset) LOG();
 
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;

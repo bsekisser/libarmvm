@@ -10,7 +10,6 @@
 
 /* **** */
 
-#include "armvm_action.h"
 #include "armvm.h"
 
 /* **** */
@@ -19,6 +18,7 @@
 
 /* **** */
 
+#include "libbse/include/action.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 
@@ -31,7 +31,7 @@ static void __armvm_core_alloc_init(armvm_core_p const core)
 
 	/* **** */
 
-	if(core->armvm->config.trace.alloc) LOG();
+	if(action_log.at.alloc_init) LOG();
 
 	core->config.pedantic.ir_checks = 1;
 	core->config.version = arm_v5tej;
@@ -45,7 +45,7 @@ static void __armvm_core_alloc_init(armvm_core_p const core)
 
 static void __armvm_core_exit(armvm_core_p const core)
 {
-	if(core->armvm->config.trace.exit) LOG();
+	if(action_log.at.exit) LOG();
 
 	handle_free((void*)core->h2core);
 }
@@ -120,25 +120,27 @@ static void _armvm_core_psr_swap_regs(armvm_core_p const core,
 
 /* **** */
 
-void armvm_core(armvm_core_p const core, const unsigned action)
+void armvm_core(armvm_core_p const core, action_ref action)
 {
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: __armvm_core_alloc_init(core); break;
-		case ARMVM_ACTION_RESET: armvm_core_exception_reset(core); break;
+		case _ACTION_ALLOC_INIT: __armvm_core_alloc_init(core); break;
+		case _ACTION_RESET: armvm_core_exception_reset(core); break;
+		default: break;
 	}
 //
 //
 	switch(action) {
-		case ARMVM_ACTION_EXIT: __armvm_core_exit(core); break;
+		case _ACTION_EXIT: __armvm_core_exit(core); break;
+		default: break;
 	}
 }
 
 armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core)
 {
+	if(action_log.at.alloc) LOG();
+
 	ERR_NULL(avm);
 	ERR_NULL(h2core);
-
-	if(avm->config.trace.alloc) LOG();
 
 	armvm_core_p core = handle_calloc((void*)h2core, 1, sizeof(armvm_core_t));
 	ERR_NULL(core);

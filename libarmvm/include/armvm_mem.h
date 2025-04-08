@@ -19,6 +19,7 @@ typedef uint32_t (*armvm_mem_fn)(void *const param, const uint32_t ppa, const si
 
 /* **** */
 
+#include "libbse/include/action.h"
 #include "libbse/include/log.h"
 
 /* **** */
@@ -30,7 +31,7 @@ typedef struct armvm_mem_callback_t {
 
 /* **** */
 
-void armvm_mem(armvm_mem_p const mem, const unsigned action);
+void armvm_mem(armvm_mem_p const mem, action_ref action);
 armvm_mem_p armvm_mem_alloc(armvm_p const avm, armvm_mem_h const h2mem);
 
 uint32_t armvm_mem_access_read(armvm_mem_p const mem,

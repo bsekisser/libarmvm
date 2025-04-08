@@ -15,6 +15,10 @@ typedef armvm_cache_h const armvm_cache_href;
 
 /* **** */
 
+#include "libbse/include/action.h"
+
+/* **** */
+
 typedef struct armvm_cache_tag {
 	armvm_p armvm;
 	armvm_core_p core;
@@ -23,7 +27,7 @@ typedef struct armvm_cache_tag {
 
 /* **** */
 
-void armvm_cache(armvm_cache_ref acr, const unsigned action);
+void armvm_cache(armvm_cache_ref acr, action_ref action);
 armvm_cache_p armvm_cache_alloc(armvm_ref avm,
 	armvm_cache_href const h2c);
 

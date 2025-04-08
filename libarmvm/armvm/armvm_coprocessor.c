@@ -1,6 +1,5 @@
 #include "armvm_coprocessor.h"
 #include "armvm_core.h"
-#include "armvm_action.h"
 #include "armvm.h"
 
 /* **** */
@@ -12,6 +11,7 @@
 
 #include "libarm/include/arm_disasm.h"
 
+#include "libbse/include/action.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
@@ -39,14 +39,14 @@ typedef struct armvm_coprocessor_t {
 
 static void __armvm_coprocessor_alloc_init(armvm_coprocessor_p const cp)
 {
-	if(cp->armvm->config.trace.alloc_init) LOG();
+	if(action_log.at.alloc_init) LOG();
 
 	cp->core = cp->armvm->core;
 }
 
 static void __armvm_coprocessor_exit(armvm_coprocessor_p const cp)
 {
-	if(cp->armvm->config.trace.exit) LOG();
+	if(action_log.at.exit) LOG();
 
 	handle_free((void*)cp->h2cp);
 }
@@ -87,17 +87,19 @@ static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const wr
 	return((mem_32_access(cp15r1, write) & ~sbz) | sbo);
 }
 
-void armvm_coprocessor(armvm_coprocessor_p const cp, const unsigned action)
+void armvm_coprocessor(armvm_coprocessor_p const cp, action_ref action)
 {
 	ERR_NULL(cp);
 
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: __armvm_coprocessor_alloc_init(cp); break;
+		case _ACTION_ALLOC_INIT: __armvm_coprocessor_alloc_init(cp); break;
+		default: break;
 	}
 //
 //
 	switch(action) {
-		case ARMVM_ACTION_EXIT: __armvm_coprocessor_exit(cp); break;
+		case _ACTION_EXIT: __armvm_coprocessor_exit(cp); break;
+		default: break;
 	}
 }
 
@@ -123,10 +125,10 @@ uint32_t armvm_coprocessor_access(armvm_coprocessor_p const cp, uint32_t *const 
 armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm,
 	armvm_coprocessor_h const h2cp)
 {
+	if(action_log.at.alloc) LOG();
+
 	ERR_NULL(h2cp);
 	ERR_NULL(avm);
-
-	if(avm->config.trace.alloc) LOG();
 
 	armvm_coprocessor_p const cp =
 		handle_calloc((void*)h2cp, 1, sizeof(armvm_coprocessor_t));

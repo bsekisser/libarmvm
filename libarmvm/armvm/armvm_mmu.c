@@ -2,7 +2,6 @@
 
 /* **** */
 
-#include "armvm_action.h"
 #include "armvm_coprocessor_cp15.h"
 #include "armvm_core.h"
 #include "armvm_core_exception.h"
@@ -12,6 +11,7 @@
 
 /* **** */
 
+#include "libbse/include/action.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
 #include "libbse/include/page.h"
@@ -48,6 +48,8 @@ typedef struct armvm_mmu_t {
 
 static void __armvm_mmu_alloc_init(armvm_mmu_p const mmu)
 {
+	if(action_log.at.alloc_init) LOG();
+
 	armvm_p const avm = mmu->armvm;
 
 	pARMVM_CORE = avm->core;
@@ -57,7 +59,7 @@ static void __armvm_mmu_alloc_init(armvm_mmu_p const mmu)
 
 static void __armvm_mmu_init(armvm_mmu_p mmu)
 {
-	if(mmu->armvm->config.trace.init) LOG();
+	if(action_log.at.init) LOG();
 
 	_mmu_cp15_init(mmu);
 }
@@ -65,14 +67,14 @@ static void __armvm_mmu_init(armvm_mmu_p mmu)
 
 static void __armvm_mmu_exit(armvm_mmu_p mmu)
 {
-	if(mmu->armvm->config.trace.exit) LOG();
+	if(action_log.at.exit) LOG();
 
 	handle_free((void*)mmu->h2mmu);
 }
 
 static void __armvm_mmu_reset(armvm_mmu_p const mmu)
 {
-	if(mmu->armvm->config.trace.reset) LOG();
+	if(action_log.at.reset) LOG();
 
 	uint32_t x = 0;
 	TTBCR(&x);
@@ -172,18 +174,20 @@ static int __l1ptd_xx(armvm_mmu_p const mmu, uint32_t *const ppa)
 
 /* **** */
 
-void armvm_mmu(armvm_mmu_p const mmu, const unsigned action)
+void armvm_mmu(armvm_mmu_p const mmu, action_ref action)
 {
 	switch(action) {
-		case ARMVM_ACTION_ALLOC_INIT: __armvm_mmu_alloc_init(mmu); break;
-		case ARMVM_ACTION_INIT: __armvm_mmu_init(mmu); break;
-		case ARMVM_ACTION_RESET: __armvm_mmu_reset(mmu); break;
+		case _ACTION_ALLOC_INIT: __armvm_mmu_alloc_init(mmu); break;
+		case _ACTION_INIT: __armvm_mmu_init(mmu); break;
+		case _ACTION_RESET: __armvm_mmu_reset(mmu); break;
+		default: break;
 	}
 
 	armvm_tlb(mmu->tlb, action);
 
 	switch(action) {
-		case ARMVM_ACTION_EXIT: __armvm_mmu_exit(mmu); break;
+		case _ACTION_EXIT: __armvm_mmu_exit(mmu); break;
+		default: break;
 	}
 }
 
@@ -197,10 +201,10 @@ static int armvm_mmu__vpa2ppa(armvm_mmu_p const mmu, uint32_t *const ppa)
 
 armvm_mmu_p armvm_mmu_alloc(armvm_p const avm, armvm_mmu_h const h2mmu)
 {
+	if(action_log.at.alloc) LOG();
+
 	ERR_NULL(h2mmu);
 	ERR_NULL(avm);
-
-	if(avm->config.trace.alloc) LOG();
 
 	armvm_mmu_p mmu = handle_calloc((void*)h2mmu, 1, sizeof(armvm_mmu_t));
 
