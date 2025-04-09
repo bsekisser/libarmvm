@@ -1,7 +1,6 @@
 #include "armvm_core_cc.h"
 #include "armvm_core_config.h"
 #include "armvm_core_glue.h"
-//#include "armvm_core_ldst.h"
 #include "armvm_core_shiftbox.h"
 #include "armvm_core_trace.h"
 
