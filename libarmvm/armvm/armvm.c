@@ -22,7 +22,7 @@
 
 /* **** */
 
-static void _armvm_alloc_init(armvm_p const avm)
+static void _armvm_alloc_init(armvm_ref avm)
 {
 	if(action_log.at.alloc_init) LOG();
 
@@ -31,7 +31,7 @@ static void _armvm_alloc_init(armvm_p const avm)
 	/* **** */
 }
 
-static void _armvm_exit(armvm_p avm)
+static void _armvm_exit(armvm_ref avm)
 {
 	if(action_log.at.exit) LOG();
 
@@ -40,7 +40,7 @@ static void _armvm_exit(armvm_p avm)
 
 /* **** */
 
-void armvm(armvm_p const avm, action_ref action)
+void armvm(armvm_ref avm, action_ref action)
 {
 	switch(action) {
 		case _ACTION_ALLOC_INIT: _armvm_alloc_init(avm); break;
@@ -59,13 +59,13 @@ void armvm(armvm_p const avm, action_ref action)
 	}
 }
 
-armvm_p armvm_alloc(armvm_h const h2avm)
+armvm_ptr armvm_alloc(armvm_href h2avm)
 {
 	if(action_log.at.alloc) LOG();
 
 	ERR_NULL(h2avm);
 
-	const armvm_p avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
+	armvm_ref avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
 	ERR_NULL(avm);
 
 	avm->h2avm = h2avm;
@@ -83,35 +83,35 @@ armvm_p armvm_alloc(armvm_h const h2avm)
 	return(avm);
 }
 
-void armvm_alloc_init(armvm_p const avm)
+void armvm_alloc_init(armvm_ref avm)
 {
 	armvm(avm, _ACTION_ALLOC_INIT);
 	armvm(avm, _ACTION_INIT);
 }
 
-void armvm_exit(armvm_p const avm)
+void armvm_exit(armvm_ref avm)
 { armvm(avm, _ACTION_EXIT); }
 
-uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write)
+uint32_t armvm_gpr(armvm_ref avm, const unsigned r, uint32_t *const write)
 {
 	assert(_ARMVM_GPR_COUNT_ > r);
 	return(mem_32_access(&GPRx(r), write));
 }
 
-uint32_t* armvm_p2gpr(armvm_p const avm, const unsigned r)
+uint32_t* armvm_p2gpr(armvm_ref avm, const unsigned r)
 {
 	assert(_ARMVM_GPR_COUNT_ > r);
 	return(&GPRx(r));
 }
 
-void armvm_reset(armvm_p const avm)
+void armvm_reset(armvm_ref avm)
 {
 	if(action_log.at.reset) LOG();
 
 	armvm(avm, _ACTION_RESET);
 }
 
-uint64_t armvm_run(armvm_p const avm, const uint64_t run_cycles)
+uint64_t armvm_run(armvm_ref avm, const uint64_t run_cycles)
 {
 	uint64_t run_cycles_left = run_cycles;
 
@@ -132,17 +132,17 @@ uint64_t armvm_run(armvm_p const avm, const uint64_t run_cycles)
 	return(run_cycles_left);
 }
 
-uint32_t armvm_spr32(armvm_p const avm, const unsigned r)
+uint32_t armvm_spr32(armvm_ref avm, const unsigned r)
 {
 	assert(_ARMVM_SPR32_COUNT_ > r);
 	return(SPR32x(r));
 }
 
-uint64_t armvm_spr64(armvm_p const avm, const unsigned r)
+uint64_t armvm_spr64(armvm_ref avm, const unsigned r)
 {
 	assert(_ARMVM_SPR64_COUNT_ > r);
 	return(SPR64x(r));
 }
 
-int armvm_step(armvm_p const avm)
+int armvm_step(armvm_ref avm)
 { return(armvm_core_step(avm->core)); }

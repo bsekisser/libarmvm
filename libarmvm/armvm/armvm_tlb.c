@@ -34,7 +34,7 @@ typedef struct armvm_tlb_tag {
 	armvm_tlbe_t dtlb[_BV(dTLB_BITS)];
 	armvm_tlbe_t itlb[_BV(iTLB_BITS)];
 //
-	armvm_p armvm;
+	armvm_ptr armvm;
 	armvm_tlb_hptr h2tlb;
 	armvm_mmu_ptr mmu;
 }armvm_tlb_t;
@@ -132,7 +132,7 @@ void armvm_tlb(armvm_tlb_ref tlb, action_ref action)
 	}
 }
 
-armvm_tlb_ptr armvm_tlb_alloc(armvm_p const avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb)
+armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb)
 {
 	if(action_log.at.alloc) LOG();
 

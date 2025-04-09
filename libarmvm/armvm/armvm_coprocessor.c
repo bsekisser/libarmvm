@@ -31,7 +31,7 @@ typedef struct armvm_coprocessor_tag {
 	armvm_coprocessor_callback_t cp15[16][16][7][7];
 	uint32_t cp15r[16][16][7][7];
 //
-	armvm_p armvm;
+	armvm_ptr armvm;
 	armvm_core_p core;
 //
 	armvm_coprocessor_hptr h2cp;
@@ -124,7 +124,7 @@ uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const writ
 }
 
 
-armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_p const avm,
+armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_ref avm,
 	armvm_coprocessor_href h2cp)
 {
 	if(action_log.at.alloc) LOG();

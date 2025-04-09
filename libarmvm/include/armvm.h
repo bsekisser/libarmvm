@@ -2,11 +2,11 @@
 
 /* **** */
 
-typedef struct armvm_tag** armvm_h;
-typedef armvm_h const armvm_href;
+typedef struct armvm_tag** armvm_hptr;
+typedef armvm_hptr const armvm_href;
 
-typedef struct armvm_tag* armvm_p;
-typedef armvm_p const armvm_ref;
+typedef struct armvm_tag* armvm_ptr;
+typedef armvm_ptr const armvm_ref;
 
 /* **** */
 
@@ -37,19 +37,19 @@ typedef struct armvm_tag {
 	armvm_mmu_ptr mmu;
 //
 	armvm_config_t config;
-	armvm_h h2avm;
+	armvm_hptr h2avm;
 }armvm_t;
 
 /* **** */
 
-void armvm(armvm_p const avm, action_ref action);
-armvm_p armvm_alloc(armvm_h const h2avm);
-void armvm_alloc_init(armvm_p const avm);
-void armvm_exit(armvm_p const avm);
-uint32_t armvm_gpr(armvm_p const avm, const unsigned r, uint32_t *const write);
-uint32_t* armvm_p2gpr(armvm_p const avm, const unsigned r);
-void armvm_reset(armvm_p const avm);
-uint64_t armvm_run(armvm_p const avm, uint64_t cycles);
-uint32_t armvm_spr32(armvm_p const avm, const unsigned r);
-uint64_t armvm_spr64(armvm_p const avm, const unsigned r);
-int armvm_step(armvm_p const avm);
+void armvm(armvm_ref avm, action_ref action);
+armvm_ptr armvm_alloc(armvm_href h2avm);
+void armvm_alloc_init(armvm_ref avm);
+void armvm_exit(armvm_ref avm);
+uint32_t armvm_gpr(armvm_ref avm, const unsigned r, uint32_t *const write);
+uint32_t* armvm_p2gpr(armvm_ref avm, const unsigned r);
+void armvm_reset(armvm_ref avm);
+uint64_t armvm_run(armvm_ref avm, uint64_t cycles);
+uint32_t armvm_spr32(armvm_ref avm, const unsigned r);
+uint64_t armvm_spr64(armvm_ref avm, const unsigned r);
+int armvm_step(armvm_ref avm);

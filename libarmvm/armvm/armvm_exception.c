@@ -18,7 +18,7 @@
 
 /* **** */
 
-int armvm_exception_fiq(armvm_p const avm)
+int armvm_exception_fiq(armvm_ref avm)
 {
 	const armvm_core_p core = avm->core;
 
@@ -38,7 +38,7 @@ int armvm_exception_fiq(armvm_p const avm)
 	return(0);
 }
 
-int armvm_exception_irq(armvm_p const avm)
+int armvm_exception_irq(armvm_ref avm)
 {
 	const armvm_core_p core = avm->core;
 

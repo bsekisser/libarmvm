@@ -37,7 +37,7 @@ typedef struct armvm_mem_tag {
 		unsigned count;
 	}l2malloc;
 //
-	armvm_p avm;
+	armvm_ptr avm;
 	armvm_mem_config_t config;
 	armvm_mem_hptr h2mem;
 }armvm_mem_t;
@@ -197,7 +197,7 @@ armvm_mem_callback_ptr armvm_mem_access_write(armvm_mem_ref mem, const uint32_t 
 	return(cb);
 }
 
-armvm_mem_ptr armvm_mem_alloc(armvm_p const avm, armvm_mem_href h2mem)
+armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem)
 {
 	if(action_log.at.alloc) LOG();
 

@@ -20,7 +20,7 @@ typedef armvm_cache_ptr const armvm_cache_ref;
 /* **** */
 
 typedef struct armvm_cache_tag {
-	armvm_p armvm;
+	armvm_ptr armvm;
 	armvm_core_p core;
 	armvm_cache_hptr h2c;
 }armvm_cache_t;

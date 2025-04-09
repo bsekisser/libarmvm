@@ -135,7 +135,7 @@ void armvm_core(armvm_core_p const core, action_ref action)
 	}
 }
 
-armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core)
+armvm_core_p armvm_core_alloc(armvm_ref avm, armvm_core_h const h2core)
 {
 	if(action_log.at.alloc) LOG();
 

@@ -115,7 +115,7 @@ typedef struct armvm_core_t {
 	armvm_trace_t armvm_trace;
 	armvm_core_config_t config;
 //
-	armvm_p armvm;
+	armvm_ptr armvm;
 	armvm_core_h h2core;
 	armvm_coprocessor_ptr cp;
 	armvm_mmu_ptr mmu;
@@ -124,7 +124,7 @@ typedef struct armvm_core_t {
 /* **** */
 
 void armvm_core(armvm_core_p const core, action_ref action);
-armvm_core_p armvm_core_alloc(armvm_p const avm, armvm_core_h const h2core);
+armvm_core_p armvm_core_alloc(armvm_ref avm, armvm_core_h const h2core);
 int armvm_core_in_a_privaleged_mode(armvm_core_p const core);
 int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc);
 int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc);

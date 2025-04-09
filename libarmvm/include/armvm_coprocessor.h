@@ -28,7 +28,7 @@ typedef uint32_t (*armvm_coprocessor_callback_fn)(void *const param, uint32_t *c
 
 void armvm_coprocessor(armvm_coprocessor_ref cp, action_ref action);
 uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const write);
-armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_p const avm, armvm_coprocessor_href h2cp);
+armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_ref avm, armvm_coprocessor_href h2cp);
 uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_ref cp, const uint32_t cpx, uint32_t *const write);
 void armvm_coprocessor_cp15r_bclr(armvm_coprocessor_ref cp, const uint32_t cpx,
 	const unsigned bit);

@@ -22,7 +22,7 @@
 typedef struct armvm_mmu_tag {
 	armvm_mem_callback_ptr l1[PAGE_SIZE];
 //
-	armvm_p armvm;
+	armvm_ptr armvm;
 #define pARMVM mmu->armvm
 
 	armvm_core_p core;
@@ -50,7 +50,7 @@ static void __armvm_mmu_alloc_init(armvm_mmu_ref mmu)
 {
 	if(action_log.at.alloc_init) LOG();
 
-	armvm_p const avm = mmu->armvm;
+	armvm_ref avm = mmu->armvm;
 
 	pARMVM_CORE = avm->core;
 	mmu->cp = avm->coprocessor;
@@ -199,7 +199,7 @@ static int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 	return(__l1ptd_xx(mmu, ppa));
 }
 
-armvm_mmu_ptr armvm_mmu_alloc(armvm_p const avm, armvm_mmu_href h2mmu)
+armvm_mmu_ptr armvm_mmu_alloc(armvm_ref avm, armvm_mmu_href h2mmu)
 {
 	if(action_log.at.alloc) LOG();
 
