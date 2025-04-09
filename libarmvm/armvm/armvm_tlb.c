@@ -22,7 +22,7 @@
 #define iTLB_BITS 8
 
 typedef struct armvm_tlbe_tag {
-	armvm_mem_callback_p cb;
+	armvm_mem_callback_ptr cb;
 //
 	struct {
 		uint32_t i:1;
@@ -82,7 +82,7 @@ static armvm_tlbe_ptr _tlb_entry(armvm_tlbe_ref tlbe_table, const unsigned tlb_b
 	return(tlbe);
 }
 
-static void _tlb_fill_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_p const cb)
+static void _tlb_fill_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb)
 {
 	tlbe->cb = cb;
 	tlbe->vp = PAGE(va);
@@ -96,7 +96,7 @@ static void _tlb_invalidate_table(armvm_tlbe_ref tlbe_table, const unsigned tlb_
 		memset(&tlbe_table[i], 0, sizeof(armvm_tlbe_t));
 }
 
-static armvm_mem_callback_p _tlb_read(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
+static armvm_mem_callback_ptr _tlb_read(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
 	const uint32_t va, armvm_tlbe_href h2tlbe)
 {
 	armvm_tlbe_ref tlbe = _tlb_entry(tlbe_table, tlb_bits, va, h2tlbe);
@@ -106,7 +106,7 @@ static armvm_mem_callback_p _tlb_read(armvm_tlbe_ref tlbe_table, const unsigned 
 	return(tlbe->cb);
 }
 
-static armvm_mem_callback_p _tlb_write(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
+static armvm_mem_callback_ptr _tlb_write(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
 	const uint32_t va, armvm_tlbe_href h2tlbe)
 {
 	armvm_tlbe_ref tlbe = _tlb_entry(tlbe_table, tlb_bits, va, h2tlbe);
@@ -156,17 +156,17 @@ armvm_tlb_ptr armvm_tlb_alloc(armvm_p const avm, armvm_mmu_ref mmu, armvm_tlb_hr
 }
 
 void armvm_tlb_fill_data_tlbe(armvm_tlbe_ref tlbe, const uint32_t va,
-	armvm_mem_callback_p const cb)
+	armvm_mem_callback_ref cb)
 { _tlb_fill_tlbe(tlbe, va, cb); }
 
 void armvm_tlb_fill_instruction_tlbe(armvm_tlbe_ref tlbe, const uint32_t va,
-	armvm_mem_callback_p const cb)
+	armvm_mem_callback_ref cb)
 { _tlb_fill_tlbe(tlbe, va, cb); }
 
-armvm_mem_callback_p armvm_tlb_ifetch(armvm_tlb_ref tlb, const uint32_t va,
+armvm_mem_callback_ptr armvm_tlb_ifetch(armvm_tlb_ref tlb, const uint32_t va,
 	armvm_tlbe_href h2tlbe)
 {
-	armvm_mem_callback_p cb = _tlb_read(tlb->itlb, iTLB_BITS, va, h2tlbe);
+	armvm_mem_callback_ptr cb = _tlb_read(tlb->itlb, iTLB_BITS, va, h2tlbe);
 
 	return(cb);
 }
@@ -187,18 +187,18 @@ static void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb)
 	_tlb_invalidate_table(tlb->itlb, iTLB_BITS);
 }
 
-armvm_mem_callback_p armvm_tlb_read(armvm_tlb_ref tlb, uint32_t const va,
+armvm_mem_callback_ptr armvm_tlb_read(armvm_tlb_ref tlb, uint32_t const va,
 	armvm_tlbe_href h2tlbe)
 {
-	armvm_mem_callback_p cb = _tlb_read(tlb->dtlb, dTLB_BITS, va, h2tlbe);
+	armvm_mem_callback_ptr cb = _tlb_read(tlb->dtlb, dTLB_BITS, va, h2tlbe);
 
 	return(cb);
 }
 
-armvm_mem_callback_p armvm_tlb_write(armvm_tlb_ref tlb, uint32_t const va,
+armvm_mem_callback_ptr armvm_tlb_write(armvm_tlb_ref tlb, uint32_t const va,
 	armvm_tlbe_href h2tlbe)
 {
-	armvm_mem_callback_p cb = _tlb_write(tlb->dtlb, dTLB_BITS, va, h2tlbe);
+	armvm_mem_callback_ptr cb = _tlb_write(tlb->dtlb, dTLB_BITS, va, h2tlbe);
 
 	return(cb);
 }

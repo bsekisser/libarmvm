@@ -20,7 +20,7 @@
 /* **** */
 
 typedef struct armvm_mmu_tag {
-	armvm_mem_callback_p l1[PAGE_SIZE];
+	armvm_mem_callback_ptr l1[PAGE_SIZE];
 //
 	armvm_p armvm;
 #define pARMVM mmu->armvm
@@ -30,7 +30,7 @@ typedef struct armvm_mmu_tag {
 
 	armvm_coprocessor_ptr cp;
 	armvm_mmu_hptr h2mmu;
-	armvm_mem_p mem;
+	armvm_mem_ptr mem;
 	armvm_tlb_ptr tlb;
 }armvm_mmu_t;
 
@@ -224,7 +224,7 @@ int armvm_mmu_ifetch(armvm_mmu_ref mmu, uint32_t *const ir,
 	const uint32_t va, const size_t size)
 {
 	uint32_t ppa = va;
-	armvm_mem_callback_p src = 0;
+	armvm_mem_callback_ptr src = 0;
 	int tlb = 0;
 	armvm_tlbe_ptr tlbe = 0;
 
@@ -253,7 +253,7 @@ int armvm_mmu_read(armvm_mmu_ref mmu, uint32_t *const read,
 	const uint32_t va, const size_t size)
 {
 	uint32_t ppa = va;
-	armvm_mem_callback_p src = 0;
+	armvm_mem_callback_ptr src = 0;
 	int tlb = 0;
 	armvm_tlbe_ptr tlbe = 0;
 
@@ -282,7 +282,7 @@ int armvm_mmu_write(armvm_mmu_ref mmu, const uint32_t va,
 	const size_t size, const uint32_t write)
 {
 	uint32_t ppa = va;
-	armvm_mem_callback_p dst = 0;
+	armvm_mem_callback_ptr dst = 0;
 	int tlb = 0;
 	armvm_tlbe_ptr tlbe = 0;
 

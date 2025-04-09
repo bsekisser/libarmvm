@@ -14,5 +14,5 @@ typedef struct armvm_config_t* armvm_config_p;
 
 typedef struct armvm_config_t {
 	armvm_core_config_p core;
-	armvm_mem_config_p mem;
+	armvm_mem_config_ptr mem;
 }armvm_config_t;

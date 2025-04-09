@@ -2,11 +2,11 @@
 
 /* **** */
 
-typedef struct armvm_mem_config_t* armvm_mem_config_p;
+typedef struct armvm_mem_config_tag* armvm_mem_config_ptr;
 
 /* **** */
 
-typedef struct armvm_mem_config_t {
+typedef struct armvm_mem_config_tag {
 	unsigned trace_mmap:1;
 	struct {
 		unsigned mmap_alloc;
