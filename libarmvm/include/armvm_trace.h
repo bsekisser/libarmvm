@@ -2,11 +2,11 @@
 
 /* **** */
 
-typedef struct armvm_trace_t** armvm_trace_h;
-typedef struct armvm_trace_t* armvm_trace_p;
+typedef struct armvm_trace_tag** armvm_trace_hptr;
+typedef armvm_trace_hptr const armvm_trace_href;
 
-//#include "armvm_core.h"
-//#include "armvm.h"
+typedef struct armvm_trace_tag* armvm_trace_ptr;
+typedef armvm_trace_ptr const armvm_trace_ref;
 
 /* **** */
 
@@ -40,16 +40,11 @@ enum _ARMVM_TRACE_R64 {
 	_ARMVM_TRACE_R64_COUNT_
 };
 
-typedef struct armvm_trace_t {
-//	uint64_t vr64[_ARMVM_TRACE_R64_COUNT_];
+typedef struct armvm_trace_tag {
 	uint32_t vr[_ARMVM_TRACE_R_COUNT_];
-
-//	unsigned rr64[_ARMVM_TRACE_R64_COUNT_];
 	unsigned rr[_ARMVM_TRACE_R_COUNT_];
-//
-//	armvm_core_p armvm_core;
 }armvm_trace_t;
 
 /* **** */
 
-void armvm_trace(armvm_trace_p atp);
+void armvm_trace(armvm_trace_ref atp);
