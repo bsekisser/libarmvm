@@ -30,7 +30,7 @@ typedef armvm_p const armvm_ref;
 /* **** */
 
 typedef struct armvm_tag {
-	armvm_coprocessor_p coprocessor;
+	armvm_coprocessor_ptr coprocessor;
 	armvm_cache_p cache;
 	armvm_core_p core;
 	armvm_mem_p mem;

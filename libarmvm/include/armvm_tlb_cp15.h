@@ -52,7 +52,7 @@ static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *
 
 static void _armvm_tlb_cp15_init(armvm_tlb_ref tlb)
 {
-	armvm_coprocessor_p cp = tlb->armvm->coprocessor;
+	armvm_coprocessor_ref cp = tlb->armvm->coprocessor;
 
 	armvm_coprocessor_register_callback(cp, cp15(0, 8, 5, 0),
 		_armvm_cp15_0_8_5_0_invalidate_instruction, tlb);

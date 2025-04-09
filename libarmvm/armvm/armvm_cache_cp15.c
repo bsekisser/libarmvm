@@ -45,7 +45,7 @@ static uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32
 
 void armvm_cache_cp15_init(armvm_cache_ref acr)
 {
-	armvm_coprocessor_p cp = acr->armvm->coprocessor;
+	armvm_coprocessor_ref cp = acr->armvm->coprocessor;
 
 	armvm_coprocessor_register_callback(cp, cp15(0, 7, 0, 4),
 		_armvm_cp15_0_7_0_4_wait_for_interrupt, acr);

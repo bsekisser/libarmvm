@@ -19,32 +19,34 @@
 
 /* **** */
 
-typedef struct armvm_coprocessor_callback_t* armvm_coprocessor_callback_p;
-typedef struct armvm_coprocessor_callback_t {
+typedef struct armvm_coprocessor_callback_tag* armvm_coprocessor_callback_ptr;
+typedef armvm_coprocessor_callback_ptr const armvm_coprocessor_callback_ref;
+
+typedef struct armvm_coprocessor_callback_tag {
 	armvm_coprocessor_callback_fn fn;
 	void* param;
 }armvm_coprocessor_callback_t;
 
-typedef struct armvm_coprocessor_t {
+typedef struct armvm_coprocessor_tag {
 	armvm_coprocessor_callback_t cp15[16][16][7][7];
 	uint32_t cp15r[16][16][7][7];
 //
 	armvm_p armvm;
 	armvm_core_p core;
 //
-	armvm_coprocessor_h h2cp;
+	armvm_coprocessor_hptr h2cp;
 }armvm_coprocessor_t;
 
 /* **** */
 
-static void __armvm_coprocessor_alloc_init(armvm_coprocessor_p const cp)
+static void __armvm_coprocessor_alloc_init(armvm_coprocessor_ref cp)
 {
 	if(action_log.at.alloc_init) LOG();
 
 	cp->core = cp->armvm->core;
 }
 
-static void __armvm_coprocessor_exit(armvm_coprocessor_p const cp)
+static void __armvm_coprocessor_exit(armvm_coprocessor_ref cp)
 {
 	if(action_log.at.exit) LOG();
 
@@ -53,7 +55,7 @@ static void __armvm_coprocessor_exit(armvm_coprocessor_p const cp)
 
 /* **** */
 
-static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_p const  cp,
+static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_ref  cp,
 	const uint32_t ir)
 {
 	uint32_t *const p2r = &cp->cp15r[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)];
@@ -62,13 +64,13 @@ static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_p const  cp,
 
 /* **** */
 
-static armvm_coprocessor_callback_p _armvm_coprocessor_callback(armvm_coprocessor_p const  cp,
+static armvm_coprocessor_callback_ptr _armvm_coprocessor_callback(armvm_coprocessor_ref  cp,
 	const uint32_t ir)
 {
 	return(&cp->cp15[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)]);
 }
 
-static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_p const  cp,
+static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_ref  cp,
 	const uint32_t ir, uint32_t* write)
 {
 	return(mem_32_access(_armvm_coprocessor__cp15r_rmw(cp, ir), write));
@@ -76,7 +78,7 @@ static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_p const  cp,
 
 static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
 {
-	const armvm_coprocessor_p cp = param;
+	armvm_coprocessor_ref cp = param;
 	const armvm_core_p core = cp->armvm->core;
 
 	uint32_t *cp15r1 = _armvm_coprocessor__cp15r_rmw(cp, IR);
@@ -87,7 +89,7 @@ static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const wr
 	return((mem_32_access(cp15r1, write) & ~sbz) | sbo);
 }
 
-void armvm_coprocessor(armvm_coprocessor_p const cp, action_ref action)
+void armvm_coprocessor(armvm_coprocessor_ref cp, action_ref action)
 {
 	ERR_NULL(cp);
 
@@ -103,12 +105,12 @@ void armvm_coprocessor(armvm_coprocessor_p const cp, action_ref action)
 	}
 }
 
-uint32_t armvm_coprocessor_access(armvm_coprocessor_p const cp, uint32_t *const write)
+uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const write)
 {
 	armvm_core_p const core = cp->core;
 
 	if(15 == ir_cp_num(IR)) {
-		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(cp, IR);
+		armvm_coprocessor_callback_ref cb = _armvm_coprocessor_callback(cp, IR);
 
 		if(cb->fn)
 			return(cb->fn(cb->param, write));
@@ -122,15 +124,15 @@ uint32_t armvm_coprocessor_access(armvm_coprocessor_p const cp, uint32_t *const 
 }
 
 
-armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm,
-	armvm_coprocessor_h const h2cp)
+armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_p const avm,
+	armvm_coprocessor_href h2cp)
 {
 	if(action_log.at.alloc) LOG();
 
 	ERR_NULL(h2cp);
 	ERR_NULL(avm);
 
-	armvm_coprocessor_p const cp =
+	armvm_coprocessor_ref cp =
 		handle_calloc((void*)h2cp, 1, sizeof(armvm_coprocessor_t));
 
 	ERR_NULL(cp);
@@ -148,31 +150,31 @@ armvm_coprocessor_p armvm_coprocessor_alloc(armvm_p const avm,
 	return(cp);
 }
 
-uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_p const cp, const uint32_t cpx, uint32_t *const write)
+uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_ref cp, const uint32_t cpx, uint32_t *const write)
 { return(_armvm_coprocessor_cp15r(cp, cpx, write)); }
 
-void armvm_coprocessor_cp15r_bclr(armvm_coprocessor_p const cp, const uint32_t cpx, const unsigned bit)
+void armvm_coprocessor_cp15r_bclr(armvm_coprocessor_ref cp, const uint32_t cpx, const unsigned bit)
 {
 	uint32_t *const p2r = armvm_coprocessor_cp15r_rmw(cp, cpx);
 	BCLR(*p2r, bit);
 }
 
-void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_p const cp, const uint32_t cpx,
+void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_ref cp, const uint32_t cpx,
 	const unsigned bit, const unsigned set)
 {
 	uint32_t *const p2v = _armvm_coprocessor__cp15r_rmw(cp, cpx);
 	BMAS(*p2v, bit, set);
 }
 
-uint32_t* armvm_coprocessor_cp15r_rmw(armvm_coprocessor_p const cp, const uint32_t cpx)
+uint32_t* armvm_coprocessor_cp15r_rmw(armvm_coprocessor_ref cp, const uint32_t cpx)
 { return(_armvm_coprocessor__cp15r_rmw(cp, cpx)); }
 
-void armvm_coprocessor_register_callback(armvm_coprocessor_p const cp,
+void armvm_coprocessor_register_callback(armvm_coprocessor_ref cp,
 	uint32_t cpx,
 	armvm_coprocessor_callback_fn const fn, void *const param)
 {
 	if(15 == ir_cp_num(cpx)) {
-		armvm_coprocessor_callback_p const cb = _armvm_coprocessor_callback(cp, cpx);
+		armvm_coprocessor_callback_ref cb = _armvm_coprocessor_callback(cp, cpx);
 
 		cb->fn = fn;
 		cb->param = param;

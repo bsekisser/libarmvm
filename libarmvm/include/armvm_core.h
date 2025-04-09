@@ -117,7 +117,7 @@ typedef struct armvm_core_t {
 //
 	armvm_p armvm;
 	armvm_core_h h2core;
-	armvm_coprocessor_p cp;
+	armvm_coprocessor_ptr cp;
 	armvm_mmu_ptr mmu;
 }armvm_core_t;
 
