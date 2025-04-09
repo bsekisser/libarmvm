@@ -24,7 +24,7 @@ extern "C" {
 
 typedef struct test_t {
 	armcc_p cc;
-	armvm_p armvm;
+	armvm_ptr armvm;
 //
 	uint32_t test_pc;
 }test_t;

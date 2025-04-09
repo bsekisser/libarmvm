@@ -1,5 +1,7 @@
 CFLAGS += -Os -march=native
 
+CPPFLAGS = $(CFLAGS)
+
 LDLIBS += -Lgit/libarmvm -larmvm
 LDLIBS += -Lgit/libarmcc -larmcc
 LDLIBS += -Lgit/libarm -larm
