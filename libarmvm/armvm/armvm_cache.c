@@ -49,7 +49,7 @@ void armvm_cache(armvm_cache_ref acr, action_ref action)
 	}
 }
 
-armvm_cache_p armvm_cache_alloc(armvm_p const avm,
+armvm_cache_ptr armvm_cache_alloc(armvm_p const avm,
 	armvm_cache_href const h2c)
 {
 	if(action_log.at.alloc) LOG();
