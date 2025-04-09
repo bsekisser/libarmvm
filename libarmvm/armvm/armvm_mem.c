@@ -250,6 +250,7 @@ uint32_t armvm_mem_generic_page_rw(void *const param,
 	return(mem_access_le(p, size, write));
 }
 
+static
 void armvm_mem_mmap(armvm_mem_ref mem,
 	const uint32_t base, const uint32_t end,
 	armvm_mem_fn const fn, void *const param)
@@ -281,3 +282,16 @@ void armvm_mem_mmap(armvm_mem_ref mem,
 		}
 	}
 }
+
+void armvm_mem_mmap_cb(armvm_mem_ref mem,
+	const uint32_t base, const uint32_t end,
+	armvm_mem_fn const fn, void *const param)
+{ return(armvm_mem_mmap(mem, base, end, fn, param)); }
+
+void armvm_mem_mmap_ro(armvm_mem_ref mem,
+	const uint32_t base, const uint32_t end, void *const data)
+{ return(armvm_mem_mmap(mem, base, end, (void*)~0U, data)); }
+
+void armvm_mem_mmap_rw(armvm_mem_ref mem,
+	const uint32_t base, const uint32_t end, void *const data)
+{ return(armvm_mem_mmap(mem, base, end, 0, data)); }

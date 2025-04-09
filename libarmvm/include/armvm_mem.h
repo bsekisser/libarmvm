@@ -56,9 +56,15 @@ uint32_t armvm_mem_generic_page_rw(void *const param,
 	const uint32_t ppa, const size_t size,
 	uint32_t *const write);
 
-void armvm_mem_mmap(armvm_mem_ref mem,
+void armvm_mem_mmap_cb(armvm_mem_ref mem,
 	const uint32_t base, const uint32_t end,
 	armvm_mem_fn const fn, void *const param);
+
+void armvm_mem_mmap_ro(armvm_mem_ref mem,
+	const uint32_t base, const uint32_t end, void *const data);
+
+void armvm_mem_mmap_rw(armvm_mem_ref mem,
+	const uint32_t base, const uint32_t end, void *const data);
 
 /* **** */
 

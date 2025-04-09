@@ -217,7 +217,7 @@ test::test():cc(mem)
 
 	pARMVM_CORE->config.trace = 1;
 
-	armvm_mem_mmap(pARMVM_MEM, 0, sizeof(mem), 0, mem);
+	armvm_mem_mmap_rw(pARMVM_MEM, 0, sizeof(mem), mem);
 }
 
 test::~test()
