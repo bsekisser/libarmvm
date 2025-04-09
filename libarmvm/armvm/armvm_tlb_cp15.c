@@ -1,10 +1,8 @@
-#pragma once
+#include "armvm_tlb.h"
 
-/* **** */
-
-static void armvm_tlb_invalidate_all(armvm_tlb_ref tlb);
-static void armvm_tlb_invalidate_data(armvm_tlb_ref tlb);
-static void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb);
+#include "armvm_coprocessor.h"
+#include "armvm_coprocessor_glue.h"
+#include "armvm.h"
 
 /* **** */
 
@@ -16,7 +14,7 @@ static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(void *const param, ui
 		LOG("Invalidate instruction TLB");
 		armvm_tlb_invalidate_instruction(param);
 	} else {
-		DEBUG(LOG("XX READ -- Invalidate instruction TLB"));
+;//		DEBUG(LOG("XX READ -- Invalidate instruction TLB"));
 	}
 
 	return(data);
@@ -30,7 +28,7 @@ static uint32_t _armvm_cp15_0_8_6_0_invalidate_data(void *const param, uint32_t 
 		LOG("Invalidate data TLB");
 		armvm_tlb_invalidate_data(param);
 	} else {
-		DEBUG(LOG("XX READ -- Invalidate data TLB"));
+;//		DEBUG(LOG("XX READ -- Invalidate data TLB"));
 	}
 
 	return(data);
@@ -44,13 +42,13 @@ static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *
 		LOG("Invalidate TLB");
 		armvm_tlb_invalidate_all(param);
 	} else {
-		DEBUG(LOG("XX READ -- Invalidate TLB"));
+;//		DEBUG(LOG("XX READ -- Invalidate TLB"));
 	}
 
 	return(data);
 }
 
-static void _armvm_tlb_cp15_init(armvm_tlb_ref tlb)
+void armvm_tlb_cp15_init(armvm_tlb_ref tlb)
 {
 	armvm_coprocessor_ref cp = tlb->armvm->coprocessor;
 

@@ -18,33 +18,6 @@
 
 /* **** */
 
-#define dTLB_BITS 8
-#define iTLB_BITS 8
-
-typedef struct armvm_tlbe_tag {
-	armvm_mem_callback_ptr cb;
-//
-	struct {
-		uint32_t i:1;
-		uint32_t vp:20;
-	};
-}armvm_tlbe_t;
-
-typedef struct armvm_tlb_tag {
-	armvm_tlbe_t dtlb[_BV(dTLB_BITS)];
-	armvm_tlbe_t itlb[_BV(iTLB_BITS)];
-//
-	armvm_ptr armvm;
-	armvm_tlb_hptr h2tlb;
-	armvm_mmu_ptr mmu;
-}armvm_tlb_t;
-
-/* **** forward declarations */
-
-#include "armvm_tlb_cp15.h"
-
-/* **** */
-
 static void _armvm_tlb_exit(armvm_tlb_ref tlb)
 {
 	if(action_log.at.exit) LOG();
@@ -60,7 +33,7 @@ static void _armvm_tlb_init(armvm_tlb_ref tlb)
 
 	/* **** */
 
-	_armvm_tlb_cp15_init(tlb);
+	armvm_tlb_cp15_init(tlb);
 }
 
 /* **** */
@@ -171,18 +144,18 @@ armvm_mem_callback_ptr armvm_tlb_ifetch(armvm_tlb_ref tlb, const uint32_t va,
 	return(cb);
 }
 
-static void armvm_tlb_invalidate_all(armvm_tlb_ref tlb)
+void armvm_tlb_invalidate_all(armvm_tlb_ref tlb)
 {
 	armvm_tlb_invalidate_data(tlb);
 	armvm_tlb_invalidate_instruction(tlb);
 }
 
-static void armvm_tlb_invalidate_data(armvm_tlb_ref tlb)
+void armvm_tlb_invalidate_data(armvm_tlb_ref tlb)
 {
 	_tlb_invalidate_table(tlb->dtlb, dTLB_BITS);
 }
 
-static void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb)
+void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb)
 {
 	_tlb_invalidate_table(tlb->itlb, iTLB_BITS);
 }
