@@ -4,7 +4,7 @@
 
 #include "armvm_core.h"
 
-#include "local/ldstm.h"
+#include "ldstm.h"
 
 /* **** */
 

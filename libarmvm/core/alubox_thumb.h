@@ -4,8 +4,8 @@
 
 #include "armvm_core.h"
 
-#include "local/alubox.h"
-#include "local/core_reg.h"
+#include "alubox.h"
+#include "core_reg.h"
 
 /* **** */
 

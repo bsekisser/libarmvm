@@ -15,9 +15,9 @@
 
 #include "armvm.h"
 
-#include "local/alubox_thumb.h"
-#include "local/ldst.h"
-#include "local/ldstm_thumb.h"
+#include "alubox_thumb.h"
+#include "ldst.h"
+#include "ldstm_thumb.h"
 
 /* **** */
 

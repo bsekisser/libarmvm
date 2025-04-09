@@ -8,8 +8,8 @@
 
 #include "armvm_core.h"
 
-#include "local/core_reg.h"
-#include "local/ldst.h"
+#include "core_reg.h"
+#include "ldst.h"
 
 /* **** */
 

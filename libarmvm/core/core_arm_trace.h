@@ -15,7 +15,7 @@
 
 /* **** */
 
-#include "local/core_reg.h"
+#include "core_reg.h"
 
 /* **** */
 

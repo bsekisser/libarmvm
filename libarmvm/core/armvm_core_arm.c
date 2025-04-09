@@ -11,11 +11,11 @@
 
 /* **** */
 
-#include "local/alubox.h"
-#include "local/core_arm_trace.h"
-#include "local/core_reg.h"
-#include "local/ldst_arm.h"
-#include "local/ldstm_arm.h"
+#include "alubox.h"
+#include "core_arm_trace.h"
+#include "core_reg.h"
+#include "ldst_arm.h"
+#include "ldstm_arm.h"
 
 /* **** */
 

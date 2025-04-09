@@ -1,6 +1,9 @@
 CFLAGS += -O1 -march=native
 CFLAGS += -fPIC
 
+INCLUDE += -Iarmvm
+INCLUDE += -Icore
+
 LDFLAGS += -shared
 
 LDLIBS += -Lgit/libarm -larm
