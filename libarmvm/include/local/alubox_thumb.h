@@ -20,7 +20,7 @@
 
 /* **** */
 
-static uint32_t alubox_thumb(armvm_core_p const core, const unsigned operation,
+static uint32_t alubox_thumb(armvm_core_ref core, const unsigned operation,
 	const unsigned s)
 {
 	unsigned shift_type = ~0U;

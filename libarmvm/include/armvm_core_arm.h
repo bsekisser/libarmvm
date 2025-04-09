@@ -2,4 +2,4 @@
 
 /* **** */
 
-int armvm_core_arm_step(armvm_core_p const core);
+int armvm_core_arm_step(armvm_core_ref core);

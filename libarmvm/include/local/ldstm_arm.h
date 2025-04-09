@@ -12,13 +12,13 @@
 
 /* **** */
 
-static int arm_ldm(armvm_core_p const core, const unsigned r, uint32_t *const p2ea)
+static int arm_ldm(armvm_core_ref core, const unsigned r, uint32_t *const p2ea)
 {
 	const uint32_t ea = __ldstm_ea(core, p2ea);
 	return(__ldm(core, r, ea));
 }
 
-static int arm_ldm_user(armvm_core_p const core, const unsigned r, uint32_t *const p2ea)
+static int arm_ldm_user(armvm_core_ref core, const unsigned r, uint32_t *const p2ea)
 {
 	const uint32_t ea = __ldstm_ea(core, p2ea);
 
@@ -30,19 +30,19 @@ static int arm_ldm_user(armvm_core_p const core, const unsigned r, uint32_t *con
 	return(rval);
 }
 
-static int arm_ldm_pc(armvm_core_p const core, uint32_t *const p2ea)
+static int arm_ldm_pc(armvm_core_ref core, uint32_t *const p2ea)
 {
 	const uint32_t ea = __ldstm_ea(core, p2ea);
 	return(__ldm_pc(core, ea));
 }
 
-static int arm_stm(armvm_core_p const core, const unsigned r, uint32_t *const p2ea)
+static int arm_stm(armvm_core_ref core, const unsigned r, uint32_t *const p2ea)
 {
 	const uint32_t ea = __ldstm_ea(core, p2ea);
 	return(__stm(core, r, ea));
 }
 
-static int arm_stm_user(armvm_core_p const core, const unsigned r, uint32_t *const p2ea)
+static int arm_stm_user(armvm_core_ref core, const unsigned r, uint32_t *const p2ea)
 {
 	const uint32_t ea = __ldstm_ea(core, p2ea);
 

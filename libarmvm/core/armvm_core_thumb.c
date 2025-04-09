@@ -38,7 +38,7 @@
 
 /* **** */
 
-static int __thumb_fail_decode(armvm_core_p const core)
+static int __thumb_fail_decode(armvm_core_ref core)
 {
 	for(unsigned lsb = 13; lsb > 8; lsb--) {
 		uint32_t group = mlBFTST(IR, 15, lsb);
@@ -51,7 +51,7 @@ static int __thumb_fail_decode(armvm_core_p const core)
 
 /* **** */
 
-static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_p const core)
+static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_ref core)
 {
 	const int pcsp = BEXT(IR, 11);
 
@@ -81,7 +81,7 @@ static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
+static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 	const int bit_i, const uint32_t rm)
 {
 	const uint8_t op2 = BEXT(IR, 9);
@@ -123,21 +123,21 @@ static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_p const core,
 	return(1);
 }
 
-static int _armvm_core_thumb_add_sub_rn_rd_imm3(armvm_core_p const core)
+static int _armvm_core_thumb_add_sub_rn_rd_imm3(armvm_core_ref core)
 {
 	const uint32_t rm = setup_vRml(core, ARMVM_TRACE_R(M), 8, 6);
 
 	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 1, rm));
 }
 
-static int _armvm_core_thumb_add_sub_rn_rd_rm(armvm_core_p const core)
+static int _armvm_core_thumb_add_sub_rn_rd_rm(armvm_core_ref core)
 {
 	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 8, 6);
 
 	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 0, rm));
 }
 
-static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_p const core)
+static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_ref core)
 {
 	const int sub = BEXT(IR, 7);
 	const uint16_t imm7 = mlBFMOV(IR, 6, 0, 2);
@@ -163,7 +163,7 @@ static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
+static int _armvm_core_thumb_ascm_rd_i(armvm_core_ref core)
 {
 	const uint8_t opcode = mlBFEXT(IR, 12, 11);
 
@@ -199,7 +199,7 @@ static int _armvm_core_thumb_ascm_rd_i(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_bcc(armvm_core_p const core)
+static int _armvm_core_thumb_bcc(armvm_core_ref core)
 {
 	const uint8_t cond = mlBFEXT(IR, 11, 8);
 	const int32_t imm8 = mlBFMOVs(IR, 7, 0, 1);
@@ -219,7 +219,7 @@ static int _armvm_core_thumb_bcc(armvm_core_p const core)
 	return(0);
 }
 
-static int _armvm_core_thumb_bx(armvm_core_p const core)
+static int _armvm_core_thumb_bx(armvm_core_ref core)
 {
 	assert(0 == mlBFEXT(IR, 2, 0));
 
@@ -248,7 +248,7 @@ static int _armvm_core_thumb_bx(armvm_core_p const core)
 	return(armvm_core_pcx(core, rm));
 }
 
-static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
+static int _armvm_core_thumb_bxx__bl_blx(armvm_core_ref core,
 	const uint32_t eao, const unsigned blx)
 {
 	const uint32_t new_pc = (LR + eao) & ~(blx ? 3U : 1U);
@@ -269,7 +269,7 @@ static int _armvm_core_thumb_bxx__bl_blx(armvm_core_p const core,
 	return(0);
 }
 
-static int _armvm_core_thumb_bxx_b(armvm_core_p const core)
+static int _armvm_core_thumb_bxx_b(armvm_core_ref core)
 {
 	const int16_t eao = mlBFMOVs(IR, 10, 0, 1);
 	const uint32_t new_pc = THUMB_PC_NEXT + eao;
@@ -288,14 +288,14 @@ static int _armvm_core_thumb_bxx_b(armvm_core_p const core)
 	return(0);
 }
 
-static int _armvm_core_thumb_bxx_bl(armvm_core_p const core)
+static int _armvm_core_thumb_bxx_bl(armvm_core_ref core)
 {
 	const uint32_t eao = mlBFMOV(IR, 10, 0, 1);
 
 	return(_armvm_core_thumb_bxx__bl_blx(core, eao, 0));
 }
 
-static int _armvm_core_thumb_bxx_prefix(armvm_core_p const core)
+static int _armvm_core_thumb_bxx_prefix(armvm_core_ref core)
 {
 	const int32_t eao_prefix = mlBFMOVs(IR, 10, 0, 12);
 	const uint8_t h_prefix = mlBFEXT(IR, 12, 11);
@@ -331,7 +331,7 @@ not_prefix_suffix:
 	return(0);
 }
 
-static int _armvm_core_thumb_dp_rms_rdn(armvm_core_p const core)
+static int _armvm_core_thumb_dp_rms_rdn(armvm_core_ref core)
 {
 	const uint8_t operation = mlBFEXT(IR, 9, 6);
 	const unsigned op_list[16] = {
@@ -376,7 +376,7 @@ static int _armvm_core_thumb_dp_rms_rdn(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
+static int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 {
 	const uint16_t operation = mlBFTST(IR, 15, 12);
 	const int bit_l = BEXT(IR, 11);
@@ -422,7 +422,7 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_p const core)
 	UNUSED(ldst_rval);
 }
 
-static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_p const core)
+static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_ref core)
 {
 //	struct {
 		const unsigned bit_b = BEXT(IR, 12);
@@ -438,7 +438,7 @@ static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_p const core)
 
 	const uint32_t ea = setup_vR(core, ARMVM_TRACE_R(EA), rn + rm);
 
-	int ldst_rval = -1, (*ldst_fn)(armvm_core_p const core);
+	int ldst_rval = -1, (*ldst_fn)(armvm_core_ref core);
 	const char* ss = "";
 
 	if(bit_h) {
@@ -469,7 +469,7 @@ static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_p const core)
 	return(ldst_rval);
 }
 
-static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_p const core)
+static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_ref core)
 {
 //	struct {
 		const int bit_l = BEXT(IR, 11) | (3 == mlBFEXT(IR, 10, 9));
@@ -503,7 +503,7 @@ static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
+static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 {
 //	struct {
 		const int bit_l = BEXT(IR, 11);
@@ -568,7 +568,7 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_pop_push(armvm_core_p const core)
+static int _armvm_core_thumb_pop_push(armvm_core_ref core)
 {
 //	struct {
 		const int bit_l = BEXT(IR, 11);
@@ -646,7 +646,7 @@ static int _armvm_core_thumb_pop_push(armvm_core_p const core)
 	return(!(bit_r && bit_l));
 }
 
-static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_p const core)
+static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_ref core)
 {
 	const uint32_t shift_type = mlBFEXT(IR, 12, 11);
 	const uint32_t rs = setup_vR(core, ARMVM_TRACE_R(S), mlBFEXT(IR, 10, 6));
@@ -672,7 +672,7 @@ static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_p const core)
 	return(1);
 }
 
-static int _armvm_core_thumb_sdp_rms_rdn(armvm_core_p const core)
+static int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 {
 	const uint8_t operation = mlBFEXT(IR, 9, 8);
 
@@ -720,7 +720,7 @@ static int _armvm_core_thumb_sdp_rms_rdn(armvm_core_p const core)
 
 /* **** */
 
-static int armvm_core_thumb__step_group0_0000_1fff(armvm_core_p const core)
+static int armvm_core_thumb__step_group0_0000_1fff(armvm_core_ref core)
 {
 	switch(mlBFTST(IR, 15, 10)) {
 		case 0x1800: /* 0001 10xx xxxx xxxx */
@@ -734,7 +734,7 @@ static int armvm_core_thumb__step_group0_0000_1fff(armvm_core_p const core)
 	LOG_ACTION(return(__thumb_fail_decode(core)));
 }
 
-static int armvm_core_thumb__step_group2_4000_5fff(armvm_core_p const core)
+static int armvm_core_thumb__step_group2_4000_5fff(armvm_core_ref core)
 {
 	if(0x5000 == mlBFTST(IR, 15, 12)) { /* 0101 xxxx xxxx xxxx */
 		return(_armvm_core_thumb_ldst_rm_rn_rd(core));
@@ -758,7 +758,7 @@ static int armvm_core_thumb__step_group2_4000_5fff(armvm_core_p const core)
 	LOG_ACTION(return(__thumb_fail_decode(core)));
 }
 
-static int armvm_core_thumb__step_group5_b000_bfff(armvm_core_p const core)
+static int armvm_core_thumb__step_group5_b000_bfff(armvm_core_ref core)
 {
 	switch(mlBFTST(IR, 15, 8)) {
 		case 0xb000: /* 1011 0000 xxxx xxxx */
@@ -773,7 +773,7 @@ static int armvm_core_thumb__step_group5_b000_bfff(armvm_core_p const core)
 	LOG_ACTION(return(__thumb_fail_decode(core)));
 }
 
-static int armvm_core_thumb__step_group6_c000_dfff(armvm_core_p const core)
+static int armvm_core_thumb__step_group6_c000_dfff(armvm_core_ref core)
 {
 	if(BTST(IR, 12)) {
 		switch(mlBFTST(IR, 15, 8)) {
@@ -791,7 +791,7 @@ static int armvm_core_thumb__step_group6_c000_dfff(armvm_core_p const core)
 	LOG_ACTION(return(__thumb_fail_decode(core)));
 }
 
-static int armvm_core_thumb__step_group7_e000_ffff(armvm_core_p const core)
+static int armvm_core_thumb__step_group7_e000_ffff(armvm_core_ref core)
 {
 	switch(mlBFTST(IR, 15, 11)) {
 		case 0xe000: /* 1110 0xxx xxxx xxxx */
@@ -811,7 +811,7 @@ static int armvm_core_thumb__step_group7_e000_ffff(armvm_core_p const core)
 	LOG_ACTION(return(__thumb_fail_decode(core)));
 }
 
-int armvm_core_thumb_step(armvm_core_p const core)
+int armvm_core_thumb_step(armvm_core_ref core)
 {
 	rSPR32(CC) = CC_AL_NV;
 	CCX = 1;

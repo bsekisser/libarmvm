@@ -20,7 +20,7 @@
 
 int armvm_exception_fiq(armvm_ref avm)
 {
-	const armvm_core_p core = avm->core;
+	armvm_core_ref core = avm->core;
 
 	rFIQ(R14) = ARM_PC_NEXT;
 	rFIQ(SPSR) = CPSR;
@@ -40,7 +40,7 @@ int armvm_exception_fiq(armvm_ref avm)
 
 int armvm_exception_irq(armvm_ref avm)
 {
-	const armvm_core_p core = avm->core;
+	armvm_core_ref core = avm->core;
 
 	rIRQ(R14) = ARM_PC_NEXT;
 	rIRQ(SPSR) = CPSR;

@@ -7,7 +7,7 @@
 
 /* **** */
 
-void arm_exception(unsigned exception, armvm_ptr avm);
+void arm_exception(unsigned exception, armvm_ref avm);
 int armvm_exception_fiq(armvm_ref avm);
 int armvm_exception_irq(armvm_ref avm);
 

@@ -25,7 +25,7 @@ typedef struct armvm_mmu_tag {
 	armvm_ptr armvm;
 #define pARMVM mmu->armvm
 
-	armvm_core_p core;
+	armvm_core_ptr core;
 #define pARMVM_CORE mmu->core
 
 	armvm_coprocessor_ptr cp;

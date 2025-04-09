@@ -23,7 +23,7 @@
 
 /* **** */
 
-static void _dp_mov_s_s(armvm_core_p const core)
+static void _dp_mov_s_s(armvm_core_ref core)
 {
 	if(ARM_IR_DPI) {
 		if(vR(S)) {
@@ -49,7 +49,7 @@ static void _dp_mov_s_s(armvm_core_p const core)
 	}
 }
 
-static void armvm_trace_dp(armvm_core_p const core)
+static void armvm_trace_dp(armvm_core_ref core)
 {
 	if(!__trace_start(core))
 		return;
@@ -133,7 +133,7 @@ static void armvm_trace_dp(armvm_core_p const core)
 	__trace_end(core);
 }
 
-void armvm_trace_ldst(armvm_core_p const core)
+void armvm_trace_ldst(armvm_core_ref core)
 {
 	if(!__trace_start(core))
 		return;
@@ -215,7 +215,7 @@ void armvm_trace_ldst(armvm_core_p const core)
 	__trace_end(core);
 }
 
-static void armvm_trace_msr(armvm_core_p const core)
+static void armvm_trace_msr(armvm_core_ref core)
 {
 	if(!__trace_start(core))
 		return;

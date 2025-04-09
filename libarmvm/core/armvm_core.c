@@ -24,7 +24,7 @@
 
 /* **** */
 
-static void __armvm_core_alloc_init(armvm_core_p const core)
+static void __armvm_core_alloc_init(armvm_core_ref core)
 {
 	core->cp = core->armvm->coprocessor;
 	core->mmu = core->armvm->mmu;
@@ -43,7 +43,7 @@ static void __armvm_core_alloc_init(armvm_core_p const core)
 	}
 }
 
-static void __armvm_core_exit(armvm_core_p const core)
+static void __armvm_core_exit(armvm_core_ref core)
 {
 	if(action_log.at.exit) LOG();
 
@@ -59,7 +59,7 @@ static void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
 
 /* **** */
 
-static uint32_t* _armvm_core_psr_mode_regs(armvm_core_p const core,
+static uint32_t* _armvm_core_psr_mode_regs(armvm_core_ref core,
 	uint32_t mode, unsigned* reg, unsigned* swap_spsr)
 {
 	*reg = 13;
@@ -103,7 +103,7 @@ static uint32_t* _armvm_core_psr_mode_regs(armvm_core_p const core,
 	return(0);
 }
 
-static void _armvm_core_psr_swap_regs(armvm_core_p const core,
+static void _armvm_core_psr_swap_regs(armvm_core_ref core,
 	uint32_t* dst, uint32_t* src,
 	unsigned r, const unsigned swap_spsr)
 {
@@ -120,7 +120,7 @@ static void _armvm_core_psr_swap_regs(armvm_core_p const core,
 
 /* **** */
 
-void armvm_core(armvm_core_p const core, action_ref action)
+void armvm_core(armvm_core_ref core, action_ref action)
 {
 	switch(action) {
 		case _ACTION_ALLOC_INIT: __armvm_core_alloc_init(core); break;
@@ -135,14 +135,14 @@ void armvm_core(armvm_core_p const core, action_ref action)
 	}
 }
 
-armvm_core_p armvm_core_alloc(armvm_ref avm, armvm_core_h const h2core)
+armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core)
 {
 	if(action_log.at.alloc) LOG();
 
 	ERR_NULL(avm);
 	ERR_NULL(h2core);
 
-	armvm_core_p core = handle_calloc((void*)h2core, 1, sizeof(armvm_core_t));
+	armvm_core_ref core = handle_calloc((void*)h2core, 1, sizeof(armvm_core_t));
 	ERR_NULL(core);
 
 	/* **** */
@@ -155,10 +155,10 @@ armvm_core_p armvm_core_alloc(armvm_ref avm, armvm_core_h const h2core)
 	return(core);
 }
 
-int armvm_core_in_a_privaleged_mode(armvm_core_p const core)
+int armvm_core_in_a_privaleged_mode(armvm_core_ref core)
 { return(0 != mlBFEXT(CPSR, 3, 0)); }
 
-int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc)
+int armvm_core_pcx(armvm_core_ref core, const uint32_t new_pc)
 {
 	const unsigned set_thumb = core->config.features.thumb;
 
@@ -171,7 +171,7 @@ int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc)
 	return(0);
 }
 
-int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc)
+int armvm_core_pcx_v5(armvm_core_ref core, const uint32_t new_pc)
 {
 	if(arm_v5t <= core->config.version)
 		return(armvm_core_pcx(core, new_pc));
@@ -179,7 +179,7 @@ int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc)
 	return(0);
 }
 
-void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr)
+void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr)
 {
 	const uint32_t old_mode = ARM_CPSR_M(32) | mlBFEXT(CPSR, 4, 0);
 	const uint32_t new_mode = ARM_CPSR_M(32) | mlBFEXT(new_cpsr, 4, 0);
@@ -198,16 +198,16 @@ void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr
 	_armvm_core_psr_swap_regs(core, 0, src, dreg, swap_spsr);
 }
 
-void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr)
+void armvm_core_psr_mode_switch_cpsr(armvm_core_ref core, const uint32_t new_cpsr)
 {
 	armvm_core_psr_mode_switch(core, new_cpsr);
 	CPSR = ARM_CPSR_M(32) | new_cpsr;
 }
 
-void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core)
+void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_ref core)
 { armvm_core_psr_mode_switch_cpsr(core, armvm_core_spsr(core, 0)); }
 
-uint32_t armvm_core_reg_user(armvm_core_p const core, const unsigned r, uint32_t *const v)
+uint32_t armvm_core_reg_user(armvm_core_ref core, const unsigned r, uint32_t *const v)
 {
 	unsigned reg = 0;
 
@@ -231,7 +231,7 @@ uint32_t armvm_core_reg_user(armvm_core_p const core, const unsigned r, uint32_t
 	return(vout);
 }
 
-uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const write)
+uint32_t armvm_core_spsr(armvm_core_ref core, uint32_t *const write)
 {
 	const uint32_t data = core->spsr ? *core->spsr : (write ? *write : 0);
 
@@ -241,7 +241,7 @@ uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const write)
 	return(data);
 }
 
-int armvm_core_step(armvm_core_p const core)
+int armvm_core_step(armvm_core_ref core)
 {
 	CYCLE++;
 	ICOUNT++;

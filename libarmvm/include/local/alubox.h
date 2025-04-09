@@ -18,7 +18,7 @@
 
 /* **** */
 
-static uint32_t alubox(armvm_core_p const core, const unsigned operation,
+static uint32_t alubox(armvm_core_ref core, const unsigned operation,
 	const unsigned s, const unsigned nzc)
 {
 	uint32_t sop = 0;

@@ -28,11 +28,11 @@
 
 /* **** */
 
-typedef int (*ldst_fn)(armvm_core_p const core);
+typedef int (*ldst_fn)(armvm_core_ref core);
 
 /* **** */
 
-static int __ldr(armvm_core_p const core, const int arm)
+static int __ldr(armvm_core_ref core, const int arm)
 {
 	const unsigned ea_xx = vR(EA) & 3;
 
@@ -57,10 +57,10 @@ static int __ldr(armvm_core_p const core, const int arm)
 }
 
 UNUSED_FN
-static int __ldr_thumb(armvm_core_p const core)
+static int __ldr_thumb(armvm_core_ref core)
 { return(__ldr(core, 0)); }
 
-static int __ldrb(armvm_core_p const core)
+static int __ldrb(armvm_core_ref core)
 {
 	const int read_rval = armvm_core_mem_read(core, &vR(D), vR(EA), 1);
 	if(0 > read_rval)
@@ -74,7 +74,7 @@ static int __ldrb(armvm_core_p const core)
 	return(1);
 }
 
-static int __ldrh(armvm_core_p const core)
+static int __ldrh(armvm_core_ref core)
 {
 	if((vR(EA) & 1) && CP15_REG1_BIT(A))
 		return(armvm_core_exception_data_abort(core));
@@ -92,7 +92,7 @@ static int __ldrh(armvm_core_p const core)
 }
 
 UNUSED_FN
-static int __ldrsb(armvm_core_p const core)
+static int __ldrsb(armvm_core_ref core)
 {
 	const int read_rval = armvm_core_mem_read(core, &vR(D), vR(EA), 1);
 	if(0 > read_rval)
@@ -109,7 +109,7 @@ static int __ldrsb(armvm_core_p const core)
 }
 
 UNUSED_FN
-static int __ldrsh(armvm_core_p const core)
+static int __ldrsh(armvm_core_ref core)
 {
 	if((vR(EA) & 1) && CP15_REG1_BIT(A))
 		return(armvm_core_exception_data_abort(core));
@@ -128,7 +128,7 @@ static int __ldrsh(armvm_core_p const core)
 	return(1);
 }
 
-static int __str(armvm_core_p const core)
+static int __str(armvm_core_ref core)
 {
 	core_reg_src_load(core, ARMVM_TRACE_R(D));
 
@@ -138,14 +138,14 @@ static int __str(armvm_core_p const core)
 	return(armvm_core_mem_write(core, vR(EA), 4, vR(D)));
 }
 
-static int __strb(armvm_core_p const core)
+static int __strb(armvm_core_ref core)
 {
 	core_reg_src_load(core, ARMVM_TRACE_R(D));
 
 	return(armvm_core_mem_write(core, vR(EA), 1, vR(D)));
 }
 
-static int __strh(armvm_core_p const core)
+static int __strh(armvm_core_ref core)
 {
 	core_reg_src_load(core, ARMVM_TRACE_R(D));
 

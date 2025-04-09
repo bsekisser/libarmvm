@@ -32,7 +32,7 @@ typedef struct armvm_coprocessor_tag {
 	uint32_t cp15r[16][16][7][7];
 //
 	armvm_ptr armvm;
-	armvm_core_p core;
+	armvm_core_ptr core;
 //
 	armvm_coprocessor_hptr h2cp;
 }armvm_coprocessor_t;
@@ -79,7 +79,7 @@ static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_ref  cp,
 static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
 {
 	armvm_coprocessor_ref cp = param;
-	const armvm_core_p core = cp->armvm->core;
+	armvm_core_ref core = cp->armvm->core;
 
 	uint32_t *cp15r1 = _armvm_coprocessor__cp15r_rmw(cp, IR);
 
@@ -107,7 +107,7 @@ void armvm_coprocessor(armvm_coprocessor_ref cp, action_ref action)
 
 uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const write)
 {
-	armvm_core_p const core = cp->core;
+	armvm_core_ref core = cp->core;
 
 	if(15 == ir_cp_num(IR)) {
 		armvm_coprocessor_callback_ref cb = _armvm_coprocessor_callback(cp, IR);

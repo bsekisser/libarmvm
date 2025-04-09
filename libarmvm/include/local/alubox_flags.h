@@ -24,14 +24,14 @@
 
 /* **** */
 
-static void _alubox_flags_nz(armvm_core_p const core, const uint32_t rd)
+static void _alubox_flags_nz(armvm_core_ref core, const uint32_t rd)
 {
 	ARM_CPSR_BMAS(N, BEXT(rd, 31));
 	ARM_CPSR_BMAS(Z, 0 == rd);
 }
 
 UNUSED_FN
-static void _alubox_flags_nzc(armvm_core_p const core, const uint32_t rd)
+static void _alubox_flags_nzc(armvm_core_ref core, const uint32_t rd)
 {
 	ARM_CPSR_BMAS(C, _shifter_operand_c(core));
 
@@ -50,7 +50,7 @@ static void _alubox_flags_nzc(armvm_core_p const core, const uint32_t rd)
  *
  */
 
-static void _alubox_flags_x_add_sub(armvm_core_p const core, const uint32_t rd,
+static void _alubox_flags_x_add_sub(armvm_core_ref core, const uint32_t rd,
 	const uint32_t s1, const uint32_t s2)
 {
 	_alubox_flags_nz(core, rd);

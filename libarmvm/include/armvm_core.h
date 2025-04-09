@@ -2,11 +2,11 @@
 
 /* **** */
 
-typedef struct armvm_core_t** armvm_core_h;
-typedef armvm_core_h const armvm_core_href;
+typedef struct armvm_core_tag** armvm_core_hptr;
+typedef armvm_core_hptr const armvm_core_href;
 
-typedef struct armvm_core_t* armvm_core_p;
-typedef armvm_core_p const armvm_core_ref;
+typedef struct armvm_core_tag* armvm_core_ptr;
+typedef armvm_core_ptr const armvm_core_ref;
 
 /* **** */
 
@@ -93,7 +93,7 @@ enum {
 	_ARMVM_SPR64_COUNT_,
 };
 
-typedef struct armvm_core_t {
+typedef struct armvm_core_tag {
 	uint64_t spr64[_ARMVM_SPR64_COUNT_];
 #define SPR64x(_x) pARMVM_CORE->spr64[_x]
 #define rSPR64(_x) SPR64x(ARMVM_SPR64(_x))
@@ -116,24 +116,24 @@ typedef struct armvm_core_t {
 	armvm_core_config_t config;
 //
 	armvm_ptr armvm;
-	armvm_core_h h2core;
+	armvm_core_hptr h2core;
 	armvm_coprocessor_ptr cp;
 	armvm_mmu_ptr mmu;
 }armvm_core_t;
 
 /* **** */
 
-void armvm_core(armvm_core_p const core, action_ref action);
-armvm_core_p armvm_core_alloc(armvm_ref avm, armvm_core_h const h2core);
-int armvm_core_in_a_privaleged_mode(armvm_core_p const core);
-int armvm_core_pcx(armvm_core_p const core, const uint32_t new_pc);
-int armvm_core_pcx_v5(armvm_core_p const core, const uint32_t new_pc);
-void armvm_core_psr_mode_switch(armvm_core_p const core, const uint32_t new_cpsr);
-void armvm_core_psr_mode_switch_cpsr(armvm_core_p const core, const uint32_t new_cpsr);
-void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_p const core);
-uint32_t armvm_core_reg_user(armvm_core_p const core, const unsigned r, uint32_t *const v);
-uint32_t armvm_core_spsr(armvm_core_p const core, uint32_t *const write);
-int armvm_core_step(armvm_core_p const core);
+void armvm_core(armvm_core_ref core, action_ref action);
+armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core);
+int armvm_core_in_a_privaleged_mode(armvm_core_ref core);
+int armvm_core_pcx(armvm_core_ref core, const uint32_t new_pc);
+int armvm_core_pcx_v5(armvm_core_ref core, const uint32_t new_pc);
+void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr);
+void armvm_core_psr_mode_switch_cpsr(armvm_core_ref core, const uint32_t new_cpsr);
+void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_ref core);
+uint32_t armvm_core_reg_user(armvm_core_ref core, const unsigned r, uint32_t *const v);
+uint32_t armvm_core_spsr(armvm_core_ref core, uint32_t *const write);
+int armvm_core_step(armvm_core_ref core);
 
 /* **** */
 

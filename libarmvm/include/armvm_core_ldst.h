@@ -28,7 +28,7 @@
 
 /* **** */
 
-static uint32_t __ldst__ea(armvm_core_p const core, const uint32_t sop, uint32_t* wb_ea)
+static uint32_t __ldst__ea(armvm_core_ref core, const uint32_t sop, uint32_t* wb_ea)
 {
 	const unsigned bit_p = ARM_IR_LDST_BIT(P);
 
@@ -46,7 +46,7 @@ static uint32_t __ldst__ea(armvm_core_p const core, const uint32_t sop, uint32_t
 	return(ea);
 }
 
-static void __ldst__ea_wb(armvm_core_p const core, uint32_t wb_ea)
+static void __ldst__ea_wb(armvm_core_ref core, uint32_t wb_ea)
 {
 	if(!CCX) return;
 
@@ -56,7 +56,7 @@ static void __ldst__ea_wb(armvm_core_p const core, uint32_t wb_ea)
 
 /* **** */
 
-static void __ldst_ldr(armvm_core_p const core, const uint32_t sop)
+static void __ldst_ldr(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -83,7 +83,7 @@ static void __ldst_ldr(armvm_core_p const core, const uint32_t sop)
 		ARM_CPSR_BMAS(T, rd & 1);
 }
 
-static void __ldst_ldrb(armvm_core_p const core, const uint32_t sop)
+static void __ldst_ldrb(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -98,7 +98,7 @@ static void __ldst_ldrb(armvm_core_p const core, const uint32_t sop)
 	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), (uint32_t)(uint8_t)rd);
 }
 
-static void __ldst_ldrh(armvm_core_p const core, const uint32_t sop)
+static void __ldst_ldrh(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -121,7 +121,7 @@ static void __ldst_ldrh(armvm_core_p const core, const uint32_t sop)
 	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), (uint32_t)(uint16_t)rd);
 }
 
-static void __ldst_ldrsb(armvm_core_p const core, const uint32_t sop)
+static void __ldst_ldrsb(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -137,7 +137,7 @@ static void __ldst_ldrsb(armvm_core_p const core, const uint32_t sop)
 		(uint32_t)(int32_t)(int8_t)rd);
 }
 
-static void __ldst_ldrsh(armvm_core_p const core, const uint32_t sop)
+static void __ldst_ldrsh(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -161,7 +161,7 @@ static void __ldst_ldrsh(armvm_core_p const core, const uint32_t sop)
 		(uint32_t)(int16_t)rd);
 }
 
-static void __ldst_str(armvm_core_p const core, const uint32_t sop)
+static void __ldst_str(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -177,7 +177,7 @@ static void __ldst_str(armvm_core_p const core, const uint32_t sop)
 	__ldst__ea_wb(core, wb_ea);
 }
 
-static void __ldst_strb(armvm_core_p const core, const uint32_t sop)
+static void __ldst_strb(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;
@@ -190,7 +190,7 @@ static void __ldst_strb(armvm_core_p const core, const uint32_t sop)
 	__ldst__ea_wb(core, wb_ea);
 }
 
-static void __ldst_strh(armvm_core_p const core, const uint32_t sop)
+static void __ldst_strh(armvm_core_ref core, const uint32_t sop)
 {
 	uint32_t wb_ea = 0, ea = __ldst__ea(core, sop, &wb_ea);
 	if(!CCX) return;

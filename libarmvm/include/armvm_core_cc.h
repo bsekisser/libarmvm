@@ -12,7 +12,7 @@
 
 /* **** */
 
-static int armvm_core_check_cc(armvm_core_p const core, const uint8_t cc)
+static int armvm_core_check_cc(armvm_core_ref core, const uint8_t cc)
 {
 	uint32_t res = 0;
 
