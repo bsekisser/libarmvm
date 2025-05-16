@@ -25,8 +25,8 @@ typedef armvm_ptr const armvm_ref;
 /* **** */
 
 #include <pthread.h>
-#include "stdint.h"
-#include "stdlib.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 /* **** */
 
