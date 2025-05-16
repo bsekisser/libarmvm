@@ -22,6 +22,10 @@
 
 /* **** */
 
+#include <pthread.h>
+
+/* **** */
+
 static void _armvm_alloc_init(armvm_ref avm)
 {
 	if(action_log.at.alloc_init) LOG();
@@ -146,3 +150,20 @@ uint64_t armvm_spr64(armvm_ref avm, const unsigned r)
 
 int armvm_step(armvm_ref avm)
 { return(armvm_core_step(avm->core)); }
+
+static
+void* armvm_threaded_run(void* param)
+{
+	armvm_ref avm = param;
+
+	for(;;)
+		if(0 > armvm_step(avm))
+			break;
+
+	return(0);
+}
+
+int armvm_threaded_start(armvm_ref avm)
+{
+	return(pthread_create(&avm->thread, 0, armvm_threaded_run, avm));
+}
