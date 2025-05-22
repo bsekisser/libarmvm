@@ -11,21 +11,23 @@
 
 static void __armvm_cache_alloc_init(armvm_cache_ref acr)
 {
-	if(action_log.at.alloc_init) LOG();
+	ACTION_LOG(alloc_init);
+	ERR_NULL(acr);
 
 	acr->core = acr->armvm->core;
 }
 
 static void __armvm_cache_init(armvm_cache_ref acr)
 {
-	if(action_log.at.init) LOG();
+	ACTION_LOG(init);
+	ERR_NULL(acr);
 
 	armvm_cache_cp15_init(acr);
 }
 
 static void __armvm_cache_exit(armvm_cache_ref acr)
 {
-	if(action_log.at.exit) LOG();
+	ACTION_LOG(exit);
 
 	handle_free((void*)acr->h2c);
 }
@@ -52,7 +54,7 @@ void armvm_cache(armvm_cache_ref acr, action_ref action)
 armvm_cache_ptr armvm_cache_alloc(armvm_ref avm,
 	armvm_cache_href const h2c)
 {
-	if(action_log.at.alloc) LOG();
+	ACTION_LOG(alloc);
 
 	ERR_NULL(h2c);
 	ERR_NULL(avm);

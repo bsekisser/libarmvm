@@ -20,15 +20,14 @@
 
 static void _armvm_tlb_exit(armvm_tlb_ref tlb)
 {
-	if(action_log.at.exit) LOG();
-	ERR_NULL(tlb);
+	ACTION_LOG(exit);
 
 	handle_free((void*)tlb->h2tlb);
 }
 
 static void _armvm_tlb_init(armvm_tlb_ref tlb)
 {
-	if(action_log.at.init) LOG();
+	ACTION_LOG(init);
 	ERR_NULL(tlb);
 
 	/* **** */
@@ -107,7 +106,7 @@ void armvm_tlb(armvm_tlb_ref tlb, action_ref action)
 
 armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb)
 {
-	if(action_log.at.alloc) LOG();
+	ACTION_LOG(alloc);
 
 	ERR_NULL(h2tlb);
 	ERR_NULL(avm);

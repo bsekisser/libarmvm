@@ -48,7 +48,7 @@ typedef struct armvm_mmu_tag {
 
 static void __armvm_mmu_alloc_init(armvm_mmu_ref mmu)
 {
-	if(action_log.at.alloc_init) LOG();
+	ACTION_LOG(alloc_init);
 
 	armvm_ref avm = mmu->armvm;
 
@@ -59,7 +59,8 @@ static void __armvm_mmu_alloc_init(armvm_mmu_ref mmu)
 
 static void __armvm_mmu_init(armvm_mmu_ref mmu)
 {
-	if(action_log.at.init) LOG();
+	ACTION_LOG(init);
+	ERR_NULL(mmu);
 
 	_mmu_cp15_init(mmu);
 }
@@ -67,14 +68,14 @@ static void __armvm_mmu_init(armvm_mmu_ref mmu)
 
 static void __armvm_mmu_exit(armvm_mmu_ref mmu)
 {
-	if(action_log.at.exit) LOG();
+	ACTION_LOG(exit);
 
 	handle_free((void*)mmu->h2mmu);
 }
 
 static void __armvm_mmu_reset(armvm_mmu_ref mmu)
 {
-	if(action_log.at.reset) LOG();
+	ACTION_LOG(reset);
 
 	uint32_t x = 0;
 	TTBCR(&x);
@@ -201,7 +202,7 @@ static int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 
 armvm_mmu_ptr armvm_mmu_alloc(armvm_ref avm, armvm_mmu_href h2mmu)
 {
-	if(action_log.at.alloc) LOG();
+	ACTION_LOG(alloc);
 
 	ERR_NULL(h2mmu);
 	ERR_NULL(avm);

@@ -46,7 +46,8 @@ typedef struct armvm_mem_tag {
 
 static void __armvm_mem_alloc_init(armvm_mem_ref mem)
 {
-	if(action_log.at.alloc_init) LOG();
+	ACTION_LOG(alloc_init);
+	ERR_NULL(mem);
 
 	return;
 	UNUSED(mem);
@@ -54,7 +55,7 @@ static void __armvm_mem_alloc_init(armvm_mem_ref mem)
 
 static void __armvm_mem_exit(armvm_mem_ref mem)
 {
-	if(action_log.at.exit) LOG();
+	ACTION_LOG(exit);
 
 	handle_free((void*)mem->h2mem);
 }
@@ -199,7 +200,7 @@ armvm_mem_callback_ptr armvm_mem_access_write(armvm_mem_ref mem, const uint32_t 
 
 armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem)
 {
-	if(action_log.at.alloc) LOG();
+	ACTION_LOG(alloc);
 
 	ERR_NULL(h2mem);
 	ERR_NULL(avm);

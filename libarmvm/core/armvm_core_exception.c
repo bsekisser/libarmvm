@@ -59,7 +59,7 @@ int armvm_core_exception_prefetch_abort(armvm_core_ref core)
 
 void armvm_core_exception_reset(armvm_core_ref core)
 {
-	if(action_log.at.reset) LOG();
+	ACTION_LOG(reset);
 
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;

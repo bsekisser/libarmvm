@@ -26,12 +26,13 @@
 
 static void __armvm_core_alloc_init(armvm_core_ref core)
 {
+	ACTION_LOG(alloc_init);
+	ERR_NULL(core);
+
 	core->cp = core->armvm->coprocessor;
 	core->mmu = core->armvm->mmu;
 
 	/* **** */
-
-	if(action_log.at.alloc_init) LOG();
 
 	core->config.pedantic.ir_checks = 1;
 	core->config.version = arm_v5tej;
@@ -45,7 +46,7 @@ static void __armvm_core_alloc_init(armvm_core_ref core)
 
 static void __armvm_core_exit(armvm_core_ref core)
 {
-	if(action_log.at.exit) LOG();
+	ACTION_LOG(exit);
 
 	handle_free((void*)core->h2core);
 }
@@ -137,7 +138,7 @@ void armvm_core(armvm_core_ref core, action_ref action)
 
 armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core)
 {
-	if(action_log.at.alloc) LOG();
+	ACTION_LOG(alloc);
 
 	ERR_NULL(avm);
 	ERR_NULL(h2core);

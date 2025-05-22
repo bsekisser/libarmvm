@@ -28,8 +28,7 @@
 
 static void _armvm_alloc_init(armvm_ref avm)
 {
-	if(action_log.at.alloc_init) LOG();
-
+	ACTION_LOG(alloc_init);
 	ERR_NULL(avm);
 
 	/* **** */
@@ -37,7 +36,7 @@ static void _armvm_alloc_init(armvm_ref avm)
 
 static void _armvm_exit(armvm_ref avm)
 {
-	if(action_log.at.exit) LOG();
+	ACTION_LOG(exit);
 
 	handle_free((void**)avm->h2avm);
 }
@@ -65,7 +64,7 @@ void armvm(armvm_ref avm, action_ref action)
 
 armvm_ptr armvm_alloc(armvm_href h2avm)
 {
-	if(action_log.at.alloc) LOG();
+	ACTION_LOG(alloc);
 
 	ERR_NULL(h2avm);
 
@@ -110,7 +109,7 @@ uint32_t* armvm_p2gpr(armvm_ref avm, const unsigned r)
 
 void armvm_reset(armvm_ref avm)
 {
-	if(action_log.at.reset) LOG();
+	ACTION_LOG(reset);
 
 	armvm(avm, _ACTION_RESET);
 }
