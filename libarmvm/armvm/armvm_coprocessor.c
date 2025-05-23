@@ -37,23 +37,6 @@ typedef struct armvm_coprocessor_tag {
 
 /* **** */
 
-static void __armvm_coprocessor_alloc_init(armvm_coprocessor_ref cp)
-{
-	ACTION_LOG(alloc_init);
-	ERR_NULL(cp);
-
-	cp->core = cp->armvm->core;
-}
-
-static void __armvm_coprocessor_exit(armvm_coprocessor_ref cp)
-{
-	ACTION_LOG(exit);
-
-	handle_ptrfree(cp);
-}
-
-/* **** */
-
 static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_ref  cp,
 	const uint32_t ir)
 {
@@ -88,20 +71,41 @@ static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const wr
 	return((mem_32_access(cp15r1, write) & ~sbz) | sbo);
 }
 
-void armvm_coprocessor(armvm_coprocessor_ref cp, action_ref action)
+/* **** */
+
+static
+int armvm_coprocessor_action_alloc_init(int err, void *const param, action_ref)
 {
+	ACTION_LOG(alloc_init);
+	ERR_NULL(param);
+
+	armvm_coprocessor_ref cp = param;
 	ERR_NULL(cp);
 
-	switch(action) {
-		case _ACTION_ALLOC_INIT: __armvm_coprocessor_alloc_init(cp); break;
-		default: break;
-	}
-//
-//
-	switch(action) {
-		case _ACTION_EXIT: __armvm_coprocessor_exit(cp); break;
-		default: break;
-	}
+	/* **** */
+
+	ERR_NULL(cp->armvm);
+	ERR_NULL(cp->armvm->core);
+
+	cp->core = cp->armvm->core;
+
+	/* **** */
+
+	return(err);
+}
+
+static
+int armvm_coprocessor_action_exit(int err, void *const param, action_ref)
+{
+	ACTION_LOG(exit);
+
+	/* **** */
+
+	handle_ptrfree(param);
+
+	/* **** */
+
+	return(err);
 }
 
 uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const write)
@@ -178,3 +182,10 @@ void armvm_coprocessor_register_callback(armvm_coprocessor_ref cp,
 		cb->param = param;
 	}
 }
+
+action_list_t armvm_coprocessor_action_list = {
+	.list = {
+		[_ACTION_ALLOC_INIT] = {{ armvm_coprocessor_action_alloc_init }, { 0 }, 0 },
+		[_ACTION_EXIT] = {{ armvm_coprocessor_action_exit }, { 0 }, 0 },
+	}
+};

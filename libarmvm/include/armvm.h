@@ -43,6 +43,8 @@ typedef struct armvm_tag {
 
 /* **** */
 
+extern action_list_t armvm_action_list;
+
 void armvm(armvm_ref avm, action_ref action);
 armvm_ptr armvm_alloc(armvm_href h2avm);
 void armvm_alloc_init(armvm_ref avm);

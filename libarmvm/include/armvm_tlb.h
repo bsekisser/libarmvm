@@ -49,7 +49,8 @@ typedef struct armvm_tlb_tag {
 
 /* **** */
 
-void armvm_tlb_cp15_init(armvm_tlb_ref tlb);
+extern action_list_t armvm_tlb_action_list;
+extern action_list_t armvm_tlb_cp15_action_list;
 
 void armvm_tlb(armvm_tlb_ref tlb, action_ref action);
 armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb);

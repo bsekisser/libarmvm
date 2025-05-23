@@ -26,41 +26,22 @@
 
 /* **** */
 
-static void _armvm_alloc_init(armvm_ref avm)
-{
-	ACTION_LOG(alloc_init);
-	ERR_NULL(avm);
-
-	/* **** */
-}
-
-static void _armvm_exit(armvm_ref avm)
+static
+int armvm_action_exit(int err, void *const param, action_ref)
 {
 	ACTION_LOG(exit);
 
-	handle_ptrfree(avm);
-}
+	/* **** */
 
-/* **** */
+	handle_ptrfree(param);
+
+	/* **** */
+
+	return(err);
+}
 
 void armvm(armvm_ref avm, action_ref action)
-{
-	switch(action) {
-		case _ACTION_ALLOC_INIT: _armvm_alloc_init(avm); break;
-		default: break;
-	}
-//
-	armvm_cache(avm->cache, action);
-	armvm_coprocessor(avm->coprocessor, action);
-	armvm_core(avm->core, action);
-	armvm_mem(avm->mem, action);
-	armvm_mmu(avm->mmu, action);
-//
-	switch(action) {
-		case _ACTION_EXIT: return(_armvm_exit(avm));
-		default: break;
-	}
-}
+{ action_handler(0, avm, action, &armvm_action_list); }
 
 armvm_ptr armvm_alloc(armvm_href h2avm)
 {
@@ -164,3 +145,21 @@ int armvm_threaded_start(armvm_ref avm)
 {
 	return(pthread_create(&avm->thread, 0, armvm_threaded_run, avm));
 }
+
+static
+action_handler_t armvm_action_sublist[] = {
+	{{ .list = &armvm_cache_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, cache) },
+	{{ .list = &armvm_coprocessor_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, coprocessor) },
+	{{ .list = &armvm_core_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, core) },
+	{{ .list = &armvm_mem_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mem) },
+	{{ .list = &armvm_mmu_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mmu) },
+};
+
+action_list_t armvm_action_list = {
+	.list = {
+//		[_ACTION_ALLOC] = {{ armvm_action_alloc }, { 0 }, 0 },
+		[_ACTION_EXIT] = {{ armvm_action_exit }, { 0 }, 0 },
+	},
+
+	.sublist = armvm_action_sublist
+};

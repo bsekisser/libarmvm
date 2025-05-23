@@ -6,6 +6,11 @@
 
 /* **** */
 
+#include "libbse/include/action.h"
+#include "libbse/include/err_test.h"
+
+/* **** */
+
 static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
@@ -48,8 +53,16 @@ static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *
 	return(data);
 }
 
-void armvm_tlb_cp15_init(armvm_tlb_ref tlb)
+static
+int armvm_tlb_cp15_action_init(int err, void *const param, action_ref)
 {
+	ACTION_LOG(init);
+	ERR_NULL(param);
+
+	armvm_tlb_ref tlb = param;
+
+	/* **** */
+
 	armvm_coprocessor_ref cp = tlb->armvm->coprocessor;
 
 	armvm_coprocessor_register_callback(cp, cp15(0, 8, 5, 0),
@@ -58,4 +71,14 @@ void armvm_tlb_cp15_init(armvm_tlb_ref tlb)
 		_armvm_cp15_0_8_6_0_invalidate_data, tlb);
 	armvm_coprocessor_register_callback(cp, cp15(0, 8, 7, 0),
 		_armvm_cp15_0_8_7_0_invalidate_all, tlb);
+
+	/* **** */
+
+	return(err);
 }
+
+action_list_t armvm_tlb_cp15_action_list = {
+	.list = {
+		[_ACTION_INIT] = {{ armvm_tlb_cp15_action_init }, { 0 }, 0}
+	}
+};

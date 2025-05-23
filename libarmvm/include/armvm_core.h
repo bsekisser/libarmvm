@@ -126,7 +126,8 @@ typedef struct armvm_core_tag {
 
 /* **** */
 
-void armvm_core(armvm_core_ref core, action_ref action);
+extern action_list_t armvm_core_action_list;
+
 armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core);
 int armvm_core_in_a_privaleged_mode(armvm_core_ref core);
 int armvm_core_pcx(armvm_core_ref core, const uint32_t new_pc);

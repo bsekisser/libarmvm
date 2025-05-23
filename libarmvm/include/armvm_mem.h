@@ -37,7 +37,8 @@ typedef struct armvm_mem_callback_tag {
 
 /* **** */
 
-void armvm_mem(armvm_mem_ref mem, action_ref action);
+extern action_list_t armvm_mem_action_list;
+
 armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem);
 
 uint32_t armvm_mem_access_read(armvm_mem_ref mem,

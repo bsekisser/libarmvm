@@ -24,33 +24,6 @@
 
 /* **** */
 
-static void __armvm_core_alloc_init(armvm_core_ref core)
-{
-	ACTION_LOG(alloc_init);
-	ERR_NULL(core);
-
-	core->cp = core->armvm->coprocessor;
-	core->mmu = core->armvm->mmu;
-
-	/* **** */
-
-	core->config.pedantic.ir_checks = 1;
-	core->config.version = arm_v5tej;
-
-	switch(core->config.version) {
-		case arm_v5tej:
-			core->config.features.thumb = 1;
-		break;
-	}
-}
-
-static void __armvm_core_exit(armvm_core_ref core)
-{
-	ACTION_LOG(exit);
-
-	handle_ptrfree(core);
-}
-
 static void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
 {
 	const uint32_t tmp = *dst;
@@ -121,19 +94,65 @@ static void _armvm_core_psr_swap_regs(armvm_core_ref core,
 
 /* **** */
 
-void armvm_core(armvm_core_ref core, action_ref action)
+static
+int armvm_core_action_alloc_init(int err, void *const param, action_ref)
 {
-	switch(action) {
-		case _ACTION_ALLOC_INIT: __armvm_core_alloc_init(core); break;
-		case _ACTION_RESET: armvm_core_exception_reset(core); break;
-		default: break;
+	ACTION_LOG(alloc_init);
+	ERR_NULL(param);
+
+	armvm_core_ref core = param;
+
+	/* **** */
+
+	ERR_NULL(core->armvm);
+
+	armvm_ref armvm = core->armvm;
+
+	ERR_NULL(core->cp = armvm->coprocessor);
+	ERR_NULL(core->mmu = armvm->mmu);
+
+	/* **** */
+
+	core->config.pedantic.ir_checks = 1;
+	core->config.version = arm_v5tej;
+
+	switch(core->config.version) {
+		case arm_v5tej:
+			core->config.features.thumb = 1;
+		break;
 	}
-//
-//
-	switch(action) {
-		case _ACTION_EXIT: __armvm_core_exit(core); break;
-		default: break;
-	}
+
+	/* **** */
+
+	return(err);
+}
+
+static
+int armvm_core_action_exit(int err, void *const param, action_ref)
+{
+	ACTION_LOG(exit);
+
+	/* **** */
+
+	handle_ptrfree(param);
+
+	/* **** */
+
+	return(err);
+}
+
+static
+int armvm_core_action_reset(int err, void *const param, action_ref)
+{
+	ACTION_LOG(reset);
+
+	/* **** */
+
+	armvm_core_exception_reset(param);
+
+	/* **** */
+
+	return(err);
 }
 
 armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core)
@@ -253,3 +272,11 @@ int armvm_core_step(armvm_core_ref core)
 
 	return(armvm_core_arm_step(core));
 }
+
+action_list_t armvm_core_action_list = {
+	.list = {
+		[_ACTION_ALLOC_INIT] = {{ armvm_core_action_alloc_init }, { 0 }, 0 },
+		[_ACTION_EXIT] = {{ armvm_core_action_exit }, { 0 }, 0 },
+		[_ACTION_RESET] = {{ armvm_core_action_reset }, { 0 }, 0 },
+	}
+};

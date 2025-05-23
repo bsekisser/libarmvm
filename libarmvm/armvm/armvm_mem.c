@@ -43,24 +43,6 @@ typedef struct armvm_mem_tag {
 
 /* **** */
 
-static void __armvm_mem_alloc_init(armvm_mem_ref mem)
-{
-	ACTION_LOG(alloc_init);
-	ERR_NULL(mem);
-
-	return;
-	UNUSED(mem);
-}
-
-static void __armvm_mem_exit(armvm_mem_ref mem)
-{
-	ACTION_LOG(exit);
-
-	handle_ptrfree(mem);
-}
-
-/* **** */
-
 static void* _armvm_mem_access_l1(armvm_mem_ref mem,
 	const uint32_t ppa, void** *const h2l1e)
 {
@@ -168,15 +150,6 @@ static armvm_mem_callback_ptr _armvm_mem_mmap_alloc(armvm_mem_ref mem,
 	return(p2l2);
 }
 
-void armvm_mem(armvm_mem_ref mem, action_ref action)
-{
-	switch(action) {
-		case _ACTION_ALLOC_INIT: return(__armvm_mem_alloc_init(mem));
-		case _ACTION_EXIT: return(__armvm_mem_exit(mem));
-		default: break;
-	}
-}
-
 uint32_t armvm_mem_access_read(armvm_mem_ref mem, const uint32_t ppa, const size_t size,
 	armvm_mem_callback_href h2cb)
 {
@@ -195,6 +168,20 @@ armvm_mem_callback_ptr armvm_mem_access_write(armvm_mem_ref mem, const uint32_t 
 	armvm_mem_callback_io(cb, ppa, size, &write);
 
 	return(cb);
+}
+
+static
+int armvm_mem_action_exit(int err, void *const param, action_ref)
+{
+	ACTION_LOG(exit);
+
+	/* **** */
+
+	handle_ptrfree(param);
+
+	/* **** */
+
+	return(err);
 }
 
 armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem)
@@ -294,3 +281,9 @@ void armvm_mem_mmap_ro(armvm_mem_ref mem,
 void armvm_mem_mmap_rw(armvm_mem_ref mem,
 	const uint32_t base, const uint32_t end, void *const data)
 { return(armvm_mem_mmap(mem, base, end, 0, data)); }
+
+action_list_t armvm_mem_action_list = {
+	.list = {
+		[_ACTION_EXIT] = {{ armvm_mem_action_exit }, { 0 }, 0 },
+	}
+};

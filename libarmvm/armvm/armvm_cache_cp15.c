@@ -10,6 +10,8 @@
 
 #include "git/libarm/include/arm_cpsr.h"
 
+#include "git/libbse/include/action.h"
+#include "git/libbse/include/err_test.h"
 #include "git/libbse/include/log.h"
 
 /* **** */
@@ -43,10 +45,31 @@ static uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32
 
 /* **** */
 
-void armvm_cache_cp15_init(armvm_cache_ref acr)
+static
+int armvm_cache_cp15_action_init(int err, void *const param, action_ref)
 {
+	ACTION_LOG(init);
+	ERR_NULL(param);
+
+	armvm_cache_ref acr = param;
+
+	/* **** */
+
+	ERR_NULL(acr->armvm);
+
 	armvm_coprocessor_ref cp = acr->armvm->coprocessor;
+	ERR_NULL(cp);
 
 	armvm_coprocessor_register_callback(cp, cp15(0, 7, 0, 4),
 		_armvm_cp15_0_7_0_4_wait_for_interrupt, acr);
+
+	/* **** */
+
+	return(err);
 }
+
+action_list_t armvm_cache_cp15_action_list = {
+	.list = {
+		[_ACTION_INIT] = {{ armvm_cache_cp15_action_init }, { 0 }, 0 }
+	}
+};

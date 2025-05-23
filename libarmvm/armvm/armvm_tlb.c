@@ -18,25 +18,6 @@
 
 /* **** */
 
-static void _armvm_tlb_exit(armvm_tlb_ref tlb)
-{
-	ACTION_LOG(exit);
-
-	handle_ptrfree(tlb);
-}
-
-static void _armvm_tlb_init(armvm_tlb_ref tlb)
-{
-	ACTION_LOG(init);
-	ERR_NULL(tlb);
-
-	/* **** */
-
-	armvm_tlb_cp15_init(tlb);
-}
-
-/* **** */
-
 static armvm_tlbe_ptr _tlb_entry(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
 	const uint32_t va, armvm_tlbe_href h2tlbe)
 {
@@ -90,18 +71,18 @@ static armvm_mem_callback_ptr _tlb_write(armvm_tlbe_ref tlbe_table, const unsign
 
 /* **** */
 
-void armvm_tlb(armvm_tlb_ref tlb, action_ref action)
+static
+int armvm_tlb_action_exit(int err, void *const param, action_ref)
 {
-	switch(action) {
-//		case _ACTION_ALLOC_INIT: return(_armvm_tlb_alloc_init(tlb));
-		case _ACTION_INIT: return(_armvm_tlb_init(tlb));
-		default: break;
-	}
+	ACTION_LOG(exit);
 
-	switch(action) {
-		case _ACTION_EXIT: return(_armvm_tlb_exit(tlb));
-		default: break;
-	}
+	/* **** */
+
+	handle_ptrfree(param);
+
+	/* **** */
+
+	return(err);
 }
 
 armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb)
@@ -173,3 +154,16 @@ armvm_mem_callback_ptr armvm_tlb_write(armvm_tlb_ref tlb, uint32_t const va,
 
 	return(cb);
 }
+
+static
+action_handler_t armvm_tlb_action_sublist[] = {
+	{{ .list = &armvm_tlb_cp15_action_list }, { .is_list = 1 }, 0 }
+};
+
+action_list_t armvm_tlb_action_list = {
+	.list = {
+		[_ACTION_EXIT] = {{ armvm_tlb_action_exit }, { 0 }, 0 },
+	},
+
+	.sublist = armvm_tlb_action_sublist,
+};

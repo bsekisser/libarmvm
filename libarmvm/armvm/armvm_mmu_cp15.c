@@ -14,6 +14,7 @@
 
 #include "libbse/include/action.h"
 #include "libbse/include/bitops.h"
+#include "libbse/include/err_test.h"
 #include "libbse/include/log.h"
 
 /* **** */
@@ -29,6 +30,8 @@
 #ifndef DEBUG
 	#define DEBUG(...)
 #endif
+
+/* **** */
 
 static uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const write, const unsigned r)
 {
@@ -76,9 +79,27 @@ static uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const writ
 	return(ttbcr);
 }
 
-void armvm_mmu_cp15_init(armvm_mmu_ref mmu)
+static
+int armvm_mmu_cp15_action_init(int err, void *const param, action_ref)
 {
+	ACTION_LOG(init);
+	ERR_NULL(param);
+
+	armvm_mmu_ref mmu = param;
+
+	/* **** */
+
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 0), _mmu_cp15__0_2_0_0_ttbr0, mmu);
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 1), _mmu_cp15__0_2_0_1_ttbr1, mmu);
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 2), _mmu_cp15__0_2_0_2_ttbcr, mmu);
+
+	/* **** */
+
+	return(err);
 }
+
+action_list_t armvm_mmu_cp15_action_list = {
+	.list = {
+		[_ACTION_INIT] = {{ armvm_mmu_cp15_action_init }, { 0 }, 0 }
+	}
+};

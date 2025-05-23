@@ -12,6 +12,7 @@
 /* **** */
 
 #include "libbse/include/action.h"
+#include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
 #include "libbse/include/page.h"
@@ -24,36 +25,51 @@
 
 /* **** */
 
-static void __armvm_mmu_alloc_init(armvm_mmu_ref mmu)
+static
+int armvm_mmu_action_alloc_init(int err, void *const param, action_ref)
 {
 	ACTION_LOG(alloc_init);
+	ERR_NULL(param);
+
+	armvm_mmu_ref mmu = param;
+
+	/* **** */
+
+	ERR_NULL(mmu->armvm);
 
 	armvm_ref avm = mmu->armvm;
 
-	pARMVM_CORE = avm->core;
-	mmu->cp = avm->coprocessor;
-	mmu->mem = avm->mem;
+	ERR_NULL(pARMVM_CORE = avm->core);
+	ERR_NULL(mmu->cp = avm->coprocessor);
+	ERR_NULL(mmu->mem = avm->mem);
+
+	/* **** */
+
+	return(err);
 }
 
-static void __armvm_mmu_init(armvm_mmu_ref mmu)
-{
-	ACTION_LOG(init);
-	ERR_NULL(mmu);
-
-	armvm_mmu_cp15_init(mmu);
-}
-
-
-static void __armvm_mmu_exit(armvm_mmu_ref mmu)
+static
+int armvm_mmu_action_exit(int err, void *const param, action_ref)
 {
 	ACTION_LOG(exit);
 
-	handle_ptrfree(mmu);
+	/* **** */
+
+	handle_ptrfree(param);
+
+	/* **** */
+
+	return(err);
 }
 
-static void __armvm_mmu_reset(armvm_mmu_ref mmu)
+static
+int armvm_mmu_action_reset(int err, void *const param, action_ref)
 {
 	ACTION_LOG(reset);
+
+	armvm_mmu_ref mmu = param;
+
+	/* **** */
 
 	uint32_t x = 0;
 	TTBCR(&x);
@@ -62,6 +78,10 @@ static void __armvm_mmu_reset(armvm_mmu_ref mmu)
 	TTBR0(&x);
 	TTBR1(&x);
 	CP15_REG1_BCLR(M);
+
+	/* **** */
+
+	return(err);
 }
 
 #define L1PTD_10_SectionBaseAddress(_x) mlBFTST(_x, 31, 20)
@@ -152,23 +172,6 @@ static int __l1ptd_xx(armvm_mmu_ref mmu, uint32_t *const ppa)
 }
 
 /* **** */
-
-void armvm_mmu(armvm_mmu_ref mmu, action_ref action)
-{
-	switch(action) {
-		case _ACTION_ALLOC_INIT: __armvm_mmu_alloc_init(mmu); break;
-		case _ACTION_INIT: __armvm_mmu_init(mmu); break;
-		case _ACTION_RESET: __armvm_mmu_reset(mmu); break;
-		default: break;
-	}
-
-	armvm_tlb(mmu->tlb, action);
-
-	switch(action) {
-		case _ACTION_EXIT: __armvm_mmu_exit(mmu); break;
-		default: break;
-	}
-}
 
 static int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 {
@@ -284,3 +287,20 @@ int armvm_mmu_write(armvm_mmu_ref mmu, const uint32_t va,
 
 	return(1);
 }
+
+static
+action_handler_t armvm_mmu_action_sublist[] = {
+	{{ .list = &armvm_mmu_cp15_action_list }, { .is_list = 1 }, 0 },
+//
+	{{ .list = &armvm_tlb_action_list }, { .dereference = 1, .is_list = 1 }, offsetof(armvm_mmu_t, tlb) }
+};
+
+action_list_t armvm_mmu_action_list = {
+	.list = {
+		[_ACTION_ALLOC_INIT] = {{ armvm_mmu_action_alloc_init }, { 0 }, 0 },
+		[_ACTION_EXIT] = {{ armvm_mmu_action_exit }, { 0 }, 0 },
+		[_ACTION_RESET] = {{ armvm_mmu_action_reset }, { 0 }, 0 },
+	},
+
+	.sublist = armvm_mmu_action_sublist
+};
