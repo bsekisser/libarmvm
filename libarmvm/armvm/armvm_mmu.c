@@ -19,29 +19,8 @@
 
 /* **** */
 
-typedef struct armvm_mmu_tag {
-	armvm_mem_callback_ptr l1[PAGE_SIZE];
-//
-	armvm_ptr armvm;
 #define pARMVM mmu->armvm
-
-	armvm_core_ptr core;
 #define pARMVM_CORE mmu->core
-
-	armvm_coprocessor_ptr cp;
-	armvm_mem_ptr mem;
-	armvm_tlb_ptr tlb;
-}armvm_mmu_t;
-
-/* **** */
-
-#define TTBCR(_write) rCP15x(cp15(0, 2, 0, 2), _write)
-#define TTBCR_N mlBFEXT(TTBCR(0), 2, 0)
-
-#define TTBR0(_write) rCP15x(cp15(0, 2, 0, 0), _write)
-#define TTBR1(_write) rCP15x(cp15(0, 2, 0, 1), _write)
-
-#include "armvm_mmu_cp15.h"
 
 /* **** */
 
@@ -61,7 +40,7 @@ static void __armvm_mmu_init(armvm_mmu_ref mmu)
 	ACTION_LOG(init);
 	ERR_NULL(mmu);
 
-	_mmu_cp15_init(mmu);
+	armvm_mmu_cp15_init(mmu);
 }
 
 

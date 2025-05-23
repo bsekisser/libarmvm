@@ -19,6 +19,10 @@ typedef armvm_tlbe_ptr const armvm_tlbe_ref;
 
 /* **** */
 
+#include "libbse/include/bitops.h"
+
+/* **** */
+
 #define dTLB_BITS 8
 #define iTLB_BITS 8
 

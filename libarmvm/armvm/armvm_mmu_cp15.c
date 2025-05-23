@@ -1,4 +1,25 @@
-#pragma once
+#define pARMVM mmu->armvm
+#define pARMVM_CORE pARMVM->core
+
+#include "armvm_mmu.h"
+
+/* **** */
+
+#include "armvm_coprocessor_cp15.h"
+#include "armvm_coprocessor.h"
+#include "armvm_core.h"
+#include "armvm.h"
+
+/* **** */
+
+#include "libbse/include/action.h"
+#include "libbse/include/bitops.h"
+#include "libbse/include/log.h"
+
+/* **** */
+
+#include <assert.h>
+#include <stdint.h>
 
 /* **** */
 
@@ -55,7 +76,7 @@ static uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const writ
 	return(ttbcr);
 }
 
-static void _mmu_cp15_init(armvm_mmu_ref mmu)
+void armvm_mmu_cp15_init(armvm_mmu_ref mmu)
 {
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 0), _mmu_cp15__0_2_0_0_ttbr0, mmu);
 	armvm_coprocessor_register_callback(mmu->cp, cp15(0, 2, 0, 1), _mmu_cp15__0_2_0_1_ttbr1, mmu);
