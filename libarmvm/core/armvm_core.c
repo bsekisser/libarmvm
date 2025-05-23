@@ -48,7 +48,7 @@ static void __armvm_core_exit(armvm_core_ref core)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void*)core->h2core);
+	handle_ptrfree(core);
 }
 
 static void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
@@ -143,13 +143,12 @@ armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core)
 	ERR_NULL(avm);
 	ERR_NULL(h2core);
 
-	armvm_core_ref core = handle_calloc((void*)h2core, 1, sizeof(armvm_core_t));
+	armvm_core_ref core = handle_calloc(h2core, 1, sizeof(armvm_core_t));
 	ERR_NULL(core);
 
 	/* **** */
 
 	core->armvm = avm;
-	core->h2core = h2core;
 
 	/* **** */
 
@@ -244,6 +243,8 @@ uint32_t armvm_core_spsr(armvm_core_ref core, uint32_t *const write)
 
 int armvm_core_step(armvm_core_ref core)
 {
+	if(core->flags.halt) return(-1);
+
 	CYCLE++;
 	ICOUNT++;
 

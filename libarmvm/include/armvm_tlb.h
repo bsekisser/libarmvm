@@ -36,7 +36,6 @@ typedef struct armvm_tlb_tag {
 	armvm_tlbe_t itlb[_BV(iTLB_BITS)];
 //
 	armvm_ptr armvm;
-	armvm_tlb_hptr h2tlb;
 	armvm_mmu_ptr mmu;
 }armvm_tlb_t;
 

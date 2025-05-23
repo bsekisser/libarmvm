@@ -22,7 +22,7 @@ static void _armvm_tlb_exit(armvm_tlb_ref tlb)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void*)tlb->h2tlb);
+	handle_ptrfree(tlb);
 }
 
 static void _armvm_tlb_init(armvm_tlb_ref tlb)
@@ -113,13 +113,12 @@ armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h
 
 	/* **** */
 
-	armvm_tlb_ref tlb = handle_calloc((void*)h2tlb, 1, sizeof(armvm_tlb_t));
+	armvm_tlb_ref tlb = handle_calloc(h2tlb, 1, sizeof(armvm_tlb_t));
 	ERR_NULL(tlb);
 
 	/* **** */
 
 	tlb->armvm = avm;
-	tlb->h2tlb = h2tlb;
 	tlb->mmu = mmu;
 
 	/* **** */

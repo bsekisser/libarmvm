@@ -33,8 +33,6 @@ typedef struct armvm_coprocessor_tag {
 //
 	armvm_ptr armvm;
 	armvm_core_ptr core;
-//
-	armvm_coprocessor_hptr h2cp;
 }armvm_coprocessor_t;
 
 /* **** */
@@ -51,7 +49,7 @@ static void __armvm_coprocessor_exit(armvm_coprocessor_ref cp)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void*)cp->h2cp);
+	handle_ptrfree(cp);
 }
 
 /* **** */
@@ -134,14 +132,13 @@ armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_ref avm,
 	ERR_NULL(avm);
 
 	armvm_coprocessor_ref cp =
-		handle_calloc((void*)h2cp, 1, sizeof(armvm_coprocessor_t));
+		handle_calloc(h2cp, 1, sizeof(armvm_coprocessor_t));
 
 	ERR_NULL(cp);
 
 	/* **** */
 
 	cp->armvm = avm;
-	cp->h2cp = h2cp;
 
 	/* **** */
 

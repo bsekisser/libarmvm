@@ -29,7 +29,6 @@ typedef struct armvm_mmu_tag {
 #define pARMVM_CORE mmu->core
 
 	armvm_coprocessor_ptr cp;
-	armvm_mmu_hptr h2mmu;
 	armvm_mem_ptr mem;
 	armvm_tlb_ptr tlb;
 }armvm_mmu_t;
@@ -70,7 +69,7 @@ static void __armvm_mmu_exit(armvm_mmu_ref mmu)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void*)mmu->h2mmu);
+	handle_ptrfree(mmu);
 }
 
 static void __armvm_mmu_reset(armvm_mmu_ref mmu)
@@ -207,10 +206,9 @@ armvm_mmu_ptr armvm_mmu_alloc(armvm_ref avm, armvm_mmu_href h2mmu)
 	ERR_NULL(h2mmu);
 	ERR_NULL(avm);
 
-	armvm_mmu_ref mmu = handle_calloc((void*)h2mmu, 1, sizeof(armvm_mmu_t));
+	armvm_mmu_ref mmu = handle_calloc(h2mmu, 1, sizeof(armvm_mmu_t));
 
 	mmu->armvm = avm;
-	mmu->h2mmu = h2mmu;
 
 	/* **** */
 

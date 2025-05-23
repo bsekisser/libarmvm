@@ -29,7 +29,7 @@ static void __armvm_cache_exit(armvm_cache_ref acr)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void*)acr->h2c);
+	handle_ptrfree(acr);
 }
 
 /* **** */
@@ -60,14 +60,13 @@ armvm_cache_ptr armvm_cache_alloc(armvm_ref avm,
 	ERR_NULL(avm);
 
 	armvm_cache_ref acr =
-		handle_calloc((void*)h2c, 1, sizeof(armvm_cache_t));
+		handle_calloc(h2c, 1, sizeof(armvm_cache_t));
 
 	ERR_NULL(acr);
 
 	/* **** */
 
 	acr->armvm = avm;
-	acr->h2c = h2c;
 
 	/* **** */
 

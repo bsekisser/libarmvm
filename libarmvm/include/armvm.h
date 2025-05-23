@@ -38,7 +38,6 @@ typedef struct armvm_tag {
 	armvm_mmu_ptr mmu;
 //
 	armvm_config_t config;
-	armvm_hptr h2avm;
 	pthread_t thread;
 }armvm_t;
 

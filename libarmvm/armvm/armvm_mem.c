@@ -39,7 +39,6 @@ typedef struct armvm_mem_tag {
 //
 	armvm_ptr avm;
 	armvm_mem_config_t config;
-	armvm_mem_hptr h2mem;
 }armvm_mem_t;
 
 /* **** */
@@ -57,7 +56,7 @@ static void __armvm_mem_exit(armvm_mem_ref mem)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void*)mem->h2mem);
+	handle_ptrfree(mem);
 }
 
 /* **** */
@@ -205,13 +204,12 @@ armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem)
 	ERR_NULL(h2mem);
 	ERR_NULL(avm);
 
-	armvm_mem_ref mem = handle_calloc((void*)h2mem, 1, sizeof(armvm_mem_t));
+	armvm_mem_ref mem = handle_calloc(h2mem, 1, sizeof(armvm_mem_t));
 	ERR_NULL(mem);
 
 	avm->config.mem = &mem->config;
 
 	mem->avm = avm;
-	mem->h2mem = h2mem;
 
 	if(0) {
 		mem->config.trace_mmap = 1;

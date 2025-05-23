@@ -32,7 +32,7 @@ static uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32
 		} else if(0) {
 			LOG_ACTION(armvm_core_exception_reset(core));
 		} else {
-			LOG_ACTION(abort());
+			core->flags.halt = 1;
 		}
 	} else {
 		LOG("<<: Wait For Interrupt");

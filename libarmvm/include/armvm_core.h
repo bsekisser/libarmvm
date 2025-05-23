@@ -115,8 +115,11 @@ typedef struct armvm_core_tag {
 	armvm_trace_t armvm_trace;
 	armvm_core_config_t config;
 //
+	struct {
+		unsigned halt:1;
+	}flags;
+
 	armvm_ptr armvm;
-	armvm_core_hptr h2core;
 	armvm_coprocessor_ptr cp;
 	armvm_mmu_ptr mmu;
 }armvm_core_t;

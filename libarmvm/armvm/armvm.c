@@ -38,7 +38,7 @@ static void _armvm_exit(armvm_ref avm)
 {
 	ACTION_LOG(exit);
 
-	handle_free((void**)avm->h2avm);
+	handle_ptrfree(avm);
 }
 
 /* **** */
@@ -68,10 +68,8 @@ armvm_ptr armvm_alloc(armvm_href h2avm)
 
 	ERR_NULL(h2avm);
 
-	armvm_ref avm = handle_calloc((void*)h2avm, 1, sizeof(armvm_t));
+	armvm_ref avm = handle_calloc(h2avm, 1, sizeof(armvm_t));
 	ERR_NULL(avm);
-
-	avm->h2avm = h2avm;
 
 	/* **** */
 
