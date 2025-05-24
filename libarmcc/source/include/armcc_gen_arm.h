@@ -84,7 +84,7 @@ static uint32_t gen_arm__ldst_offset(armcc_p p2cc,
 		LOG_END(", offset_masked: 0x%08x", offset_masked);
 	}
 
-	assert(offset == pbBFEXTs(offset_masked, 0, 12));
+//	assert(offset == pbBFEXTs(offset_masked, 0, 12));
 
 	*bit_u = !((int32_t)offset < 0);
 

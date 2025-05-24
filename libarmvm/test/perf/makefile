@@ -1,6 +1,8 @@
 CFLAGS += -O2 -march=native
 
-#INCLUDE= -Isource
+CPPFLAGS = $(CFLAGS)
+
+#INCLUDE = -Isource
 
 LDLIBS += -Lgit/libarmvm -larmvm
 LDLIBS += -Lgit/libarmcc -larmcc
@@ -17,5 +19,5 @@ TARGET_EXE = test_armvm_perf
 all: $(TARGET_EXE)
 
 
-include ../../../makefile.setup
-include ../../../makefile.build
+include git/libbse/makefile.setup
+include git/libbse/makefile.build

@@ -56,8 +56,10 @@ void test_armvm_perf__setup(void *const mem)
 	cc.b(sample_loop0);
 }
 
-void test_armvm_perf(armvm_p const armvm, unsigned seconds)
+void test_armvm_perf(armvm_ref armvm, unsigned seconds)
 {
+	const uint64_t icount_start = armvm_spr64(armvm, ARMVM_SPR64(ICOUNT));
+
 	const uint64_t dtime_second = dtime_calibrate();
 	const double kips_ratio = 1.0 / KHz(1.0);
 	const double mips_ratio = 1.0 / MHz(1.0);
@@ -77,7 +79,7 @@ void test_armvm_perf(armvm_p const armvm, unsigned seconds)
 	const uint64_t dtime_end = get_dtime();
 	const uint64_t delta_dtime_run = dtime_end - dtime_start;
 
-	const uint64_t icount = armvm_spr64(armvm, ARMVM_SPR64(ICOUNT));
+	const uint64_t icount = armvm_spr64(armvm, ARMVM_SPR64(ICOUNT)) - icount_start;
 
 	LOG_START("dtime_start: 0x%016" PRIx64, dtime_start);
 	LOG_END(", dtime_stop: 0x%016" PRIx64, dtime_stop);
@@ -98,13 +100,15 @@ void test_armvm_perf(armvm_p const armvm, unsigned seconds)
 
 int main(void)
 {
-	armvm_p armvm;
+	armvm_ptr armvm = 0;
+
 	uint8_t mem[kTEST_MEM_ALLOC];
 
 	armvm_alloc_init(armvm_alloc(&armvm));
-//		armvm->core->config.trace = 1;
 
-	armvm_mem_mmap(armvm->mem, kTEST_MEM_START, kTEST_MEM_END, 0, mem);
+//	armvm->core->config.trace = 1;
+
+	armvm_mem_mmap_rw(armvm->mem, kTEST_MEM_START, kTEST_MEM_END, mem);
 
 	test_armvm_perf__setup(mem);
 	test_armvm_perf(armvm, 1);
