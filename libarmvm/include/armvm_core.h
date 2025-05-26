@@ -138,6 +138,7 @@ void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_ref core);
 uint32_t armvm_core_reg_user(armvm_core_ref core, const unsigned r, uint32_t *const v);
 uint32_t armvm_core_spsr(armvm_core_ref core, uint32_t *const write);
 int armvm_core_step(armvm_core_ref core);
+int armvm_core_threaded_run(armvm_core_ref core);
 
 /* **** */
 

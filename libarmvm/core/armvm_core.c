@@ -262,8 +262,6 @@ uint32_t armvm_core_spsr(armvm_core_ref core, uint32_t *const write)
 
 int armvm_core_step(armvm_core_ref core)
 {
-	if(core->flags.halt) return(-1);
-
 	CYCLE++;
 	ICOUNT++;
 
@@ -271,6 +269,17 @@ int armvm_core_step(armvm_core_ref core)
 		return(armvm_core_thumb_step(core));
 
 	return(armvm_core_arm_step(core));
+}
+
+int armvm_core_threaded_run(armvm_core_ref core)
+{
+	int rval = 0;
+
+	while(!core->flags.halt)
+		if(0 > (rval = armvm_core_step(core)))
+			break;
+
+	return(rval);
 }
 
 action_list_t armvm_core_action_list = {

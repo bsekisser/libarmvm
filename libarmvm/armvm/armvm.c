@@ -131,20 +131,10 @@ int armvm_step(armvm_ref avm)
 
 static
 void* armvm_threaded_run(void* param)
-{
-	armvm_ref avm = param;
-
-	for(;;)
-		if(0 > armvm_step(avm))
-			break;
-
-	return(0);
-}
+{ return(armvm_core_threaded_run(((armvm_ref)param)->core)); };
 
 int armvm_threaded_start(armvm_ref avm)
-{
-	return(pthread_create(&avm->thread, 0, armvm_threaded_run, avm));
-}
+{ return(pthread_create(&avm->thread, 0, armvm_threaded_run, avm)); }
 
 static
 action_handler_t armvm_action_sublist[] = {
