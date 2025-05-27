@@ -242,7 +242,7 @@ void armvm_mem_mmap(armvm_mem_ref mem,
 	armvm_mem_fn const fn, void *const param)
 {
 	const uint32_t start = base & PAGE_MASK;
-	const uint32_t stop = end & PAGE_MASK;
+	const uint32_t stop = PAGE_ALIGN(end);
 
 	uint8_t *const data_offset = param - base;
 
