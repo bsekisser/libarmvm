@@ -240,6 +240,15 @@ static int _arm_inst_dp_shift_immediate(armvm_core_ref core)
 	return(_arm_inst_dp_shift(core, 1));
 }
 
+static int _arm_inst_hlt(armvm_core_ref core)
+{
+	_armvm_trace(core, "hlt(0x%08x)", mlBFMOV(IR, 19, 8, 4) | mlBFEXT(IR, 3, 0));
+
+	core->flags.halt = 1;
+
+	return(-1);
+}
+
 static int _arm_inst_ldst(armvm_core_ref core)
 {
 	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
@@ -773,14 +782,12 @@ static int armvm_core_arm__step__group0_ldst(armvm_core_ref core)
 
 static int armvm_core_arm__step__group0_misc(armvm_core_ref core)
 {
-	switch(mlBFTST(IR, 27, 20)) {
-		case 0x01000000:
-		case 0x01400000: return(_arm_inst_mrs(core));
-	}
-
 	switch(mlBFTST(IR, 27, 20) | mlBFTST(IR, 7, 4)) {
-		case 0x01200000:
-		case 0x01600000: return(_arm_inst_msr_register(core));
+		case 0x01000000: case 0x01400000:
+			return(_arm_inst_mrs(core));
+		case 0x01000070: return(_arm_inst_hlt(core));
+		case 0x01200000: case 0x01600000:
+			return(_arm_inst_msr_register(core));
 		case 0x01200010: return(_arm_inst_bx_blx_m(core, 0));
 		case 0x01200030: return(_arm_inst_bx_blx_m(core, 1));
 		case 0x01600010: return(_arm_inst_clz(core));

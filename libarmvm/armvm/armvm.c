@@ -127,7 +127,14 @@ uint64_t armvm_spr64(armvm_ref avm, const unsigned r)
 }
 
 int armvm_step(armvm_ref avm)
-{ return(armvm_core_step(avm->core)); }
+{
+	const int rval = armvm_core_step(avm->core);
+
+	if(rSPR32(IP) == PC) return(-1);
+	if(avm->core->flags.halt) return(-1);
+
+	return(rval);
+}
 
 static
 void* armvm_threaded_run(void* param)
