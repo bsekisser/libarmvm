@@ -271,7 +271,7 @@ int armvm_core_step(armvm_core_ref core)
 	return(armvm_core_arm_step(core));
 }
 
-int armvm_core_threaded_run(armvm_core_ref core)
+void* armvm_core_threaded_run(armvm_core_ref core)
 {
 	int rval = 0;
 
@@ -279,7 +279,7 @@ int armvm_core_threaded_run(armvm_core_ref core)
 		if(0 > (rval = armvm_core_step(core)))
 			break;
 
-	return(rval);
+	return(0);
 }
 
 action_list_t armvm_core_action_list = {
