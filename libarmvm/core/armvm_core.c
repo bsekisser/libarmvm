@@ -279,7 +279,7 @@ void* armvm_core_threaded_run(armvm_core_ref core)
 		if(0 > (rval = armvm_core_step(core)))
 			break;
 
-	return(0);
+	LOG_ACTION(return(0));
 }
 
 action_list_t armvm_core_action_list = {

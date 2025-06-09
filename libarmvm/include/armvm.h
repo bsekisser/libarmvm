@@ -56,4 +56,5 @@ uint64_t armvm_run(armvm_ref avm, uint64_t cycles);
 uint32_t armvm_spr32(armvm_ref avm, const unsigned r);
 uint64_t armvm_spr64(armvm_ref avm, const unsigned r);
 int armvm_step(armvm_ref avm);
+void* armvm_threaded_run(void* param);
 int armvm_threaded_start(armvm_ref avm);

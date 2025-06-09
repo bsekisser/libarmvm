@@ -136,7 +136,6 @@ int armvm_step(armvm_ref avm)
 	return(rval);
 }
 
-static
 void* armvm_threaded_run(void* param)
 { return(armvm_core_threaded_run(((armvm_ref)param)->core)); };
 
