@@ -169,18 +169,17 @@ static int _arm_inst_clz(armvm_core_ref core)
 		assert(15 == ARM_IR_R(S));
 	}
 
-	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
-	uint32_t rd = rn ? 31 : 0;
-
-	if(rn) {
-//		while(rd && rn) { rd--; rn >>= 1; }
-		while(rd && !BEXT(rn, rd)) rd--;
-	}
+	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	uint32_t rd = rm ? __builtin_clz(rm) : 32;
 
 	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 
-	if(core->config.trace) // TODO
-		LOG_ACTION(exit(-1));
+	if(_armvm_trace_start(core, "clz(%s)", irR_NAME(M))) {
+		_armvm_trace_comment(core, "0x%08x => 0x%08x", rm, rd);
+		__trace_end(core);
+	}
+
+	LOG_ACTION(exit(-1));
 
 	return(rR_IS_PC(D));
 }
