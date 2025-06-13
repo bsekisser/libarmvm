@@ -142,9 +142,7 @@ static int _arm_inst_bx_blx_m(armvm_core_ref core, const int link)
 	if(_armvm_trace_start(core, "b%sx(%s)",
 		link ? "l" : "", irR_NAME(M))) {
 
-		_armvm_trace_comment(core, "%s(0x%08x)", thumb ? "T" : "A", rm);
-
-		__trace_end(core);
+		_armvm_trace_end_with_comment(core, "%s(0x%08x)", thumb ? "T" : "A", rm);
 	}
 
 	/* **** */
@@ -174,10 +172,8 @@ static int _arm_inst_clz(armvm_core_ref core)
 
 	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 
-	if(_armvm_trace_start(core, "clz(%s)", irR_NAME(M))) {
-		_armvm_trace_comment(core, "0x%08x => 0x%08x", rm, rd);
-		__trace_end(core);
-	}
+	if(_armvm_trace_start(core, "clz(%s)", irR_NAME(M)))
+		_armvm_trace_end_with_comment(core, "0x%08x => 0x%08x", rm, rd);
 
 	LOG_ACTION(exit(-1));
 
@@ -243,7 +239,7 @@ static int _arm_inst_hlt(armvm_core_ref core)
 {
 	_armvm_trace(core, "hlt(0x%08x)", mlBFMOV(IR, 19, 8, 4) | mlBFEXT(IR, 3, 0));
 
-	core->flags.halt = 1;
+	LOG_ACTION(core->flags.halt = 1);
 
 	return(-1);
 }
@@ -403,9 +399,7 @@ static int _arm_inst_ldstm(armvm_core_ref core)
 			user_mode_regs ? ", USER" : "",
 			load_spsr ? ", SPSR" : "");
 
-		_armvm_trace_comment(core, "0x%08x", sp_in);
-
-		__trace_end(core);
+		_armvm_trace_end_with_comment(core, "0x%08x", sp_in);
 	}
 
 	setup_vR(core, ARMVM_TRACE_R(EA), start_address);
@@ -507,10 +501,8 @@ static int _arm_inst_mla(armvm_core_ref core)
 		_armvm_trace_(core, ", %s", irR_NAME(S));
 		_armvm_trace_(core, ", %s)", irR_NAME(N));
 
-		_armvm_trace_comment(core, "(0x%08x * 0x%08x) + 0x%08x = 0x%08x",
+		_armvm_trace_end_with_comment(core, "(0x%08x * 0x%08x) + 0x%08x = 0x%08x",
 			rm, rs, rn, rd);
-
-		__trace_end(core);
 	}
 
 	return(rR_IS_NOT_PC(D));
@@ -534,8 +526,7 @@ static int _arm_inst_mrs(armvm_core_ref core)
 	/* **** */
 
 	if(_armvm_trace_start(core, "mrs(%s, %s)", irR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr")) {
-		_armvm_trace_comment(core, "0x%08x", rd);
-		__trace_end(core);
+		_armvm_trace_end_with_comment(core, "0x%08x", rd);
 	}
 
 	return(rR_IS_NOT_PC(D));
@@ -672,10 +663,9 @@ static int _arm_inst_mul(armvm_core_ref core)
 		_armvm_trace_(core, "mul%s(%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "", irR_NAME(D), irR_NAME(M), irR_NAME(S));
 
-		_armvm_trace_comment(core, "0x%08x * 0x%08x = 0x%08x",
+		_armvm_trace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x",
 			rm, rs, rd);
 
-		__trace_end(core);
 	}
 
 	return(rR_IS_NOT_PC(D));
@@ -706,10 +696,8 @@ static int _arm_inst_smull(armvm_core_ref core)
 			ARM_IR_DP_S ? "s" : "",
 			irR_NAME(DLo), irR_NAME(DHi), irR_NAME(M), irR_NAME(S));
 
-		_armvm_trace_comment(core, "0x%08x * 0x%08x = 0x%016" PRIx64,
+		_armvm_trace_end_with_comment(core, "0x%08x * 0x%08x = 0x%016" PRIx64,
 			rm, rs, rSPR64(RESULT));
-
-		__trace_end(core);
 	}
 
 	return(rR_IS_NOT_PC(D));
@@ -741,10 +729,8 @@ static int _arm_inst_umull(armvm_core_ref core)
 		_armvm_trace_(core, ", %s", irR_NAME(M));
 		_armvm_trace_(core, ", %s)", irR_NAME(S));
 
-		_armvm_trace_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
+		_armvm_trace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
 			vR(M), vR(S), vR(DHi), vR(DLo));
-
-		__trace_end(core);
 	}
 
 	return(rR_IS_NOT_PC(D));

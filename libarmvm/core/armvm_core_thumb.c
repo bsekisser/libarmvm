@@ -72,10 +72,8 @@ static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_ref core)
 	if(__trace_start(core)) {
 		_armvm_trace_(core, "add(%s, %s, 0x%03x)",
 				rR_NAME(D), rR_NAME(N), imm8);
-		_armvm_trace_comment(core, "0x%08x + 0x%03x = 0x%08x",
+		_armvm_trace_end_with_comment(core, "0x%08x + 0x%03x = 0x%08x",
 				vR(N), imm8, vR(D));
-
-		__trace_end(core);
 	}
 
 	return(1);
@@ -154,10 +152,8 @@ static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_ref core)
 		_armvm_trace_(core, "%s(rSP, 0x%04x)",
 			arm_dp_inst_string[opcode], imm7);
 
-		_armvm_trace_comment(core, "0x%08x %s0x%04x = 0x%08x",
+		_armvm_trace_end_with_comment(core, "0x%08x %s0x%04x = 0x%08x",
 			rn, arm_dp_op_string[opcode], imm7, rd);
-
-		__trace_end(core);
 	}
 
 	return(1);
@@ -210,10 +206,8 @@ static int _armvm_core_thumb_bcc(armvm_core_ref core)
 		PC = new_pc;
 
 	if(_armvm_trace_start(core, "b(0x%08x)", new_pc)) {
-		_armvm_trace_comment(core, "0x%08x + 0x%03x",
+		_armvm_trace_end_with_comment(core, "0x%08x + 0x%03x",
 			THUMB_PC_NEXT, imm8);
-
-		__trace_end(core);
 	}
 
 	return(0);
@@ -233,10 +227,8 @@ static int _armvm_core_thumb_bx(armvm_core_ref core)
 	if(_armvm_trace_start(core, "b%sx(%s)",
 			link ? "l" : "", rR_NAME(M)))
 	{
-		_armvm_trace_comment(core, "%c(0x%08x)",
+		_armvm_trace_end_with_comment(core, "%c(0x%08x)",
 			thumb ? 'T' : 'A', new_pc);
-
-		__trace_end(core);
 	}
 
 	if(link) {
@@ -278,10 +270,8 @@ static int _armvm_core_thumb_bxx_b(armvm_core_ref core)
 	int splat = (new_pc == THUMB_IP_NEXT);
 
 	if(_armvm_trace_start(core, "b(0x%08x)", new_pc & ~1U)) {
-		_armvm_trace_comment(core, "0x%08x + %s0x%03x",
+		_armvm_trace_end_with_comment(core, "0x%08x + %s0x%03x",
 			PC, splat ? "x" : "", eao);
-
-		__trace_end(core);
 	}
 
 	PC = new_pc & ~1U;
@@ -412,10 +402,8 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 		_armvm_trace_(core, "%s(%s, %s[0x%03x])",
 			bit_l ? "ldr" : "str", rR_NAME(D), rR_NAME(N), imm8);
 
-		_armvm_trace_comment(core, "[0x%08x](0x%08x)",
+		_armvm_trace_end_with_comment(core, "[0x%08x](0x%08x)",
 			ea, vR(D));
-
-		__trace_end(core);
 	}
 
 	return(1);
@@ -460,10 +448,8 @@ static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_ref core)
 		_armvm_trace_(core, "%sr%s(%s, %s[0x%03x])",
 			bit_l ? "ld" : "st", ss, rR_NAME(D), rR_NAME(N), rm);
 
-		_armvm_trace_comment(core, "[(0x%08x + 0x%03x) = 0x%08x](0x%08x)",
+		_armvm_trace_end_with_comment(core, "[(0x%08x + 0x%03x) = 0x%08x](0x%08x)",
 			rn, rm, ea, vR(D));
-
-		__trace_end(core);
 	}
 
 	return(ldst_rval);
@@ -494,10 +480,8 @@ static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_ref core)
 	if(__trace_start(core)) {
 		_armvm_trace_(core, "%sr%s(%s, %s, %s)",
 			bit_l ? "ld" : "st", _ss[bwh], rR_NAME(D), rR_NAME(N), rR_NAME(M));
-		_armvm_trace_comment(core, "0x%08x[0x%08x](0x%08x) = 0x%08x",
+		_armvm_trace_end_with_comment(core, "0x%08x[0x%08x](0x%08x) = 0x%08x",
 			rm, rn, ea, vR(D));
-
-		__trace_end(core);
 	}
 
 	return(1);
@@ -560,9 +544,7 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 	if(_armvm_trace_start(core, "%smia(%s%s, r{%s})",
 			bit_l ? "ld" : "st", rR_NAME(N),
 			wb ? "!" : "", reglist)) {
-		_armvm_trace_comment(core, "0x%08x", rn);
-
-		__trace_end(core);
+		_armvm_trace_end_with_comment(core, "0x%08x", rn);
 	}
 
 	return(1);
@@ -616,8 +598,7 @@ static int _armvm_core_thumb_pop_push(armvm_core_ref core)
 
 	if(__trace_start(core)) {
 		_armvm_trace_(core, "%s(rSP, r{%s%s})", bit_l ? "pop" : "push", reglist, pclrs);
-		_armvm_trace_comment(core, "0x%08x", rn);
-		__trace_end(core);
+		_armvm_trace_end_with_comment(core, "0x%08x", rn);
 	}
 
 	if(!data_abort) {
@@ -663,10 +644,8 @@ static int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_ref core)
 
 	if(_armvm_trace_start(core, "%ss(%s, %s, 0x%02x)",
 			sops, rR_NAME(D), rR_NAME(M), rs)) {
-		_armvm_trace_comment(core, "%s(0x%08x, 0x%02x) = 0x%08x",
+		_armvm_trace_end_with_comment(core, "%s(0x%08x, 0x%02x) = 0x%08x",
 			sops, rm, rs, rd);
-
-		__trace_end(core);
 	}
 
 	return(1);
