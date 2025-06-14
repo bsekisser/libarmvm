@@ -13,10 +13,25 @@
 #include "git/libbse/include/action.h"
 #include "git/libbse/include/err_test.h"
 #include "git/libbse/include/log.h"
+#include "git/libbse/include/unused.h"
 
 /* **** */
 
-static uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32_t *const write)
+#ifndef DEBUG
+	#define DEBUG(_x)
+#endif
+
+#define IF_USER_MODE(_action) \
+	if(IS_USER_MODE) { \
+		LOG_ACTION(_action); \
+	}
+
+#define IS_USER_MODE (0 == armvm_core_in_a_privaleged_mode(core))
+
+/* **** */
+
+static
+uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
 	armvm_ref armvm = acr->armvm;
@@ -43,6 +58,87 @@ static uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32
 	return(data);
 }
 
+static
+uint32_t _armvm_cp15_0_7_10_3_access(void *const param, uint32_t *const write)
+{
+	uint32_t data = write ? *write : 0;
+
+	if(write) {
+		DEBUG(LOG("Cache, Test and Clean"));
+	} else {
+		LOG("Cache, Test and Clean");
+		ARM_CPSRx_BSET(data, Z);
+	}
+
+	return(data);
+	UNUSED(param);
+}
+
+static uint32_t _armvm_cp15_0_7_10_4_access(void *const param, uint32_t *const write)
+{
+	armvm_cache_ref acr = param;
+//	armvm_ref armvm = acr->armvm;
+	armvm_core_ref core = acr->core;
+
+	if(write) {
+		IF_USER_MODE(armvm_core_exception_undefined_instruction(core));
+		LOG("Drain write buffer");
+	} else {
+		DEBUG(LOG("XX READ -- Drain write buffer"));
+	}
+
+	return(0);
+}
+
+static uint32_t _armvm_cp15_0_7_5_0_access(void *const param, uint32_t *const write)
+{
+	armvm_cache_ref acr = param;
+//	armvm_ref armvm = acr->armvm;
+	armvm_core_ref core = acr->core;
+
+	if(write) {
+		IF_USER_MODE(armvm_core_exception_undefined_instruction(core));
+		LOG("Invalidate ICache");
+	} else {
+		DEBUG(LOG("XX READ -- Invalidate ICache"));
+	}
+
+	return(0);
+}
+
+static uint32_t _armvm_cp15_0_7_6_0_access(void *const param, uint32_t *const write)
+{
+	armvm_cache_ref acr = param;
+//	armvm_ref armvm = acr->armvm;
+	armvm_core_ref core = acr->core;
+
+	if(write) {
+		IF_USER_MODE(armvm_core_exception_undefined_instruction(core));
+		LOG("Invalidate DCache");
+	} else {
+		DEBUG(LOG("XX READ -- Invalidate DCache"));
+	}
+
+	return(0);
+}
+
+
+static uint32_t _armvm_cp15_0_7_7_0_access(void *const param, uint32_t *const write)
+{
+	armvm_cache_ref acr = param;
+//	armvm_ref armvm = acr->armvm;
+	armvm_core_ref core = acr->core;
+
+	if(write) {
+		IF_USER_MODE(armvm_core_exception_undefined_instruction(core));
+		LOG("Invalidate ICache and DCache");
+	} else {
+		DEBUG(LOG("XX READ -- Invalidate ICache and DCache"));
+	}
+
+	return(0);
+}
+
 /* **** */
 
 static
@@ -62,6 +158,16 @@ int armvm_cache_cp15_action_init(int err, void *const param, action_ref)
 
 	armvm_coprocessor_register_callback(cp, cp15(0, 7, 0, 4),
 		_armvm_cp15_0_7_0_4_wait_for_interrupt, acr);
+	armvm_coprocessor_register_callback(cp, cp15(0, 7, 5, 0),
+		_armvm_cp15_0_7_5_0_access, acr);
+	armvm_coprocessor_register_callback(cp, cp15(0, 7, 6, 0),
+		_armvm_cp15_0_7_6_0_access, acr);
+	armvm_coprocessor_register_callback(cp, cp15(0, 7, 7, 0),
+		_armvm_cp15_0_7_7_0_access, acr);
+	armvm_coprocessor_register_callback(cp, cp15(0, 7, 10, 3),
+		_armvm_cp15_0_7_10_3_access, acr);
+	armvm_coprocessor_register_callback(cp, cp15(0, 7, 10, 4),
+		_armvm_cp15_0_7_10_4_access, acr);
 
 	/* **** */
 
