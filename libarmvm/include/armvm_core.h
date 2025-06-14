@@ -93,6 +93,17 @@ enum {
 	_ARMVM_SPR64_COUNT_,
 };
 
+typedef struct armvm_core_state_flags_tag* armvm_core_state_flags_ptr;
+typedef armvm_core_state_flags_ptr const armvm_core_state_flags_ref;
+
+typedef struct armvm_core_state_flags_tag {
+	unsigned crashed:1;
+	unsigned halt:1;
+	unsigned pause:1;
+	unsigned paused:1;
+	unsigned thread_running:1;
+}armvm_core_state_flags_t;
+
 typedef struct armvm_core_tag {
 	uint64_t spr64[_ARMVM_SPR64_COUNT_];
 #define SPR64x(_x) pARMVM_CORE->spr64[_x]
@@ -115,9 +126,7 @@ typedef struct armvm_core_tag {
 	armvm_trace_t armvm_trace;
 	armvm_core_config_t config;
 //
-	struct {
-		unsigned halt:1;
-	}flags;
+	armvm_core_state_flags_t flags;
 
 	armvm_ptr armvm;
 	armvm_coprocessor_ptr cp;

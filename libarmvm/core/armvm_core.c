@@ -24,11 +24,25 @@
 
 /* **** */
 
+#include <unistd.h>
+
+/* **** */
+
 static void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
 {
 	const uint32_t tmp = *dst;
 		*dst = *src;
 		*src = tmp;
+}
+
+static
+int __pause_check(int err, armvm_core_ref core)
+{
+	return(err ?: core->flags.halt
+		? -1
+		: core->flags.crashed
+			? 0
+			: core->flags.paused);
 }
 
 /* **** */
@@ -132,13 +146,46 @@ int armvm_core_action_exit(int err, void *const param, action_ref)
 {
 	ACTION_LOG(exit);
 
+	armvm_core_ref core = param;
+
 	/* **** */
+
+	core->flags.halt = 1;
+	sleep(1); // give thread chance to process
 
 	handle_ptrfree(param);
 
 	/* **** */
 
 	return(err);
+}
+
+static
+int armvm_core_action_pause(int err, void *const param, action_ref)
+{
+	ACTION_LOG(reset);
+
+	armvm_core_ref core = param;
+
+	/* **** */
+
+	core->flags.pause = 1;
+
+	/* **** */
+
+	return(__pause_check(err, core));
+}
+
+static
+int armvm_core_action_pause_check(int err, void *const param, action_ref)
+{
+	ACTION_LOG(reset);
+
+	armvm_core_ref core = param;
+
+	/* **** */
+
+	return(__pause_check(err, core));
 }
 
 static
@@ -149,6 +196,22 @@ int armvm_core_action_reset(int err, void *const param, action_ref)
 	/* **** */
 
 	armvm_core_exception_reset(param);
+
+	/* **** */
+
+	return(err);
+}
+
+static
+int armvm_core_action_resume(int err, void *const param, action_ref)
+{
+	ACTION_LOG(reset);
+
+	armvm_core_ref core = param;
+
+	/* **** */
+
+	core->flags.pause = 0;
 
 	/* **** */
 
@@ -273,11 +336,26 @@ int armvm_core_step(armvm_core_ref core)
 
 void* armvm_core_threaded_run(armvm_core_ref core)
 {
-	int rval = 0;
+	if(core->flags.thread_running) return(0);
+	core->flags.thread_running = 1;
 
 	while(!core->flags.halt)
-		if(0 > (rval = armvm_core_step(core)))
+	{
+		if(core->flags.crashed || core->flags.paused) {
+			sleep(1);
+			continue;
+		}
+
+		if(core->flags.pause) {
+			LOG_ACTION(core->flags.paused = 1);
+			continue;
+		}
+
+		if(0 > armvm_core_step(core))
 			break;
+	}
+
+	core->flags.thread_running = 0;
 
 	LOG_ACTION(return(0));
 }
@@ -286,6 +364,9 @@ action_list_t armvm_core_action_list = {
 	.list = {
 		[_ACTION_ALLOC_INIT] = {{ armvm_core_action_alloc_init }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ armvm_core_action_exit }, { 0 }, 0 },
+		[_ACTION_PAUSE] = {{ armvm_core_action_pause }, { 0 }, 0 },
+		[_ACTION_PAUSE_CHECK] = {{ armvm_core_action_pause_check }, { 0 }, 0 },
 		[_ACTION_RESET] = {{ armvm_core_action_reset }, { 0 }, 0 },
+		[_ACTION_RESUME] = {{ armvm_core_action_resume }, { 0 }, 0 },
 	}
 };

@@ -95,12 +95,18 @@ void armvm_reset(armvm_ref avm)
 
 uint64_t armvm_run(armvm_ref avm, const uint64_t run_cycles)
 {
+	armvm_core_ref core = avm->core;
+
 	uint64_t run_cycles_left = run_cycles;
 
 	for(;run_cycles_left;) {
+		if(core->flags.halt || core->flags.crashed)
+			return(0);
+
 		const uint64_t start_cycle = CYCLE;
 
-		armvm_step(avm);
+		if(0 > armvm_step(avm))
+			return(0);
 
 		const uint64_t delta_cycles = CYCLE - start_cycle;
 		const uint64_t _cycles_left = run_cycles_left - delta_cycles;
@@ -128,16 +134,23 @@ uint64_t armvm_spr64(armvm_ref avm, const unsigned r)
 
 int armvm_step(armvm_ref avm)
 {
-	const int rval = armvm_core_step(avm->core);
+	armvm_core_ref core = avm->core;
 
-	if(rSPR32(IP) == PC) return(-1);
-	if(avm->core->flags.halt) return(-1);
+	if(core->flags.halt)
+		return(-1);
+
+	if(core->flags.crashed)
+		return(0);
+
+	const int rval = armvm_core_step(core);
+		core->flags.halt |= (0 < rval);
+		core->flags.crashed |= (rSPR32(IP) == PC);
 
 	return(rval);
 }
 
 void* armvm_threaded_run(void* param)
-{ return(armvm_core_threaded_run(((armvm_ref)param)->core)); };
+{ return(armvm_core_threaded_run(((armvm_ref)param)->core)); }
 
 int armvm_threaded_start(armvm_ref avm)
 { return(pthread_create(&avm->thread, 0, armvm_threaded_run, avm)); }
