@@ -157,7 +157,8 @@ armvm_mem_callback_ptr armvm_tlb_write(armvm_tlb_ref tlb, uint32_t const va,
 
 static
 action_handler_t armvm_tlb_action_sublist[] = {
-	{{ .list = &armvm_tlb_cp15_action_list }, { .is_list = 1 }, 0 }
+	{{ .list = &armvm_tlb_cp15_action_list }, { .is_list = 1 }, 0 },
+	{{ 0 }, { 0 }, 0 },
 };
 
 ACTION_LIST(armvm_tlb_action_list,

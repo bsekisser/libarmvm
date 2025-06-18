@@ -162,6 +162,7 @@ action_handler_t armvm_action_sublist[] = {
 	{{ .list = &armvm_core_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, core) },
 	{{ .list = &armvm_mem_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mem) },
 	{{ .list = &armvm_mmu_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mmu) },
+	{{ 0 }, { 0 }, 0 },
 };
 
 ACTION_LIST(armvm_action_list,

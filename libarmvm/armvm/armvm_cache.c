@@ -64,7 +64,8 @@ armvm_cache_ptr armvm_cache_alloc(armvm_ref avm,
 
 static
 action_handler_t armvm_cache_action_sublist[] = {
-	{{ .list = &armvm_cache_cp15_action_list }, { .is_list = 1 }, 0 }
+	{{ .list = &armvm_cache_cp15_action_list }, { .is_list = 1 }, 0 },
+	{{ 0 }, { 0 }, 0 },
 };
 
 ACTION_LIST(armvm_cache_action_list,

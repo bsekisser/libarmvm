@@ -292,7 +292,8 @@ static
 action_handler_t armvm_mmu_action_sublist[] = {
 	{{ .list = &armvm_mmu_cp15_action_list }, { .is_list = 1 }, 0 },
 //
-	{{ .list = &armvm_tlb_action_list }, { .dereference = 1, .is_list = 1 }, offsetof(armvm_mmu_t, tlb) }
+	{{ .list = &armvm_tlb_action_list }, { .dereference = 1, .is_list = 1 }, offsetof(armvm_mmu_t, tlb) },
+	{{ 0 }, { 0 }, 0 },
 };
 
 ACTION_LIST(armvm_mmu_action_list,
