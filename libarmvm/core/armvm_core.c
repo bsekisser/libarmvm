@@ -360,7 +360,7 @@ void* armvm_core_threaded_run(armvm_core_ref core)
 	LOG_ACTION(return(0));
 }
 
-action_list_t armvm_core_action_list = {
+ACTION_LIST(armvm_core_action_list,
 	.list = {
 		[_ACTION_ALLOC_INIT] = {{ armvm_core_action_alloc_init }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ armvm_core_action_exit }, { 0 }, 0 },
@@ -369,4 +369,4 @@ action_list_t armvm_core_action_list = {
 		[_ACTION_RESET] = {{ armvm_core_action_reset }, { 0 }, 0 },
 		[_ACTION_RESUME] = {{ armvm_core_action_resume }, { 0 }, 0 },
 	}
-};
+);

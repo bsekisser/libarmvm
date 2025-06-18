@@ -183,9 +183,9 @@ void armvm_coprocessor_register_callback(armvm_coprocessor_ref cp,
 	}
 }
 
-action_list_t armvm_coprocessor_action_list = {
+ACTION_LIST(armvm_coprocessor_action_list,
 	.list = {
 		[_ACTION_ALLOC_INIT] = {{ armvm_coprocessor_action_alloc_init }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ armvm_coprocessor_action_exit }, { 0 }, 0 },
 	}
-};
+);

@@ -67,11 +67,11 @@ action_handler_t armvm_cache_action_sublist[] = {
 	{{ .list = &armvm_cache_cp15_action_list }, { .is_list = 1 }, 0 }
 };
 
-action_list_t armvm_cache_action_list = {
+ACTION_LIST(armvm_cache_action_list,
 	.list = {
 		[_ACTION_ALLOC_INIT] = {{ armvm_cache_action_alloc_init }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ armvm_cache_action_exit }, { 0 }, 0 },
 	},
 
-	.sublist = armvm_cache_action_sublist,
-};
+	SUBLIST(armvm_cache_action_sublist),
+);

@@ -295,12 +295,12 @@ action_handler_t armvm_mmu_action_sublist[] = {
 	{{ .list = &armvm_tlb_action_list }, { .dereference = 1, .is_list = 1 }, offsetof(armvm_mmu_t, tlb) }
 };
 
-action_list_t armvm_mmu_action_list = {
+ACTION_LIST(armvm_mmu_action_list,
 	.list = {
 		[_ACTION_ALLOC_INIT] = {{ armvm_mmu_action_alloc_init }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ armvm_mmu_action_exit }, { 0 }, 0 },
 		[_ACTION_RESET] = {{ armvm_mmu_action_reset }, { 0 }, 0 },
 	},
 
-	.sublist = armvm_mmu_action_sublist
-};
+	SUBLIST(armvm_mmu_action_sublist),
+);

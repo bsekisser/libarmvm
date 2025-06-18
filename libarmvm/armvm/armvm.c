@@ -164,11 +164,11 @@ action_handler_t armvm_action_sublist[] = {
 	{{ .list = &armvm_mmu_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mmu) },
 };
 
-action_list_t armvm_action_list = {
+ACTION_LIST(armvm_action_list,
 	.list = {
 //		[_ACTION_ALLOC] = {{ armvm_action_alloc }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ armvm_action_exit }, { 0 }, 0 },
 	},
 
-	.sublist = armvm_action_sublist
-};
+	SUBLIST(armvm_action_sublist),
+);

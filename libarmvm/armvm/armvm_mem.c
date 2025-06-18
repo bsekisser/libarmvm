@@ -282,8 +282,8 @@ void armvm_mem_mmap_rw(armvm_mem_ref mem,
 	const uint32_t base, const uint32_t end, void *const data)
 { return(armvm_mem_mmap(mem, base, end, 0, data)); }
 
-action_list_t armvm_mem_action_list = {
+ACTION_LIST(armvm_mem_action_list,
 	.list = {
 		[_ACTION_EXIT] = {{ armvm_mem_action_exit }, { 0 }, 0 },
 	}
-};
+);

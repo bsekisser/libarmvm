@@ -77,8 +77,8 @@ int armvm_tlb_cp15_action_init(int err, void *const param, action_ref)
 	return(err);
 }
 
-action_list_t armvm_tlb_cp15_action_list = {
+ACTION_LIST(armvm_tlb_cp15_action_list,
 	.list = {
 		[_ACTION_INIT] = {{ armvm_tlb_cp15_action_init }, { 0 }, 0}
 	}
-};
+);
