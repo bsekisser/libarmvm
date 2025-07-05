@@ -75,11 +75,11 @@ static armvm_mem_callback_ptr _armvm_mem_access(armvm_mem_ref mem,
 
 static armvm_mem_callback_ptr _armvm_mem_mmap_alloc_free(armvm_mem_ref mem)
 {
-	qelem_p const qel = mem->l2free.head;
+	qelem_ref qel = mem->l2free.head;
 	armvm_mem_callback_ref p2l2 = (armvm_mem_callback_ptr)qel;
 
 	if(qel) {
-		qelem_p const next = qel->next;
+		qelem_ref next = qel->next;
 
 		if(mem->config.trace.mmap.alloc.free) {
 			LOG_START(">> qel: 0x%016" PRIxPTR, (uintptr_t)qel);
@@ -212,7 +212,7 @@ armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem)
 	queue_init(&mem->l2free);
 
 	for(unsigned i = 0; i < kL2HeapAlloc; i++)
-		queue_enqueue((qelem_p)&mem->l2heap[i][0], &mem->l2free);
+		queue_enqueue((qelem_ptr)&mem->l2heap[i][0], &mem->l2free);
 
 	/* **** */
 
