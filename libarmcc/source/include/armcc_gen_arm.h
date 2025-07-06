@@ -43,7 +43,7 @@ static uint32_t gen_arm__b_offset(armcc_p p2cc, const uint32_t pat)
 		LOG_END(", offset_masked: 0x%08x", offset_masked);
 	}
 
-	assert(offset == pbBFEXTs(offset_masked, 0, 24));
+	assert(offset == pbBFEXTs((uint32_t)offset_masked, 0, 24));
 
 	return(offset_masked);
 }
