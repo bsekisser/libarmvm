@@ -1,42 +1,31 @@
-CFLAGS += -O1 -march=native
-CFLAGS += -fPIC
+CFLAGS = -O1
+CFLAGS += -march=native
+export CFLAGS
 
-INCLUDE += -Iarmvm
+INCLUDE = -Iarmvm
 INCLUDE += -Icore
+export INCLUDE
 
-LDFLAGS += -shared
-
-LDLIBS += -Lgit/libarm -larm
+LDLIBS = -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
 LDLIBS += -lcapstone
+export LDLIBS
 
-SRC_DIR=.
-SRCS_ARMVM = $(wildcard armvm/*.c)
-SRCS_CORE += $(wildcard core/*.c)
+SRC_DIR = armvm
+SRC_DIR += core
+export SRC_DIR
 
-TARGET_LIB = libarmvm
-TARGET_LIB_A = $(TARGET_LIB).a
-TARGET_LIB_SO = $(TARGET_LIB).so
+export TARGET = libarmvm
 
-VPATH = armvm
-VPATH += core
-
+include git/libbse/makefiles/common_setup.mk
 
 .PHONY: all
-all: $(TARGET_LIB_SO)
-
-
-include git/libbse/makefile.setup
-
-OBJS = $(patsubst armvm/%.c, $(OBJ_DIR)/%.o, $(SRCS_ARMVM))
-OBJS += $(patsubst core/%.c, $(OBJ_DIR)/%.o, $(SRCS_CORE))
+all:
+	$(MAKE) -f git/libbse/makefiles/build_liba.mk all
+	$(MAKE) -f git/libbse/makefiles/build_libso.mk all
 
 $(OBJ_TARGET_LIB_A): git/libarm/libarm.so
 
 $(OBJ_TARGET_LIB_A): git/libbse/libbse.so
 
-$(OBJ_TARGET_LIB_SO): $(OBJ_TARGET_LIB_A)
-
-$(TARGET_LIB_SO): $(TARGET_LIB_A)
-
-include git/libbse/makefile.build
+include git/libbse/makefiles/common.mk

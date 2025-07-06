@@ -1,21 +1,26 @@
-CFLAGS += -O2 -march=native
+# setup
 
-CPPFLAGS += $(CFLAGS)
+CFLAGS += -O2
+CFLAGS += -march=native
+export CFLAGS
 
 LDLIBS += -Lgit/libarmvm -larmvm
 LDLIBS += -Lgit/libarm -larm
 LDLIBS += -Lgit/libbse -lbse
 LDLIBS += -lcapstone
+export LDLIBS
 
-SRC_DIR = source
-SRCS_CPP = $(wildcard $(SRC_DIR)/*.cpp)
+export SRC_DIR = source
 
-TARGET_LIB = libarmcc.a
+export TARGET = libarmcc
 
+include git/libbse/makefiles/common_setup.mk
+
+# build/recipies
 
 .PHONY: all
-all: $(TARGET_LIB)
+all:
+	$(MAKE) -f git/libbse/makefiles/build_liba.mk all
+	$(MAKE) -f git/libbse/makefiles/build_libso.mk all
 
-
-include git/libbse/makefile.setup
-include git/libbse/makefile.build
+include git/libbse/makefiles/common.mk
