@@ -13,6 +13,8 @@
 #include "libarm/include/arm_dp.h"
 #include "libarm/include/arm_strings.h"
 
+#include "libbse/include/bitops32.h"
+
 /* **** */
 
 #include "core_reg.h"
@@ -223,10 +225,10 @@ static void armvm_trace_msr(armvm_core_ref core)
 	const unsigned field_mask = ~rR(S);
 
 	uint8_t cpsrs[5];
-	cpsrs[0] = BTST(field_mask, 3) ? 'F' : 'f';
-	cpsrs[1] = BTST(field_mask, 2) ? 'S' : 's';
-	cpsrs[2] = BTST(field_mask, 1) ? 'X' : 'x';
-	cpsrs[3] = BTST(field_mask, 0) ? 'C' : 'c';
+	cpsrs[0] = btst32(field_mask, 3) ? 'F' : 'f';
+	cpsrs[1] = btst32(field_mask, 2) ? 'S' : 's';
+	cpsrs[2] = btst32(field_mask, 1) ? 'X' : 'x';
+	cpsrs[3] = btst32(field_mask, 0) ? 'C' : 'c';
 	cpsrs[4] = 0;
 
 	const uint8_t cs = ARM_IR_MRSR_R ? 'S' : 'C';

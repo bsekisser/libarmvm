@@ -9,6 +9,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/bitops32.h"
 #include "libbse/include/log.h"
 
 /* **** */
@@ -27,7 +28,7 @@ static uint32_t _gen_arm__word_offset(const uint32_t pc, const uint32_t pat)
 /* **** */
 
 static uint32_t gen_arm__blx_bx_rm(const unsigned link, const arm_reg_t rm)
-{ return(0x012fff10 | BMOV(!!link, 0, 5) | gen_arm_ir__rm(rm)); }
+{ return(0x012fff10 | bmov32(!!link, 0, 5) | gen_arm_ir__rm(rm)); }
 
 static uint32_t gen_arm__b_offset(armcc_p p2cc, const uint32_t pat)
 {

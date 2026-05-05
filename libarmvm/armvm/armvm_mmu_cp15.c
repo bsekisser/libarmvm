@@ -13,7 +13,8 @@
 /* **** */
 
 #include "libbse/include/action.h"
-#include "libbse/include/bitops.h"
+#include "libbse/include/bitfield_macros.h"
+#include "libbse/include/bitops32.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/log.h"
 
@@ -46,9 +47,9 @@ static uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const writ
 		_LOG_("mmu->ttbr[0]: 0x%08x", mlBFTST(data, 31, 14 - TTBCR_N));
 		_LOG_(" SBZ: 0x%03x", mlBFEXT(data, 13, 5));
 		_LOG_(" RGN: %01u", mlBFEXT(data, 4, 3));
-		_LOG_(" IMP: %01u", BEXT(data, 2));
-		_LOG_(" %c", BEXT(data, 1) ? 'S' : 's');
-		LOG_END(" %c", BEXT(data, 0) ? 'C' : 'c');
+		_LOG_(" IMP: %01u", bext32(data, 2));
+		_LOG_(" %c", bext32(data, 1) ? 'S' : 's');
+		LOG_END(" %c", bext32(data, 0) ? 'C' : 'c');
 
 		*p2ttbr = data & mask;
 	} else {

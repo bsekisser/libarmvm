@@ -29,6 +29,7 @@
 
 /* **** */
 
+#include "libbse/include/bitops32.h"
 #include "libbse/include/log.h"
 #include "libbse/include/unused.h"
 
@@ -53,7 +54,7 @@ static int __arm_decode_fail(armvm_core_ref core)
 
 			for(unsigned x = 0; x < 6 ; x++) {
 				const char c = ipubwl[x];
-				*dst++ = BEXT(ARM_IR_LDST_IPUBWL, 5 - x) ? toupper(c) : c;
+				*dst++ = bext32(ARM_IR_LDST_IPUBWL, 5 - x) ? toupper(c) : c;
 			}
 			*dst = 0;
 
@@ -287,7 +288,7 @@ static int _arm_inst_ldst_sh(armvm_core_ref core, const uint32_t rm)
 	(void)setup_vR(core, ARMVM_TRACE_R(SOP), rm);
 	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
-	const unsigned bwh  = BMOV(IR, ARM_IR_LDST_BIT_L, 2) | mlBFEXT(IR, 6, 5);
+	const unsigned bwh  = bmov32(IR, ARM_IR_LDST_BIT_L, 2) | mlBFEXT(IR, 6, 5);
 
 	int (*ldst_fn)(armvm_core_ref core);
 	switch(bwh) {
@@ -373,14 +374,14 @@ static int _arm_inst_ldstm(armvm_core_ref core)
 	for(int i = 0; i <= 15; i++)
 	{
 		uint8_t c = (i > 9 ? ('a' + (i - 10)) : '0' + i);
-		reglist[i] = BTST(vR(M), i) ? c : '.';
+		reglist[i] = btst32(vR(M), i) ? c : '.';
 	}
 	reglist[16] = 0;
 
 	const int bit_s = ARM_IR_LDSTM_BIT(S);
 	const int bit_w = ARM_IR_LDST_BIT(W);
 
-	const int flag_pc = BTST(rm, 15);
+	const int flag_pc = btst32(rm, 15);
 	const int flag_sl = bit_s && bit_l;
 
 	const int load_spsr = flag_sl && flag_pc;
@@ -415,14 +416,14 @@ static int _arm_inst_ldstm(armvm_core_ref core)
 
 		for(rR(D) = 0; rR(D) < 15; rR(D)++)
 		{
-			if(BTST(vR(M), rR(D)))
+			if(btst32(vR(M), rR(D)))
 			{
 				CYCLE++;
 				_arm_inst__ldstm(core, user_mode_regs);
 			}
 		}
 
-		if(BTST(vR(M), 15)) {
+		if(btst32(vR(M), 15)) {
 			if(bit_l)
 				arm_ldm_pc(core, &vR(EA));
 			else
@@ -565,10 +566,10 @@ if(0) LOG("unalloc_mask: 0x%08x", unalloc_mask);
 if(0) LOG("field_mask: 0x%08x", field_mask);
 
 	const uint32_t byte_mask =
-		(BTST(field_mask, 0) ? (0xff << (0 << 3)) : 0)
-		| (BTST(field_mask, 1) ? (0xff << (1 << 3)) : 0)
-		| (BTST(field_mask, 2) ? (0xff << (2 << 3)) : 0)
-		| (BTST(field_mask, 3) ? (0xff << (3 << 3)) : 0);
+		(btst32(field_mask, 0) ? (0xff << (0 << 3)) : 0)
+		| (btst32(field_mask, 1) ? (0xff << (1 << 3)) : 0)
+		| (btst32(field_mask, 2) ? (0xff << (2 << 3)) : 0)
+		| (btst32(field_mask, 3) ? (0xff << (3 << 3)) : 0);
 if(0) LOG("byte_mask: 0x%08x", byte_mask);
 
 	const uint32_t state_mask = _armvm_core_msr_state_mask[arm_version];
@@ -685,7 +686,7 @@ static int _arm_inst_smull(armvm_core_ref core)
 	core_reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
 
 	if(CCX && ARM_IR_DP_S) {
-		ARM_CPSR_BMAS(N, BEXT(hi, 31));
+		ARM_CPSR_BMAS(N, bext32(hi, 31));
 		ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
 	}
 
@@ -717,7 +718,7 @@ static int _arm_inst_umull(armvm_core_ref core)
 	core_reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
 
 	if(CCX && ARM_IR_DP_S) {
-		ARM_CPSR_BMAS(N, BEXT(hi, 31));
+		ARM_CPSR_BMAS(N, bext32(hi, 31));
 		ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
 	}
 
@@ -783,8 +784,8 @@ static int armvm_core_arm__step__group0_misc(armvm_core_ref core)
 
 static int armvm_core_arm__step_group0(armvm_core_ref core)
 {
-	if(BEXT(IR, 4)) {
-		if(BEXT(IR, 7))
+	if(bext32(IR, 4)) {
+		if(bext32(IR, 7))
 			return(armvm_core_arm__step__group0_ldst(core));
 		else if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
 			return(armvm_core_arm__step__group0_misc(core));
@@ -854,7 +855,7 @@ int armvm_core_arm_step(armvm_core_ref core)
 			case 2: // xxxx 010x xxxx xxxx
 				return(_arm_inst_ldst_immediate(core));
 			case 3: // xxxx 011x xxxx xxxx
-				if(!BTST(IR, 4))
+				if(!btst32(IR, 4))
 					return(_arm_inst_ldst_scaled_register_offset(core));
 				else
 					LOG_ACTION(return(__arm_decode_fail(core)));

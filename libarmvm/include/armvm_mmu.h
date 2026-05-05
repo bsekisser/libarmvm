@@ -19,7 +19,7 @@ typedef armvm_mmu_ptr const armvm_mmu_ref;
 /* **** */
 
 #include "libbse/include/action.h"
-#include "libbse/include/bitops.h"
+//#include "libbse/include/bitops.h"
 #include "libbse/include/page.h"
 
 /* **** */

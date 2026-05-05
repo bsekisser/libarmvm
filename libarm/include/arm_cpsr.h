@@ -3,6 +3,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/bitops32.h"
 
 /* **** */
 
@@ -44,16 +45,16 @@ enum {
 
 #define ARM_CPSR(_x) (ARM_CPSR_##_x)
 
-#define ARM_CPSRx_BCLR(_psr, _x) BCLR(_psr, ARM_CPSR(_x))
-#define ARM_CPSRx_BEXT(_psr, _x) BEXT(_psr, ARM_CPSR(_x))
+#define ARM_CPSRx_BCLR(_psr, _x) bclr32p(&_psr, ARM_CPSR(_x))
+#define ARM_CPSRx_BEXT(_psr, _x) bext32(_psr, ARM_CPSR(_x))
 
 static inline uint32_t __arm_bic(const uint32_t data, const uint32_t mask, const uint32_t set)
 { return((data & ~mask) | (set & mask)); }
 
 #define ARM_CPSRx_BIC(_psr, _mask, _set) _psr = __arm_bic(_psr, _mask, _set)
-#define ARM_CPSRx_BMAS(_psr, _x, _set) BMAS(_psr, ARM_CPSR(_x), _set)
-#define ARM_CPSRx_BSET(_psr, _x) BSET(_psr, ARM_CPSR(_x))
-#define ARM_CPSRx_BTST(_psr, _x) BTST(_psr, ARM_CPSR(_x))
+#define ARM_CPSRx_BMAS(_psr, _x, _set) bmas32p(&_psr, ARM_CPSR(_x), _set)
+#define ARM_CPSRx_BSET(_psr, _x) bset32p(&_psr, ARM_CPSR(_x))
+#define ARM_CPSRx_BTST(_psr, _x) btst32(_psr, ARM_CPSR(_x))
 
 #define ARM_CPSR_BCLR(_x) ARM_CPSRx_BCLR(CPSR, _x)
 #define ARM_CPSR_BEXT(_x) ARM_CPSRx_BEXT(CPSR, _x)

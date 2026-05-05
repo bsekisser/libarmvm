@@ -19,7 +19,7 @@ typedef armvm_tlbe_ptr const armvm_tlbe_ref;
 
 /* **** */
 
-#include "libbse/include/bitops.h"
+#include "libbse/include/bitop_macros.h"
 
 /* **** */
 
@@ -62,3 +62,6 @@ void armvm_tlb_invalidate_data(armvm_tlb_ref tlb);
 void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb);
 armvm_mem_callback_ptr armvm_tlb_read(armvm_tlb_ref tlb, const uint32_t va, armvm_tlbe_href h2tlbe);
 armvm_mem_callback_ptr armvm_tlb_write(armvm_tlb_ref tlb, const uint32_t va, armvm_tlbe_href h2tlbe);
+
+#define __BITOPS_UNDEF__
+#include "libbse/include/bitops_undef.h" // TODO: remove

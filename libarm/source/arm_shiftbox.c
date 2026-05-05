@@ -7,6 +7,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+//#include "libbse/include/bitops32.h"
 #include "libbse/include/log.h"
 #include "libbse/include/shift_roll_32.h"
 
@@ -71,7 +72,7 @@ uint32_t arm_shiftbox_immediate(unsigned shift_type, uint32_t rm, uint32_t rs, u
 {
 	if(!rs) switch(shift_type) {
 	case ARM_SOP_ASR:
-		return(((int32_t)rm < 0) ? ~0 : 0);
+		return((0 > (int32_t)rm) ? ~0 : 0);
 	case ARM_SOP_LSR:
 		return(0);
 	break;
@@ -88,7 +89,7 @@ uint32_t arm_shiftbox_c_immediate(unsigned shift_type, uint32_t rm, uint32_t rs)
 	if(!rs) switch(shift_type) {
 	case ARM_SOP_ASR:
 	case ARM_SOP_LSR:
-		return(BEXT(rm, 31));
+		return((0 > (int32_t)rm) ? 1 : 0);
 	break;
 	case ARM_SOP_ROR:
 		return(rrx32_c(rm));

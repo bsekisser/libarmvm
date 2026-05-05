@@ -12,6 +12,7 @@
 #include "libarm/include/arm_disasm.h"
 
 #include "libbse/include/action.h"
+#include "libbse/include/bitops32.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/log.h"
@@ -158,14 +159,14 @@ uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_ref cp, const uint32_t cpx, u
 void armvm_coprocessor_cp15r_bclr(armvm_coprocessor_ref cp, const uint32_t cpx, const unsigned bit)
 {
 	uint32_t *const p2r = armvm_coprocessor_cp15r_rmw(cp, cpx);
-	BCLR(*p2r, bit);
+	bclr32p(p2r, bit);
 }
 
 void armvm_coprocessor_cp15r_bmas(armvm_coprocessor_ref cp, const uint32_t cpx,
 	const unsigned bit, const unsigned set)
 {
 	uint32_t *const p2v = _armvm_coprocessor__cp15r_rmw(cp, cpx);
-	BMAS(*p2v, bit, set);
+	bmas32p(p2v, bit, set);
 }
 
 uint32_t* armvm_coprocessor_cp15r_rmw(armvm_coprocessor_ref cp, const uint32_t cpx)

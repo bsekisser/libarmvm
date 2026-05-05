@@ -19,12 +19,12 @@ enum {
 
 /* **** */
 
-#include "libbse/include/bitfield.h"
+#include "libbse/include/bitops32.h"
 
 /* **** */
 
 #define _CP15_REG1_BIT(_x) CP15_REG1_BIT_##_x
-#define CP15_REG1_BIT(_x) BEXT(rCP15x(cp15(0, 1, 0, 0), 0), _CP15_REG1_BIT(_x))
+#define CP15_REG1_BIT(_x) bext32(rCP15x(cp15(0, 1, 0, 0), 0), _CP15_REG1_BIT(_x))
 
 #define CP15_REG1_BCLR(_x) \
 	armvm_coprocessor_cp15r_bclr(pARMVM->coprocessor, cp15(0, 1, 0, 0), _CP15_REG1_BIT(_x))

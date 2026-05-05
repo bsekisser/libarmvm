@@ -11,7 +11,8 @@
 /* **** */
 
 #include "libbse/include/action.h"
-#include "libbse/include/bitfield.h"
+#include "libbse/include/bitfield.h" // TODO
+//#include "libbse/include/bitops_macros.h" // TODO
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/page.h"

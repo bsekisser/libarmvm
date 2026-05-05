@@ -21,6 +21,7 @@ extern "C" {
 
 extern "C" {
 	#include "libbse/include/bitfield.h"
+	#include "libbse/include/bitops32.h"
 	#include "libbse/include/err_test.h"
 	#include "libbse/include/handle.h"
 	#include "libbse/include/log.h"
@@ -114,7 +115,7 @@ uint32_t armcc::blx(const arm_reg_t rm)
 uint32_t armcc::blx(const uint32_t pat)
 {
 	const uint32_t ea = _gen_arm__byte_offset(cc.cs + cc.pc, pat);
-	const uint32_t h = BMOV(ea, 2, 24);
+	const uint32_t h = bmov32(ea, 2, 24);
 
 	const uint32_t ir = h | gen_arm__b_offset(&cc, pat);
 

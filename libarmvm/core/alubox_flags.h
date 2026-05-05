@@ -12,6 +12,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/bitops32.h"
 #include "libbse/include/unused.h"
 
 /* **** */
@@ -24,9 +25,9 @@
 
 /* **** */
 
-static void _alubox_flags_nz(armvm_core_ref core, const uint32_t rd)
+static void _alubox_flags_nz(armvm_core_ref core, const int32_t rd)
 {
-	ARM_CPSR_BMAS(N, BEXT(rd, 31));
+	ARM_CPSR_BMAS(N, 0 > rd);
 	ARM_CPSR_BMAS(Z, 0 == rd);
 }
 
@@ -55,12 +56,11 @@ static void _alubox_flags_x_add_sub(armvm_core_ref core, const uint32_t rd,
 {
 	_alubox_flags_nz(core, rd);
 
-	const unsigned xvec = (s1 ^ s2);
-	const unsigned ovec = (s1 ^ rd) & ~xvec;
+	const int32_t xvec = (s1 ^ s2);
+	const int32_t ovec = (s1 ^ rd) & ~xvec;
+	const int32_t cvec = xvec ^ ovec ^ rd;
 
-	const unsigned cf = BEXT((xvec ^ ovec ^ rd), 31);
-	ARM_CPSR_BMAS(C, cf);
+	ARM_CPSR_BMAS(C, 0 > cvec);
 
-	const unsigned vf = BEXT(ovec, 31);
-	ARM_CPSR_BMAS(V, vf);
+	ARM_CPSR_BMAS(V, 0 > ovec);
 }

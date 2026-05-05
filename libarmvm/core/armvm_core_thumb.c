@@ -28,6 +28,7 @@
 /* **** */
 
 #include "libbse/include/bitfield.h"
+#include "libbse/include/bitops32.h"
 #include "libbse/include/log.h"
 #include "libbse/include/unused.h"
 
@@ -53,7 +54,7 @@ static int __thumb_fail_decode(armvm_core_ref core)
 
 static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_ref core)
 {
-	const int pcsp = BEXT(IR, 11);
+	const int pcsp = bext32(IR, 11);
 
 	uint32_t rn = 0;
 	if(pcsp)
@@ -82,7 +83,7 @@ static int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_ref core)
 static int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 	const int bit_i, const uint32_t rm)
 {
-	const uint8_t op2 = BEXT(IR, 9);
+	const uint8_t op2 = bext32(IR, 9);
 
 	setup_rRml(core, ARMVM_TRACE_R(N), 5, 3);
 	core_reg_dst_decode(core, ARMVM_TRACE_R(D), 2, 0);
@@ -137,7 +138,7 @@ static int _armvm_core_thumb_add_sub_rn_rd_rm(armvm_core_ref core)
 
 static int _armvm_core_thumb_add_sub_sp_i7(armvm_core_ref core)
 {
-	const int sub = BEXT(IR, 7);
+	const int sub = bext32(IR, 7);
 	const uint16_t imm7 = mlBFMOV(IR, 6, 0, 2);
 
 	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
@@ -219,7 +220,7 @@ static int _armvm_core_thumb_bx(armvm_core_ref core)
 
 	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 6, 3);
 
-	const int link = BEXT(IR, 7);
+	const int link = bext32(IR, 7);
 
 	const uint32_t new_pc = rm & ~1U;
 	const int thumb = rm & 1;
@@ -303,7 +304,7 @@ static int _armvm_core_thumb_bxx_prefix(armvm_core_ref core)
 		goto not_prefix_suffix;
 
 	if(0xe800 == (ir_suffix & 0xe800)) {
-		const int blx = 1 ^ BEXT(ir_suffix, 12);
+		const int blx = 1 ^ bext32(ir_suffix, 12);
 
 		if(blx && (ir_suffix & 1))
 			goto not_prefix_suffix; /* undefined instruction */
@@ -369,7 +370,7 @@ static int _armvm_core_thumb_dp_rms_rdn(armvm_core_ref core)
 static int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 {
 	const uint16_t operation = mlBFTST(IR, 15, 12);
-	const int bit_l = BEXT(IR, 11);
+	const int bit_l = bext32(IR, 11);
 	const uint16_t imm8 = mlBFMOV(IR, 7, 0, 2);
 
 	setup_rRml(core, ARMVM_TRACE_R(D), 10, 8);
@@ -413,9 +414,9 @@ static int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_ref core)
 {
 //	struct {
-		const unsigned bit_b = BEXT(IR, 12);
-		const unsigned bit_h = BEXT(IR, 15);
-		const unsigned bit_l = BEXT(IR, 11);
+		const unsigned bit_b = bext32(IR, 12);
+		const unsigned bit_h = bext32(IR, 15);
+		const unsigned bit_l = bext32(IR, 11);
 //	}bit;
 
 	const uint32_t rn = core_reg_src_decode(core, ARMVM_TRACE_R(N), 5, 3);
@@ -458,7 +459,7 @@ static int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_ref core)
 static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_ref core)
 {
 //	struct {
-		const int bit_l = BEXT(IR, 11) | (3 == mlBFEXT(IR, 10, 9));
+		const int bit_l = bext32(IR, 11) | (3 == mlBFEXT(IR, 10, 9));
 		const uint8_t bwh = mlBFEXT(IR, 11, 9);
 //	}bit;
 
@@ -490,7 +491,7 @@ static int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_ref core)
 static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 {
 //	struct {
-		const int bit_l = BEXT(IR, 11);
+		const int bit_l = bext32(IR, 11);
 //	}bit;
 
 	const uint32_t rn = core_reg_src_decode(core, ARMVM_TRACE_R(N), 10, 8);
@@ -517,7 +518,7 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 
 	for(unsigned i = 0; i <= 7; i++)
 	{
-		const unsigned rxx = BEXT(rlist, i);
+		const unsigned rxx = bext32(rlist, i);
 		reglist[i] = rxx ? ('0' + i) : '.';
 
 		if(rxx)
@@ -533,7 +534,7 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 
 	assert(end_address == ea - 4);
 
-	const int wb_l = bit_l && (0 == BTST(rlist, rR(N)));
+	const int wb_l = bit_l && (0 == btst32(rlist, rR(N)));
 	const int wb = !bit_l || wb_l;
 
 	if(wb)
@@ -553,8 +554,8 @@ static int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 static int _armvm_core_thumb_pop_push(armvm_core_ref core)
 {
 //	struct {
-		const int bit_l = BEXT(IR, 11);
-		const int bit_r = BEXT(IR, 8);
+		const int bit_l = bext32(IR, 11);
+		const int bit_r = bext32(IR, 8);
 //	}bit;
 
 	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
@@ -580,7 +581,7 @@ static int _armvm_core_thumb_pop_push(armvm_core_ref core)
 
 	for(unsigned i = 0; i <= 7; i++)
 	{
-		const unsigned rxx = BEXT(rlist, i);
+		const unsigned rxx = bext32(rlist, i);
 		reglist[i] = rxx ? ('0' + i) : '.';
 
 		if(!data_abort && rxx)
@@ -657,7 +658,7 @@ static int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 
 	const uint32_t rm = core_reg_src_decode(core, ARMVM_TRACE_R(M), 6, 3);
 
-	setup_rR(core, ARMVM_TRACE_R(N), mlBFEXT(IR, 2, 0) | BMOV(IR, 7, 3));
+	setup_rR(core, ARMVM_TRACE_R(N), mlBFEXT(IR, 2, 0) | bmov32(IR, 7, 3));
 	setup_rR(core, ARMVM_TRACE_R(D), rR(N));
 
 	const unsigned op_list[4] = {
@@ -754,7 +755,7 @@ static int armvm_core_thumb__step_group5_b000_bfff(armvm_core_ref core)
 
 static int armvm_core_thumb__step_group6_c000_dfff(armvm_core_ref core)
 {
-	if(BTST(IR, 12)) {
+	if(btst32(IR, 12)) {
 		switch(mlBFTST(IR, 15, 8)) {
 			case 0xde00: /* 1101 1110 xxxx xxxx -- undefined */
 				return(armvm_core_exception_undefined_instruction(core));
@@ -814,13 +815,13 @@ int armvm_core_thumb_step(armvm_core_ref core)
 		case 0x6000: /* 011x xxxx xxxx xxxx */
 			return(_armvm_core_thumb_ldst_bwh_o_rn_rd(core));
 		case 0x8000: /* 100x xxxx xxxx xxxx */
-			if(BTST(IR, 12)) /* 1001 xxxx xxxx xxxx */
+			if(btst32(IR, 12)) /* 1001 xxxx xxxx xxxx */
 				return(_armvm_core_thumb_ldst_rd_i(core));
 			else /* 1000 xxxx xxxx xxxx */
 				return(_armvm_core_thumb_ldst_bwh_o_rn_rd(core));
 			break;
 		case 0xa000: /* 101x xxxx xxxx xxxx */
-			if(BTST(IR, 12)) /* 1011 xxxx xxxx xxxx */
+			if(btst32(IR, 12)) /* 1011 xxxx xxxx xxxx */
 				return(armvm_core_thumb__step_group5_b000_bfff(core));
 			else /* 1010 xxxx xxxx xxxx */
 				return(_armvm_core_thumb_add_rd_pcsp_i(core));
