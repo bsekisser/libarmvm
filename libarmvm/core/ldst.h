@@ -20,7 +20,7 @@
 
 /* **** */
 
-#include "libbse/include/shift_roll.h"
+#include "libbse/include/shift_roll_32.h"
 
 /* **** */
 
@@ -45,7 +45,7 @@ static int __ldr(armvm_core_ref core, const int arm)
 
 	if(arm) {
 		if(ea_xx && CP15_REG1_BIT(U))
-			vR(D) = _ror(vR(D), (ea_xx << 3));
+			vR(D) = ror32(vR(D), (ea_xx << 3));
 	}
 
 	if(rR_IS_PC(D))
