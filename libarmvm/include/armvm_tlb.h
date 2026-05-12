@@ -53,14 +53,22 @@ extern action_list_t armvm_tlb_action_list;
 extern action_list_t armvm_tlb_cp15_action_list;
 
 void armvm_tlb(armvm_tlb_ref tlb, action_ref action);
+
+//__attribute__((warn_unused_result))
 armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb);
 void armvm_tlb_fill_data_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb);
 void armvm_tlb_fill_instruction_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb);
+
+__attribute__((warn_unused_result))
 armvm_mem_callback_ptr armvm_tlb_ifetch(armvm_tlb_ref tlb, const uint32_t va, armvm_tlbe_href h2tlbe);
 void armvm_tlb_invalidate_all(armvm_tlb_ref tlb);
 void armvm_tlb_invalidate_data(armvm_tlb_ref tlb);
 void armvm_tlb_invalidate_instruction(armvm_tlb_ref tlb);
+
+__attribute__((warn_unused_result))
 armvm_mem_callback_ptr armvm_tlb_read(armvm_tlb_ref tlb, const uint32_t va, armvm_tlbe_href h2tlbe);
+
+__attribute__((warn_unused_result))
 armvm_mem_callback_ptr armvm_tlb_write(armvm_tlb_ref tlb, const uint32_t va, armvm_tlbe_href h2tlbe);
 
 #define __BITOPS_UNDEF__

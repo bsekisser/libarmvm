@@ -18,7 +18,7 @@
 
 /* **** */
 
-uint32_t arm_shiftbox(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned carry_in)
+uint32_t arm_shiftbox(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in)
 {
 	switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -36,6 +36,7 @@ uint32_t arm_shiftbox(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned ca
 	case ARM_SOP_RRX:
 		return(rrx32_v(rm, carry_in));
 	break;
+	case _ARM_SOP_COUNT_:
 	default:
 		LOG_ACTION(exit(-1));
 	}
@@ -43,7 +44,7 @@ uint32_t arm_shiftbox(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned ca
 	return(0xdeadbeef);
 }
 
-uint32_t arm_shiftbox_c(unsigned shift_type, uint32_t rm, uint32_t rs)
+uint32_t arm_shiftbox_c(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs)
 {
 	switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -61,6 +62,7 @@ uint32_t arm_shiftbox_c(unsigned shift_type, uint32_t rm, uint32_t rs)
 	case ARM_SOP_RRX:
 		return(rrx32_c(rm));
 	break;
+	case _ARM_SOP_COUNT_:
 	default:
 		LOG_ACTION(exit(-1));
 	}
@@ -68,7 +70,7 @@ uint32_t arm_shiftbox_c(unsigned shift_type, uint32_t rm, uint32_t rs)
 	return(0xdeadbeef);
 }
 
-uint32_t arm_shiftbox_immediate(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned carry_in)
+uint32_t arm_shiftbox_immediate(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in)
 {
 	if(!rs) switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -79,12 +81,19 @@ uint32_t arm_shiftbox_immediate(unsigned shift_type, uint32_t rm, uint32_t rs, u
 	case ARM_SOP_ROR:
 		return(rrx32_v(rm, carry_in));
 	break;
+//
+	case ARM_SOP_LSL:
+	case ARM_SOP_RRX:
+		break;
+	case _ARM_SOP_COUNT_:
+	default:
+		LOG_ACTION(exit(-1));
 	}
 
 	return(arm_shiftbox(shift_type, rm, rs, carry_in));
 }
 
-uint32_t arm_shiftbox_c_immediate(unsigned shift_type, uint32_t rm, uint32_t rs)
+uint32_t arm_shiftbox_c_immediate(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs)
 {
 	if(!rs) switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -94,6 +103,12 @@ uint32_t arm_shiftbox_c_immediate(unsigned shift_type, uint32_t rm, uint32_t rs)
 	case ARM_SOP_ROR:
 		return(rrx32_c(rm));
 	break;
+	case ARM_SOP_LSL:
+	case ARM_SOP_RRX:
+		break;
+	case _ARM_SOP_COUNT_:
+	default:
+		LOG_ACTION(exit(-1));
 	}
 
 	return(arm_shiftbox_c(shift_type, rm, rs));

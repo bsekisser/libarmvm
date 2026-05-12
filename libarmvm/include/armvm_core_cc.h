@@ -12,7 +12,8 @@
 
 /* **** */
 
-static int armvm_core_check_cc(armvm_core_ref core, const uint8_t cc)
+static //__attribute__((warn_unused_result))
+int armvm_core_check_cc(armvm_core_ref core, const uint8_t cc)
 {
 	uint32_t res = 0;
 

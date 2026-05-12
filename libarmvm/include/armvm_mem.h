@@ -39,20 +39,25 @@ typedef struct armvm_mem_callback_tag {
 
 extern action_list_t armvm_mem_action_list;
 
+//__attribute__((warn_unused_result))
 armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem);
 
+__attribute__((warn_unused_result))
 uint32_t armvm_mem_access_read(armvm_mem_ref mem,
 	const uint32_t ppa, const size_t size,
 	armvm_mem_callback_href h2cb);
 
+__attribute__((warn_unused_result))
 armvm_mem_callback_ptr armvm_mem_access_write(armvm_mem_ref mem,
 	const uint32_t ppa, const size_t size,
 	const uint32_t write);
 
+//__attribute__((warn_unused_result))
 uint32_t armvm_mem_generic_page_ro(void *const param,
 	const uint32_t ppa, const size_t size,
 	uint32_t *const write);
 
+//__attribute__((warn_unused_result))
 uint32_t armvm_mem_generic_page_rw(void *const param,
 	const uint32_t ppa, const size_t size,
 	uint32_t *const write);
@@ -69,7 +74,8 @@ void armvm_mem_mmap_rw(armvm_mem_ref mem,
 
 /* **** */
 
-static inline uint32_t armvm_mem_callback_io(armvm_mem_callback_ref cb,
+static inline //__attribute__((warn_unused_result))
+uint32_t armvm_mem_callback_io(armvm_mem_callback_ref cb,
 	const uint32_t ppa, const size_t size,
 	uint32_t* write)
 {

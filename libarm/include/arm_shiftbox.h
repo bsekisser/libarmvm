@@ -10,7 +10,14 @@
 
 /* **** */
 
-uint32_t arm_shiftbox(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned carry_in);
-uint32_t arm_shiftbox_c(unsigned shift_type, uint32_t rm, uint32_t rs);
-uint32_t arm_shiftbox_immediate(unsigned shift_type, uint32_t rm, uint32_t rs, unsigned carry_in);
-uint32_t arm_shiftbox_c_immediate(unsigned shift_type, uint32_t rm, uint32_t rs);
+__attribute__((warn_unused_result))
+uint32_t arm_shiftbox(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in);
+
+__attribute__((warn_unused_result))
+uint32_t arm_shiftbox_c(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs);
+
+__attribute__((warn_unused_result))
+uint32_t arm_shiftbox_immediate(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in);
+
+__attribute__((warn_unused_result))
+uint32_t arm_shiftbox_c_immediate(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs);

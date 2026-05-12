@@ -46,15 +46,34 @@ typedef struct armvm_tag {
 extern action_list_t armvm_action_list;
 
 void armvm(armvm_ref avm, action_ref action);
+
+//__attribute__((warn_unused_result))
 armvm_ptr armvm_alloc(armvm_href h2avm);
+
 void armvm_alloc_init(armvm_ref avm);
 void armvm_exit(armvm_ref avm);
+
+//__attribute__((warn_unused_result))
 uint32_t armvm_gpr(armvm_ref avm, const unsigned r, uint32_t *const write);
+
+__attribute__((warn_unused_result))
 uint32_t* armvm_p2gpr(armvm_ref avm, const unsigned r);
+
 void armvm_reset(armvm_ref avm);
+
+//__attribute__((warn_unused_result))
 uint64_t armvm_run(armvm_ref avm, uint64_t cycles);
+
+__attribute__((warn_unused_result))
 uint32_t armvm_spr32(armvm_ref avm, const unsigned r);
+
+__attribute__((warn_unused_result))
 uint64_t armvm_spr64(armvm_ref avm, const unsigned r);
+
+//__attribute__((warn_unused_result))
 int armvm_step(armvm_ref avm);
+
+//__attribute__((warn_unused_result))
 void* armvm_threaded_run(void* param);
+
 int armvm_threaded_start(armvm_ref avm);

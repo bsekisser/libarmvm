@@ -10,4 +10,5 @@
 
 /* **** */
 
-uint32_t arm_alubox(unsigned operation, uint32_t* rd, uint32_t rn, uint32_t sop, unsigned carry_in);
+__attribute__((warn_unused_result))
+uint32_t arm_alubox(arm_dp_opcode_tref operation, uint32_t *const rd, const uint32_t rn, const uint32_t sop, const unsigned carry_in);

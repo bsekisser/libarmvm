@@ -7,7 +7,10 @@
 
 /* **** */
 
+//__attribute__((warn_unused_result))
 int armvm_exception_fiq(armvm_ref avm);
+
+//__attribute__((warn_unused_result))
 int armvm_exception_irq(armvm_ref avm);
 
 /* **** */

@@ -2,7 +2,7 @@
 
 /* **** */
 
-enum arm_dp_opcode_t {
+typedef enum arm_dp_opcode_enum {
 	ARM_AND,
 	ARM_EOR,
 	ARM_SUB,
@@ -30,4 +30,6 @@ enum arm_dp_opcode_t {
 //
 	ARM_MUL,
 	ARM_NEG,
-};
+//
+}arm_dp_opcode_t;
+typedef enum arm_dp_opcode_enum const arm_dp_opcode_tref;

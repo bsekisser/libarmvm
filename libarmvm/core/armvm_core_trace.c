@@ -122,9 +122,7 @@ void _armvm_trace_end_with_comment(armvm_core_ref core, const char* format, ...)
 
 int _armvm_trace_start(armvm_core_ref core, const char* format, ...)
 {
-	if(!core->config.trace) return(0);
-
-	__trace_start(core);
+	if(!__trace_start(core)) return(0);
 
 	va_list ap;
 	va_start(ap, format);
@@ -136,9 +134,7 @@ int _armvm_trace_start(armvm_core_ref core, const char* format, ...)
 
 void _armvm_trace(armvm_core_ref core, const char* format, ...)
 {
-	if(!core->config.trace) return;
-
-	__trace_start(core);
+	if(!__trace_start(core)) return;
 
 	va_list ap;
 	va_start(ap, format);

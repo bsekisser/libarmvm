@@ -137,16 +137,32 @@ typedef struct armvm_core_tag {
 
 extern action_list_t armvm_core_action_list;
 
+//__attribute__((warn_unused_result))
 armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core);
+
+__attribute__((warn_unused_result))
 int armvm_core_in_a_privaleged_mode(armvm_core_ref core);
+
+//__attribute__((warn_unused_result))
 int armvm_core_pcx(armvm_core_ref core, const uint32_t new_pc);
+
+//__attribute__((warn_unused_result))
 int armvm_core_pcx_v5(armvm_core_ref core, const uint32_t new_pc);
+
 void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr);
 void armvm_core_psr_mode_switch_cpsr(armvm_core_ref core, const uint32_t new_cpsr);
 void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_ref core);
+
+//__attribute__((warn_unused_result))
 uint32_t armvm_core_reg_user(armvm_core_ref core, const unsigned r, uint32_t *const v);
+
+//__attribute__((warn_unused_result))
 uint32_t armvm_core_spsr(armvm_core_ref core, uint32_t *const write);
+
+//__attribute__((warn_unused_result))
 int armvm_core_step(armvm_core_ref core);
+
+//__attribute__((warn_unused_result))
 void* armvm_core_threaded_run(armvm_core_ref core);
 
 /* **** */

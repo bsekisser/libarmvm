@@ -54,7 +54,14 @@ typedef struct armvm_mmu_tag {
 extern action_list_t armvm_mmu_action_list;
 extern action_list_t armvm_mmu_cp15_action_list;
 
+//__attribute__((warn_unused_result))
 armvm_mmu_ptr armvm_mmu_alloc(armvm_ref avm, armvm_mmu_href h2mem);
+
+__attribute__((warn_unused_result))
 int armvm_mmu_ifetch(armvm_mmu_ref mem, uint32_t *const ir, const uint32_t va, const size_t size);
+
+__attribute__((warn_unused_result))
 int armvm_mmu_read(armvm_mmu_ref mem, uint32_t *const read, const uint32_t va, const size_t size);
+
+__attribute__((warn_unused_result))
 int armvm_mmu_write(armvm_mmu_ref mem, const uint32_t va, const size_t size, const uint32_t write);
