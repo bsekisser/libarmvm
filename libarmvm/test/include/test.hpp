@@ -2,8 +2,11 @@
 
 /* **** */
 
-typedef struct test_t** test_h;
-typedef struct test_t* test_p;
+typedef struct test_tag** test_hptr;
+typedef test_hptr const test_href;
+
+typedef struct test_tag* test_ptr;
+typedef test_ptr const test_ref;
 
 /* **** */
 
@@ -22,7 +25,7 @@ extern "C" {
 
 #define kTEST_MEM_ALLOC Kb(64)
 
-typedef struct test_t {
+typedef struct test_tag {
 	armcc_p cc;
 	armvm_ptr armvm;
 //
@@ -32,12 +35,12 @@ typedef struct test_t {
 class test {
 	protected:
 		armcc cc;
-		test_p t;
+		test_ptr t;
 //
 	public:
-		int check_nz(int n, int z);
-		int check_nzc(int n, int z, int c);
-		int check_nzcv(int n, int z, int c, int v);
+		int check_nz(const int n, const int z);
+		int check_nzc(const int n, const int z, const int c);
+		int check_nzcv(const int n, const int z, const int c, const int v);
 		void reset(void);
 		uint32_t run_test(void);
 		uint32_t run_test_flags(const uint32_t flag_set);

@@ -41,7 +41,8 @@ extern "C" {
 
 #define LOGx(_x) LOG(#_x " = 0x%08x", _x);
 
-static void _preflight_tests(void)
+static
+void _preflight_tests(void)
 {
 	assert(-1U == ~0U);
 	assert(1 == (0 == 0));
@@ -90,7 +91,8 @@ static void _preflight_tests(void)
 	}
 }
 
-static uint32_t _run_test(test_p t, const uint32_t flag_set)
+static __attribute__((warn_unused_result))
+uint32_t _run_test(test_ref t, const uint32_t flag_set)
 {
 	CPSR &= ~ARM_CPSR_MASK_NZCV;
 	CPSR |= flag_set;
@@ -106,10 +108,11 @@ static uint32_t _run_test(test_p t, const uint32_t flag_set)
 	return(RUN_PC);
 }
 
-static int _test_cpsr_xpsr_mask(test_p t, unsigned cpsr, unsigned xpsr, unsigned mask)
+static __attribute__((warn_unused_result))
+int _test_cpsr_xpsr_mask(test_ref t, const uint32_t cpsr, const uint32_t xpsr, const uint32_t mask)
 {
-	unsigned test_cpsr = cpsr & mask;
-	unsigned test_xpsr = xpsr & mask;
+	const uint32_t test_cpsr = cpsr & mask;
+	const uint32_t test_xpsr = xpsr & mask;
 
 	if(test_cpsr != test_xpsr) {
 		TRACE_PSR(cpsr);
@@ -123,14 +126,15 @@ static int _test_cpsr_xpsr_mask(test_p t, unsigned cpsr, unsigned xpsr, unsigned
 	UNUSED(t);
 }
 
-static int _test_cpsr_xpsr(test_p t, unsigned cpsr, unsigned xpsr)
+static __attribute__((warn_unused_result))
+int _test_cpsr_xpsr(test_ref t, const uint32_t cpsr, const uint32_t xpsr)
 {
 	return(_test_cpsr_xpsr_mask(t, cpsr, xpsr, ARM_CPSR_MASK_NZCV));
 }
 
-int test::check_nz(int n, int z)
+int test::check_nz(const int n, const int z)
 {
-	unsigned xpsr = 0;
+	uint32_t xpsr = 0;
 
 	ARM_CPSRx_BMAS(xpsr, N, !!n);
 	ARM_CPSRx_BMAS(xpsr, Z, !!z);
@@ -138,9 +142,9 @@ int test::check_nz(int n, int z)
 	return(_test_cpsr_xpsr_mask(t, CPSR, xpsr, ARM_CPSR_MASK_NZ));
 }
 
-int test::check_nzc(int n, int z, int c)
+int test::check_nzc(const int n, const int z, const int c)
 {
-	unsigned xpsr = 0;
+	uint32_t xpsr = 0;
 
 	ARM_CPSRx_BMAS(xpsr, N, !!n);
 	ARM_CPSRx_BMAS(xpsr, Z, !!z);
@@ -149,7 +153,7 @@ int test::check_nzc(int n, int z, int c)
 	return(_test_cpsr_xpsr_mask(t, CPSR, xpsr, ARM_CPSR_MASK_NZC));
 }
 
-int test::check_nzcv(int n, int z, int c, int v)
+int test::check_nzcv(const int n, const int z, const int c, const int v)
 {
 	unsigned xpsr = 0;
 
@@ -161,7 +165,7 @@ int test::check_nzcv(int n, int z, int c, int v)
 	return(_test_cpsr_xpsr(t, CPSR, xpsr));
 }
 
-int main(int argc, char** argv)
+int main(int argc, char* *const argv)
 {
 	_preflight_tests();
 

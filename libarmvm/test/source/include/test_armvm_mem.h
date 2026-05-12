@@ -6,4 +6,4 @@
 
 /* **** */
 
-int test_armvm_mem(test_p t);
+int test_armvm_mem(test_ref t);
