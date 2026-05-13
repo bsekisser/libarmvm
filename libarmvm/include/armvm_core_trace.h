@@ -6,11 +6,6 @@
 
 /* **** */
 
-void __trace_end(armvm_core_ref core);
-
-__attribute__((warn_unused_result))
-int __trace_start(armvm_core_ref core);
-
 void _armvm_trace_(armvm_core_ref core, const char* format, ...);
 void _armvm_trace_comment(armvm_core_ref core, const char* format, ...);
 void _armvm_trace_end(armvm_core_ref core, const char* format, ...);

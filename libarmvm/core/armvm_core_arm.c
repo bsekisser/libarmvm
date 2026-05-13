@@ -393,7 +393,7 @@ static int _arm_inst_ldstm(armvm_core_ref core)
 
 	const int user_mode_regs = user_mode_regs_load || user_mode_regs_store;
 
-	if(__trace_start(core)) {
+	if(_armvm_trace_start(core, 0)) {
 		_armvm_trace_(core, "%s%c%c(%s%s, {%s}%s%s)",
 			opstr, bit_u ? 'i' : 'd', bit_p ? 'b' : 'a',
 			irR_NAME(N), bit_w ? "!" : "", reglist,
@@ -495,7 +495,7 @@ static int _arm_inst_mla(armvm_core_ref core)
 
 	/* **** */
 
-	if(__trace_start(core)) {
+	if(_armvm_trace_start(core, 0)) {
 		_armvm_trace_(core, "mla%s(", ARM_IR_DP_S ? "s" : "");
 		_armvm_trace_(core, "%s", irR_NAME(D));
 		_armvm_trace_(core, ", %s", irR_NAME(M));
@@ -660,7 +660,7 @@ static int _arm_inst_mul(armvm_core_ref core)
 
 	/* **** */
 
-	if(__trace_start(core)) {
+	if(_armvm_trace_start(core, 0)) {
 		_armvm_trace_(core, "mul%s(%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "", irR_NAME(D), irR_NAME(M), irR_NAME(S));
 
@@ -692,7 +692,7 @@ static int _arm_inst_smull(armvm_core_ref core)
 
 	/* **** */
 
-	if(__trace_start(core)) {
+	if(_armvm_trace_start(core, 0)) {
 		_armvm_trace_(core, "smull%s(%s:%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "",
 			irR_NAME(DLo), irR_NAME(DHi), irR_NAME(M), irR_NAME(S));

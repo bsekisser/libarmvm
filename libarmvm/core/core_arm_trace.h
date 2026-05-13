@@ -53,7 +53,7 @@ static void _dp_mov_s_s(armvm_core_ref core)
 
 static void armvm_trace_dp(armvm_core_ref core)
 {
-	if(!__trace_start(core))
+	if(!_armvm_trace_start(core, 0))
 		return;
 
 	_armvm_trace_(core, "%s%s(",
@@ -132,12 +132,12 @@ static void armvm_trace_dp(armvm_core_ref core)
 			break;
 	}
 
-	__trace_end(core);
+	_armvm_trace_end(core, 0);
 }
 
 void armvm_trace_ldst(armvm_core_ref core)
 {
-	if(!__trace_start(core))
+	if(!_armvm_trace_start(core, 0))
 		return;
 
 //	int is_ld = 0;
@@ -214,12 +214,12 @@ void armvm_trace_ldst(armvm_core_ref core)
 	if(CCX)
 		_armvm_trace_comment(core, "[0x%08x]: 0x%08x", vR(EA), vR(D));
 
-	__trace_end(core);
+	_armvm_trace_end(core, 0);
 }
 
 static void armvm_trace_msr(armvm_core_ref core)
 {
-	if(!__trace_start(core))
+	if(!_armvm_trace_start(core, 0))
 		return;
 
 	const unsigned field_mask = ~rR(S);
@@ -244,5 +244,5 @@ static void armvm_trace_msr(armvm_core_ref core)
 	_armvm_trace_comment(core, "(0x%08x & 0x%08x): 0x%08x --> 0x%08x",
 		vR(SOP), mask, operand_masked, vR(D));
 
-	__trace_end(core);
+	_armvm_trace_end(core, 0);
 }
