@@ -16,7 +16,6 @@ typedef armvm_ptr const armvm_ref;
 #include "armvm_core.h"
 #include "armvm_mem.h"
 #include "armvm_mmu.h"
-//#include "armvm_trace.h" // TODO: remove
 
 /* **** */
 

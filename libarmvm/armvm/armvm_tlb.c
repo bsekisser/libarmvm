@@ -12,14 +12,14 @@
 
 #include "libbse/include/action.h"
 #include "libbse/include/bitfield.h" // TODO
-//#include "libbse/include/bitops_macros.h" // TODO
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 #include "libbse/include/page.h"
 
 /* **** */
 
-static armvm_tlbe_ptr _tlb_entry(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
+static __attribute__((warn_unused_result))
+armvm_tlbe_ptr _tlb_entry(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
 	const uint32_t va, armvm_tlbe_href h2tlbe)
 {
 	const uint32_t vp = PAGE(va);
@@ -36,7 +36,8 @@ static armvm_tlbe_ptr _tlb_entry(armvm_tlbe_ref tlbe_table, const unsigned tlb_b
 	return(tlbe);
 }
 
-static void _tlb_fill_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb)
+static
+void _tlb_fill_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb)
 {
 	tlbe->cb = cb;
 	tlbe->vp = PAGE(va);
@@ -44,13 +45,15 @@ static void _tlb_fill_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_cal
 	tlbe->i = 1;
 }
 
-static void _tlb_invalidate_table(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits)
+static
+void _tlb_invalidate_table(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits)
 {
 	for(unsigned i = 0; i < _BV(tlb_bits); i++)
 		memset(&tlbe_table[i], 0, sizeof(armvm_tlbe_t));
 }
 
-static armvm_mem_callback_ptr _tlb_read(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _tlb_read(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
 	const uint32_t va, armvm_tlbe_href h2tlbe)
 {
 	armvm_tlbe_ref tlbe = _tlb_entry(tlbe_table, tlb_bits, va, h2tlbe);
@@ -60,7 +63,8 @@ static armvm_mem_callback_ptr _tlb_read(armvm_tlbe_ref tlbe_table, const unsigne
 	return(tlbe->cb);
 }
 
-static armvm_mem_callback_ptr _tlb_write(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _tlb_write(armvm_tlbe_ref tlbe_table, const unsigned tlb_bits,
 	const uint32_t va, armvm_tlbe_href h2tlbe)
 {
 	armvm_tlbe_ref tlbe = _tlb_entry(tlbe_table, tlb_bits, va, h2tlbe);

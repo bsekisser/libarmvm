@@ -43,7 +43,8 @@ typedef struct armvm_mem_tag {
 
 /* **** */
 
-static void* _armvm_mem_access_l1(armvm_mem_ref mem,
+static __attribute__((warn_unused_result))
+void* _armvm_mem_access_l1(armvm_mem_ref mem,
 	const uint32_t ppa, void** *const h2l1e)
 {
 	void* *const p2l1e = &mem->l1[PTD(ppa)];
@@ -54,7 +55,8 @@ static void* _armvm_mem_access_l1(armvm_mem_ref mem,
 	return(p2l2);
 }
 
-static armvm_mem_callback_ptr _armvm_mem_access_l2(armvm_mem_ref mem,
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _armvm_mem_access_l2(armvm_mem_ref mem,
 	const uint32_t ppa, void *const p2l2)
 {
 	armvm_mem_callback_ref l2 = p2l2;
@@ -63,7 +65,8 @@ static armvm_mem_callback_ptr _armvm_mem_access_l2(armvm_mem_ref mem,
 	UNUSED(mem);
 }
 
-static armvm_mem_callback_ptr _armvm_mem_access(armvm_mem_ref mem,
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _armvm_mem_access(armvm_mem_ref mem,
 	const uint32_t ppa, void** *const h2l1e)
 {
 	void *const p2l2 = _armvm_mem_access_l1(mem, ppa, h2l1e);
@@ -73,7 +76,8 @@ static armvm_mem_callback_ptr _armvm_mem_access(armvm_mem_ref mem,
 	return(_armvm_mem_access_l2(mem, ppa, p2l2));
 }
 
-static armvm_mem_callback_ptr _armvm_mem_mmap_alloc_free(armvm_mem_ref mem)
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _armvm_mem_mmap_alloc_free(armvm_mem_ref mem)
 {
 	qelem_ref qel = mem->l2free.head;
 	armvm_mem_callback_ref p2l2 = (armvm_mem_callback_ptr)qel;
@@ -94,7 +98,8 @@ static armvm_mem_callback_ptr _armvm_mem_mmap_alloc_free(armvm_mem_ref mem)
 	return(p2l2);
 }
 
-static armvm_mem_callback_ptr _armvm_mem_mmap_alloc_malloc(armvm_mem_ref mem)
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _armvm_mem_mmap_alloc_malloc(armvm_mem_ref mem)
 {
 	armvm_mem_callback_ref p2l2 = malloc(kL2MallocAlloc);
 
@@ -114,7 +119,8 @@ static armvm_mem_callback_ptr _armvm_mem_mmap_alloc_malloc(armvm_mem_ref mem)
 	return(p2l2);
 }
 
-static armvm_mem_callback_ptr _armvm_mem_mmap_alloc(armvm_mem_ref mem,
+static __attribute__((warn_unused_result))
+armvm_mem_callback_ptr _armvm_mem_mmap_alloc(armvm_mem_ref mem,
 	const unsigned ppa)
 {
 	const unsigned l1ptd = PTD(ppa);

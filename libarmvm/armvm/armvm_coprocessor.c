@@ -38,7 +38,8 @@ typedef struct armvm_coprocessor_tag {
 
 /* **** */
 
-static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_ref  cp,
+static __attribute__((warn_unused_result))
+uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_ref  cp,
 	const uint32_t ir)
 {
 	uint32_t *const p2r = &cp->cp15r[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)];
@@ -47,19 +48,22 @@ static uint32_t* _armvm_coprocessor__cp15r_rmw(armvm_coprocessor_ref  cp,
 
 /* **** */
 
-static armvm_coprocessor_callback_ptr _armvm_coprocessor_callback(armvm_coprocessor_ref  cp,
+static __attribute__((warn_unused_result))
+armvm_coprocessor_callback_ptr _armvm_coprocessor_callback(armvm_coprocessor_ref  cp,
 	const uint32_t ir)
 {
 	return(&cp->cp15[ir_cp_crn(ir)][ir_cp_crm(ir)][ir_cp_op1(ir)][ir_cp_op2(ir)]);
 }
 
-static uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_ref  cp,
+static
+uint32_t _armvm_coprocessor_cp15r(armvm_coprocessor_ref  cp,
 	const uint32_t ir, uint32_t* write)
 {
 	return(mem_32_access(_armvm_coprocessor__cp15r_rmw(cp, ir), write));
 }
 
-static uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
 {
 	armvm_coprocessor_ref cp = param;
 	armvm_core_ref core = cp->armvm->core;

@@ -11,7 +11,8 @@
 
 /* **** */
 
-static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
 
@@ -25,7 +26,8 @@ static uint32_t _armvm_cp15_0_8_5_0_invalidate_instruction(void *const param, ui
 	return(data);
 }
 
-static uint32_t _armvm_cp15_0_8_6_0_invalidate_data(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_8_6_0_invalidate_data(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
 
@@ -39,7 +41,8 @@ static uint32_t _armvm_cp15_0_8_6_0_invalidate_data(void *const param, uint32_t 
 	return(data);
 }
 
-static uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_8_7_0_invalidate_all(void *const param, uint32_t *const write)
 {
 	const uint32_t data = write ? *write : 0;
 

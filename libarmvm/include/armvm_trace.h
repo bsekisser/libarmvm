@@ -46,5 +46,3 @@ typedef struct armvm_trace_tag {
 }armvm_trace_t;
 
 /* **** */
-
-//void armvm_trace(armvm_trace_ref atp); // TODO: remove

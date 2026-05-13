@@ -74,7 +74,8 @@ uint32_t _armvm_cp15_0_7_10_3_access(void *const param, uint32_t *const write)
 	UNUSED(param);
 }
 
-static uint32_t _armvm_cp15_0_7_10_4_access(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_7_10_4_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
 //	armvm_ref armvm = acr->armvm;
@@ -90,7 +91,8 @@ static uint32_t _armvm_cp15_0_7_10_4_access(void *const param, uint32_t *const w
 	return(0);
 }
 
-static uint32_t _armvm_cp15_0_7_5_0_access(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_7_5_0_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
 //	armvm_ref armvm = acr->armvm;
@@ -106,7 +108,8 @@ static uint32_t _armvm_cp15_0_7_5_0_access(void *const param, uint32_t *const wr
 	return(0);
 }
 
-static uint32_t _armvm_cp15_0_7_6_0_access(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_7_6_0_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
 //	armvm_ref armvm = acr->armvm;
@@ -123,7 +126,8 @@ static uint32_t _armvm_cp15_0_7_6_0_access(void *const param, uint32_t *const wr
 }
 
 
-static uint32_t _armvm_cp15_0_7_7_0_access(void *const param, uint32_t *const write)
+static
+uint32_t _armvm_cp15_0_7_7_0_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
 //	armvm_ref armvm = acr->armvm;

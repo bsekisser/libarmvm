@@ -34,7 +34,8 @@
 
 /* **** */
 
-static uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const write, const unsigned r)
+static
+uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const write, const unsigned r)
 {
 	const uint32_t mask = mlBF(31, 14 - TTBCR_N) | mlBF(4, 3) | _BV(2) | _BV(1) | _BV(0);
 
@@ -59,13 +60,16 @@ static uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const writ
 	return(data);
 }
 
-static uint32_t _mmu_cp15__0_2_0_0_ttbr0(void *const param, uint32_t *const write)
+static
+uint32_t _mmu_cp15__0_2_0_0_ttbr0(void *const param, uint32_t *const write)
 { return(_mmu_cp15__0_2_0_0__ttbr(param, write, 0)); }
 
-static uint32_t _mmu_cp15__0_2_0_1_ttbr1(void *const param, uint32_t *const write)
+static
+uint32_t _mmu_cp15__0_2_0_1_ttbr1(void *const param, uint32_t *const write)
 { return(_mmu_cp15__0_2_0_0__ttbr(param, write, 0)); }
 
-static uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const write)
+static
+uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const write)
 {
 	armvm_mmu_ref mmu = param;
 

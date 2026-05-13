@@ -87,7 +87,8 @@ int armvm_mmu_action_reset(int err, void *const param, action_ref)
 #define L1PTD_10_SectionBaseAddress(_x) mlBFTST(_x, 31, 20)
 #define L1PTD_10_SectionIndex(_x) mlBFEXT(_x, 19, 0)
 
-static int __l1ptd_10(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1ptd)
+static __attribute__((warn_unused_result))
+int __l1ptd_10(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1ptd)
 {
 	const uint32_t sba = L1PTD_10_SectionBaseAddress(l1ptd);
 	const uint32_t sbi = L1PTD_10_SectionIndex(*ppa);
@@ -108,7 +109,8 @@ static int __l1ptd_10(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1p
 #define L1PTD_11_FinePageTable(_x) mlBFTST(_x, 31, 12)
 #define L1PTD_11_FinePageTableIndex(_x) mlBFEXT(_x, 19, 10)
 
-static int __l1ptd_11(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1ptd)
+static __attribute__((warn_unused_result))
+int __l1ptd_11(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1ptd)
 {
 	const uint32_t fba = L1PTD_11_FinePageTable(l1ptd);
 	const uint32_t fbi = L1PTD_11_FinePageTableIndex(*ppa);
@@ -133,7 +135,8 @@ static int __l1ptd_11(armvm_mmu_ref mmu, uint32_t *const ppa, const uint32_t l1p
 	return(0);
 }
 
-static int __l1ptd_xx(armvm_mmu_ref mmu, uint32_t *const ppa)
+static __attribute__((warn_unused_result))
+int __l1ptd_xx(armvm_mmu_ref mmu, uint32_t *const ppa)
 {
 	const unsigned x = TTBCR_N;
 
@@ -173,7 +176,8 @@ static int __l1ptd_xx(armvm_mmu_ref mmu, uint32_t *const ppa)
 
 /* **** */
 
-static int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
+static __attribute__((warn_unused_result))
+int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 {
 	if(!CP15_REG1_BIT(M))
 		return(0);

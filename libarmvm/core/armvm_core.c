@@ -28,7 +28,8 @@
 
 /* **** */
 
-static void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
+static
+void __armvm_core_psr_swap_reg(uint32_t* dst, uint32_t* src)
 {
 	const uint32_t tmp = *dst;
 		*dst = *src;
@@ -47,8 +48,9 @@ int __pause_check(int err, armvm_core_ref core)
 
 /* **** */
 
-static uint32_t* _armvm_core_psr_mode_regs(armvm_core_ref core,
-	uint32_t mode, unsigned* reg, unsigned* swap_spsr)
+static
+uint32_t* _armvm_core_psr_mode_regs(armvm_core_ref core, uint32_t mode,
+	unsigned* reg, unsigned* swap_spsr)
 {
 	*reg = 13;
 
@@ -91,7 +93,8 @@ static uint32_t* _armvm_core_psr_mode_regs(armvm_core_ref core,
 	return(0);
 }
 
-static void _armvm_core_psr_swap_regs(armvm_core_ref core,
+static
+void _armvm_core_psr_swap_regs(armvm_core_ref core,
 	uint32_t* dst, uint32_t* src,
 	unsigned r, const unsigned swap_spsr)
 {
