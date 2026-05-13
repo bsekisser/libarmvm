@@ -1,4 +1,4 @@
-TARGETS = libarm libarmcc libarmvm
+TARGETS = libarm libarmcc libarmvm libarmvm/test
 
 .PHONY: all
 all: libarm.a libarmcc.a libarmvm.a
@@ -26,6 +26,10 @@ libarmvm.a: libarmvm/libarmvm.a
 .PHONY: libarmvm/libarmvm.a
 libarmvm/libarmvm.a: libarm.a
 	$(MAKE) -C libarmvm
+
+.PHONY: test
+test:
+	$(MAKE) -C libarmvm/test test
 
 .PHONY: clean
 clean: $(addsuffix .clean,$(TARGETS))

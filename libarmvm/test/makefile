@@ -17,3 +17,6 @@ export SRC_DIR = source
 export TARGETs = test.exe
 
 include git/makefiles/common.mk
+
+test: test.exe
+	./test.exe
