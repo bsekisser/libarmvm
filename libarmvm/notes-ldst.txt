@@ -1,0 +1,10 @@
+ldst
+	->armvm_core_mem_[read/write]
+	->armvm_mmu_[read/write]
+		->armvm_tlb_[read/write]
+		1->return(armvm_mem_callback_io);
+		0->armvm_mmu_translate
+			1->return(armvm_mem_access_[read/write])
+				_armvm_mem_access
+				return(armvm_mem_callback_io)
+			0->return(exception_abort)
