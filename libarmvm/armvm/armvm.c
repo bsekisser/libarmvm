@@ -143,7 +143,7 @@ int armvm_step(armvm_ref avm)
 		return(0);
 
 	const int rval = armvm_core_step(core);
-		core->flags.halt |= (0 < rval);
+		core->flags.halt |= (0 > rval);
 		core->flags.crashed |= (rSPR32(IP) == PC);
 
 	return(rval);
