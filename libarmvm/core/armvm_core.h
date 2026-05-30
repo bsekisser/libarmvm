@@ -21,7 +21,7 @@ typedef armvm_core_ptr const armvm_core_ref;
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 #include "libbse/include/action.h"
 
@@ -128,7 +128,7 @@ typedef struct armvm_core_tag {
 //
 	armvm_core_state_flags_t flags;
 
-	armvm_ptr armvm;
+	libarmvm_ptr armvm;
 	armvm_coprocessor_ptr cp;
 	armvm_mmu_ptr mmu;
 }armvm_core_t;
@@ -138,7 +138,7 @@ typedef struct armvm_core_tag {
 extern action_list_t armvm_core_action_list;
 
 //__attribute__((warn_unused_result))
-armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core);
+armvm_core_ptr armvm_core_alloc(libarmvm_ref avm, armvm_core_href h2core);
 
 __attribute__((warn_unused_result))
 int armvm_core_in_a_privaleged_mode(armvm_core_ref core);

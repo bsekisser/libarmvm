@@ -49,7 +49,7 @@ static uint32_t gen_arm__b_offset(armcc_p p2cc, const uint32_t pat)
 	return(offset_masked);
 }
 
-static uint32_t gen_arm__cc_group_ir(armcc_p const p2cc, const arm_condition_t cc,
+static uint32_t gen_arm__cc_group_ir(armcc_p const p2cc, arm_condition_eref cc,
 	const unsigned group, const uint32_t ir_in)
 {
 	const uint32_t ir = gen_arm_ir__cc(cc)

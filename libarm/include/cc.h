@@ -2,7 +2,7 @@
 
 /* **** */
 
-typedef enum arm_condition_enum {
+typedef enum arm_condition_enum_tag {
 	CC_EQ, CC_EQ_NE = CC_EQ, CC_NE,
 	CC_CS, CC_CS_CC = CC_CS, CC_CC,
 	CC_MI, CC_MI_PL = CC_MI, CC_PL,
@@ -14,5 +14,5 @@ typedef enum arm_condition_enum {
 //
 	CC_HS = CC_CS,
 	CC_LO = CC_CC,
-}arm_condition_t;
-typedef enum arm_condition_enum const arm_condition_tref;
+}arm_condition_enum;
+typedef arm_condition_enum const arm_condition_eref;

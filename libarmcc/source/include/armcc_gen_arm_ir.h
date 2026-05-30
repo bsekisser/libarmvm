@@ -2,9 +2,9 @@
 
 /* **** */
 
-#include "libarm/include/arm_cc.h"
-#include "libarm/include/arm_dp.h"
-#include "libarm/include/arm_sop.h"
+#include "libarm/include/cc.h"
+#include "libarm/include/dp.h"
+#include "libarm/include/sop.h"
 
 /* **** */
 
@@ -17,13 +17,13 @@
 
 /* **** */
 
-static uint32_t gen_arm_ir__cc(const arm_condition_t cc)
+static uint32_t gen_arm_ir__cc(arm_condition_eref cc)
 {
 	assert(0 == (cc & ~15));
 	return(pbBFMOV(cc, 0, 4, 28));
 }
 
-static uint32_t gen_arm_ir__dp_opcode_s(const arm_dp_opcode_t opcode, const unsigned s)
+static uint32_t gen_arm_ir__dp_opcode_s(arm_dp_opcode_eref opcode, const unsigned s)
 {
 	assert(0 == (opcode & ~15));
 	return(pbBFMOV(opcode, 0, 4, 21) | (s << 20));
@@ -53,7 +53,7 @@ static uint32_t gen_arm_ir__rm(const arm_reg_t rm)
 	return(rm & 15);
 }
 
-static uint32_t gen_arm_ir__shift_type(const arm_sop_t shift_type)
+static uint32_t gen_arm_ir__shift_type(arm_sop_eref shift_type)
 {
 	assert(0 == (shift_type & ~3));
 	return(pbBFMOV(shift_type, 0, 2, 5));

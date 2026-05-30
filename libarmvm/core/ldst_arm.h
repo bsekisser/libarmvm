@@ -13,7 +13,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_ir.h"
+#include "libarm/include/ir.h"
 
 /* **** */
 

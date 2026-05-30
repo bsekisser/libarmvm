@@ -39,7 +39,7 @@ typedef struct armvm_tlb_tag {
 	armvm_tlbe_t dtlb[_BV(dTLB_BITS)];
 	armvm_tlbe_t itlb[_BV(iTLB_BITS)];
 //
-	armvm_ptr armvm;
+	libarmvm_ptr armvm;
 	armvm_mmu_ptr mmu;
 }armvm_tlb_t;
 
@@ -55,7 +55,7 @@ extern action_list_t armvm_tlb_cp15_action_list;
 void armvm_tlb(armvm_tlb_ref tlb, action_ref action);
 
 //__attribute__((warn_unused_result))
-armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb);
+armvm_tlb_ptr armvm_tlb_alloc(libarmvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb);
 void armvm_tlb_fill_data_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb);
 void armvm_tlb_fill_instruction_tlbe(armvm_tlbe_ref tlbe, const uint32_t va, armvm_mem_callback_ref cb);
 

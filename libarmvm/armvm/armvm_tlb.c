@@ -90,7 +90,7 @@ int armvm_tlb_action_exit(int err, void *const param, action_ref)
 	return(err);
 }
 
-armvm_tlb_ptr armvm_tlb_alloc(armvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb)
+armvm_tlb_ptr armvm_tlb_alloc(libarmvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_href h2tlb)
 {
 	ACTION_LOG(alloc);
 

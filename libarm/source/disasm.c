@@ -1,4 +1,6 @@
-#include "arm_disasm.h"
+#include "libarm.h"
+
+#include "disasm.h"
 
 /* **** */
 
@@ -46,20 +48,26 @@ static void _arm_disasm(uint8_t* p, uint32_t address, int thumb)
 	cs_close(&handle);
 }
 
+PUBLIC
 void arm_disasm(uint32_t address, uint32_t opcode)
 { return(_arm_disasm((void*)&opcode, address, address & 1)); }
 
+PUBLIC
 void arm_disasm_p(void* p, uint32_t address)
 { return(_arm_disasm(p, address, address & 1)); }
 
+PUBLIC
 void arm_disasm_arm(uint32_t address, uint32_t opcode)
 { return(_arm_disasm((void*)&opcode, address & ~3U, 0)); }
 
+PUBLIC
 void arm_disasm_arm_p(void* p, uint32_t address)
 { return(_arm_disasm(p, address & ~3U, 0)); }
 
+PUBLIC
 void arm_disasm_thumb(uint32_t address, uint32_t opcode)
 { return(_arm_disasm((void*)&opcode, address & ~1U, 1)); }
 
+PUBLIC
 void arm_disasm_thumb_p(void* p, uint32_t address)
 { return(_arm_disasm(p, address & ~1U, 1)); }

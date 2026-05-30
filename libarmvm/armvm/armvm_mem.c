@@ -1,3 +1,5 @@
+#include "libarmvm.h"
+
 #include "armvm_mem.h"
 
 /* **** */
@@ -37,7 +39,7 @@ typedef struct armvm_mem_tag {
 		unsigned count;
 	}l2malloc;
 //
-	armvm_ptr avm;
+	libarmvm_ptr avm;
 	armvm_mem_config_t config;
 }armvm_mem_t;
 
@@ -190,7 +192,7 @@ int armvm_mem_action_exit(int err, void *const param, action_ref)
 	return(err);
 }
 
-armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem)
+armvm_mem_ptr armvm_mem_alloc(libarmvm_ref avm, armvm_mem_href h2mem)
 {
 	ACTION_LOG(alloc);
 
@@ -245,7 +247,7 @@ uint32_t armvm_mem_generic_page_rw(void *const param,
 static
 void armvm_mem_mmap(armvm_mem_ref mem,
 	const uint32_t base, const uint32_t end,
-	armvm_mem_fn const fn, void *const param)
+	libarmvm_mem_fn const fn, void *const param)
 {
 	const uint32_t start = base & PAGE_MASK;
 	const uint32_t stop = PAGE_ALIGN(end);
@@ -262,10 +264,10 @@ void armvm_mem_mmap(armvm_mem_ref mem,
 			LOG_END(", param: 0x%016" PRIxPTR, (uintptr_t)param);
 		}
 
-		if(((armvm_mem_fn)~0U) == fn) {
+		if(((libarmvm_mem_fn)~0U) == fn) {
 			cb->fn = armvm_mem_generic_page_ro;
 			cb->param = data_offset;
-		} else if(((armvm_mem_fn)0U) == fn) {
+		} else if(((libarmvm_mem_fn)0U) == fn) {
 			cb->fn = armvm_mem_generic_page_rw;
 			cb->param = data_offset;
 		} else {
@@ -275,18 +277,21 @@ void armvm_mem_mmap(armvm_mem_ref mem,
 	}
 }
 
-void armvm_mem_mmap_cb(armvm_mem_ref mem,
+PUBLIC
+void libarmvm_mem_mmap_cb(libarmvm_ref armvm,
 	const uint32_t base, const uint32_t end,
-	armvm_mem_fn const fn, void *const param)
-{ return(armvm_mem_mmap(mem, base, end, fn, param)); }
+	libarmvm_mem_fn const fn, void *const param)
+{ return(armvm_mem_mmap(armvm->mem, base, end, fn, param)); }
 
-void armvm_mem_mmap_ro(armvm_mem_ref mem,
+PUBLIC
+void libarmvm_mem_mmap_ro(libarmvm_ref armvm,
 	const uint32_t base, const uint32_t end, void *const data)
-{ return(armvm_mem_mmap(mem, base, end, (void*)~0U, data)); }
+{ return(armvm_mem_mmap(armvm->mem, base, end, (void*)~0U, data)); }
 
-void armvm_mem_mmap_rw(armvm_mem_ref mem,
+PUBLIC
+void libarmvm_mem_mmap_rw(libarmvm_ref armvm,
 	const uint32_t base, const uint32_t end, void *const data)
-{ return(armvm_mem_mmap(mem, base, end, 0, data)); }
+{ return(armvm_mem_mmap(armvm->mem, base, end, 0, data)); }
 
 ACTION_LIST(armvm_mem_action_list,
 	.list = {

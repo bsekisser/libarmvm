@@ -10,5 +10,5 @@ typedef enum arm_sop_enum {
 	ARM_SOP_RRX,
 //
 	_ARM_SOP_COUNT_,
-}arm_sop_t;
-typedef enum arm_sop_enum const arm_sop_tref;
+}arm_sop_enum;
+typedef arm_sop_enum const arm_sop_eref;

@@ -42,7 +42,7 @@ int armvm_cache_action_exit(int err, void *const param, action_ref)
 	return(err);
 }
 
-armvm_cache_ptr armvm_cache_alloc(armvm_ref avm,
+armvm_cache_ptr armvm_cache_alloc(libarmvm_ref avm,
 	armvm_cache_href const h2c)
 {
 	ACTION_LOG(alloc);

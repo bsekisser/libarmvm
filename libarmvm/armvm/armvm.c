@@ -1,5 +1,4 @@
-#define pARMVM_CORE avm->core
-
+#include "armvm_core_glue.h"
 #include "armvm_glue.h"
 #include "armvm.h"
 
@@ -10,7 +9,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 /* **** */
 
@@ -26,8 +25,24 @@
 
 /* **** */
 
+static WARN_UNUSED_RESULT
+libarmvm_ptr _libarmvm_alloc(libarmvm_ref avm)
+{
+	ERR_NULL(avm);
+
+	armvm_cache_alloc(avm, &avm->cache);
+	armvm_coprocessor_alloc(avm, &avm->coprocessor);
+	armvm_core_alloc(avm, &avm->core);
+	armvm_mem_alloc(avm, &avm->mem);
+	armvm_mmu_alloc(avm, &avm->mmu);
+
+	return(avm);
+}
+
+/* **** */
+
 static
-int armvm_action_exit(int err, void *const param, action_ref)
+int libarmvm_action_exit(int err, void *const param, action_ref)
 {
 	ACTION_LOG(exit);
 
@@ -40,60 +55,87 @@ int armvm_action_exit(int err, void *const param, action_ref)
 	return(err);
 }
 
-void armvm(armvm_ref avm, action_ref action)
-{ action_handler(0, avm, action, &armvm_action_list); }
+static
+action_handler_t libarmvm_action_sublist[] = {
+	{{ .list = &armvm_cache_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, cache) },
+	{{ .list = &armvm_coprocessor_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, coprocessor) },
+	{{ .list = &armvm_core_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, core) },
+	{{ .list = &armvm_mem_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, mem) },
+	{{ .list = &armvm_mmu_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, mmu) },
+	{{ 0 }, { 0 }, 0 },
+};
 
-armvm_ptr armvm_alloc(armvm_href h2avm)
+PUBLIC
+ACTION_LIST(libarmvm_action_list,
+	.list = {
+//		[_ACTION_ALLOC] = {{ libarmvm_action_alloc }, { 0 }, 0 },
+		[_ACTION_EXIT] = {{ libarmvm_action_exit }, { 0 }, 0 },
+	},
+
+	SUBLIST(libarmvm_action_sublist),
+);
+
+/* **** */
+
+PUBLIC
+void libarmvm(libarmvm_ref avm, action_ref action)
+{ action_handler(0, avm, action, &libarmvm_action_list); }
+
+PUBLIC WARN_UNUSED_RESULT
+libarmvm_ptr libarmvm_alloc(void)
+{
+	ACTION_LOG(alloc);
+
+	return(_libarmvm_alloc(calloc(1, sizeof(libarmvm_t))));
+}
+
+PUBLIC
+void libarmvm_alloc_init(libarmvm_ref avm)
+{
+	libarmvm(avm, _ACTION_ALLOC_INIT);
+	libarmvm(avm, _ACTION_INIT);
+}
+
+PUBLIC
+void libarmvm_exit(libarmvm_ref avm)
+{ libarmvm(avm, _ACTION_EXIT); }
+
+PUBLIC
+libarmvm_ptr libarmvm_halloc(libarmvm_href h2avm)
 {
 	ACTION_LOG(alloc);
 
 	ERR_NULL(h2avm);
 
-	armvm_ref avm = handle_calloc(h2avm, 1, sizeof(armvm_t));
-	ERR_NULL(avm);
-
-	/* **** */
-
-	armvm_cache_alloc(avm, &avm->cache);
-	armvm_coprocessor_alloc(avm, &avm->coprocessor);
-	armvm_core_alloc(avm, &avm->core);
-	armvm_mem_alloc(avm, &avm->mem);
-	armvm_mmu_alloc(avm, &avm->mmu);
-
-	/* **** */
-
-	return(avm);
+	return(_libarmvm_alloc(handle_calloc(h2avm, 1, sizeof(libarmvm_t))));
 }
 
-void armvm_alloc_init(armvm_ref avm)
-{
-	armvm(avm, _ACTION_ALLOC_INIT);
-	armvm(avm, _ACTION_INIT);
-}
+PUBLIC
+uint64_t libarmvm_cycle(libarmvm_ref avm)
+{ armvm_core_ref core = avm->core; return(CYCLE); }
 
-void armvm_exit(armvm_ref avm)
-{ armvm(avm, _ACTION_EXIT); }
+PUBLIC
+uint64_t libarmvm_icount(libarmvm_ref avm)
+{ armvm_core_ref core = avm->core; return(ICOUNT); }
 
-uint32_t armvm_gpr(armvm_ref avm, const unsigned r, uint32_t *const write)
-{
-	assert(_ARMVM_GPR_COUNT_ > r);
-	return(mem_32_access(&GPRx(r), write));
-}
+PUBLIC WARN_UNUSED_RESULT
+uint32_t libarmvm_ip(libarmvm_ref avm)
+{ armvm_core_ref core = avm->core; return(IP); }
 
-uint32_t* armvm_p2gpr(armvm_ref avm, const unsigned r)
-{
-	assert(_ARMVM_GPR_COUNT_ > r);
-	return(&GPRx(r));
-}
+PUBLIC WARN_UNUSED_RESULT
+uint32_t libarmvm_pc(libarmvm_ref avm)
+{ armvm_core_ref core = avm->core; return(PC); }
 
-void armvm_reset(armvm_ref avm)
+PUBLIC
+void libarmvm_reset(libarmvm_ref avm)
 {
 	ACTION_LOG(reset);
 
-	armvm(avm, _ACTION_RESET);
+	libarmvm(avm, _ACTION_RESET);
 }
 
-uint64_t armvm_run(armvm_ref avm, const uint64_t run_cycles)
+PUBLIC
+uint64_t libarmvm_run(libarmvm_ref avm, const uint64_t run_cycles)
 {
 	armvm_core_ref core = avm->core;
 
@@ -105,7 +147,7 @@ uint64_t armvm_run(armvm_ref avm, const uint64_t run_cycles)
 
 		const uint64_t start_cycle = CYCLE;
 
-		if(0 > armvm_step(avm))
+		if(0 > libarmvm_step(avm))
 			return(0);
 
 		const uint64_t delta_cycles = CYCLE - start_cycle;
@@ -120,21 +162,10 @@ uint64_t armvm_run(armvm_ref avm, const uint64_t run_cycles)
 	return(run_cycles_left);
 }
 
-uint32_t armvm_spr32(armvm_ref avm, const unsigned r)
+PUBLIC // TODO: internal state struct -- istate
+int libarmvm_step(libarmvm_ref avm)
 {
-	assert(_ARMVM_SPR32_COUNT_ > r);
-	return(SPR32x(r));
-}
-
-uint64_t armvm_spr64(armvm_ref avm, const unsigned r)
-{
-	assert(_ARMVM_SPR64_COUNT_ > r);
-	return(SPR64x(r));
-}
-
-int armvm_step(armvm_ref avm)
-{
-	armvm_core_ref core = avm->core;
+ 	armvm_core_ref core = avm->core;
 
 	if(core->flags.halt)
 		return(-1);
@@ -144,32 +175,26 @@ int armvm_step(armvm_ref avm)
 
 	const int rval = armvm_core_step(core);
 		core->flags.halt |= (0 > rval);
-		core->flags.crashed |= (rSPR32(IP) == PC);
+		core->flags.crashed |= (IP == PC);
 
 	return(rval);
 }
 
-void* armvm_threaded_run(void* param)
-{ return(armvm_core_threaded_run(((armvm_ref)param)->core)); }
+PUBLIC // TODO: should this be public???
+void* libarmvm_threaded_run(void* param)
+{ return(armvm_core_threaded_run(((libarmvm_ref)param)->core)); }
 
-int armvm_threaded_start(armvm_ref avm)
-{ return(pthread_create(&avm->thread, 0, armvm_threaded_run, avm)); }
+PUBLIC
+int libarmvm_threaded_start(libarmvm_ref avm)
+{ return(pthread_create(&avm->thread, 0, libarmvm_threaded_run, avm)); }
 
-static
-action_handler_t armvm_action_sublist[] = {
-	{{ .list = &armvm_cache_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, cache) },
-	{{ .list = &armvm_coprocessor_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, coprocessor) },
-	{{ .list = &armvm_core_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, core) },
-	{{ .list = &armvm_mem_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mem) },
-	{{ .list = &armvm_mmu_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(armvm_t, mmu) },
-	{{ 0 }, { 0 }, 0 },
-};
+PUBLIC
+unsigned libarmvm_trace(libarmvm_ref avm, int trace_set)
+{
+	const unsigned trace_out = avm->core->config.trace;
 
-ACTION_LIST(armvm_action_list,
-	.list = {
-//		[_ACTION_ALLOC] = {{ armvm_action_alloc }, { 0 }, 0 },
-		[_ACTION_EXIT] = {{ armvm_action_exit }, { 0 }, 0 },
-	},
+	if(trace_set)
+		avm->core->config.trace = (0 < trace_set);
 
-	SUBLIST(armvm_action_sublist),
-);
+	return(trace_out);
+}

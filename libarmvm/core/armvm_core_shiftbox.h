@@ -6,10 +6,10 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
-#include "libarm/include/arm_ir.h"
-#include "libarm/include/arm_shiftbox.h"
-#include "libarm/include/arm_sop.h"
+#include "libarm/include/cpsr.h"
+#include "libarm/include/ir.h"
+#include "libarm/include/shiftbox.h"
+#include "libarm/include/sop.h"
 
 /* **** */
 

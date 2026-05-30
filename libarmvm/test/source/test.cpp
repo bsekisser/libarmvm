@@ -9,17 +9,17 @@
 /* **** */
 
 extern "C" {
-	#include "libarmvm/include/armvm_glue.h"
-	#include "libarmvm/include/armvm_core.h"
-	#include "libarmvm/include/armvm_mem.h"
-	#include "libarmvm/include/armvm_trace.h"
-	#include "libarmvm/include/armvm.h"
+	#include "libarmvm/include/libarmvm_mem.h"
+	#include "libarmvm/armvm/armvm_glue.h"
+	#include "libarmvm/armvm/armvm_trace.h"
+	#include "libarmvm/armvm/armvm.h"
+	#include "libarmvm/core/armvm_core.h"
 }
 
 /* **** */
 
 extern "C" {
-	#include "libarm/include/arm_cpsr.h"
+	#include "libarm/include/cpsr.h"
 }
 
 /* **** */
@@ -100,7 +100,7 @@ uint32_t _run_test(test_ref t, const uint32_t flag_set)
 	TEST_PC = RUN_PC;
 
 	while(GEN_COUNT) {
-		armvm_core_step(pARMVM_CORE);
+		libarmvm_step(pARMVM);
 		GEN_COUNT--;
 	}
 
@@ -182,7 +182,7 @@ void test::reset(void)
 {
 if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, RUN_PC: 0x%08x", GEN_COUNT, GEN_PC, RUN_PC);
 
-	armvm_reset(pARMVM);
+	libarmvm_reset(pARMVM);
 
 if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, RUN_PC: 0x%08x", GEN_COUNT, GEN_PC, RUN_PC);
 
@@ -203,7 +203,7 @@ uint32_t test::step_test(void)
 	TEST_PC = RUN_PC;
 
 	if(GEN_COUNT) {
-		armvm_core_step(pARMVM_CORE);
+		libarmvm_step(pARMVM);
 		GEN_COUNT--;
 	}
 
@@ -216,15 +216,15 @@ test::test():cc(mem)
 	t = &tt;
 	t->cc = cc.p2armcc_t();
 
-	armvm_alloc_init(armvm_alloc(&pARMVM));
+	libarmvm_alloc_init(libarmvm_halloc(&pARMVM));
 	ERR_NULL(pARMVM);
 
-	pARMVM_CORE->config.trace = 1;
+	libarmvm_trace(pARMVM, 1);
 
-	armvm_mem_mmap_rw(pARMVM_MEM, 0, sizeof(mem), mem);
+	libarmvm_mem_mmap_rw(pARMVM, 0, sizeof(mem), mem);
 }
 
 test::~test()
 {
-	armvm_exit(pARMVM);
+	libarmvm_exit(pARMVM);
 }

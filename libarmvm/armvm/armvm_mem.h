@@ -14,13 +14,12 @@ typedef armvm_mem_callback_hptr const armvm_mem_callback_href;
 typedef struct armvm_mem_callback_tag* armvm_mem_callback_ptr;
 typedef armvm_mem_callback_ptr const armvm_mem_callback_ref;
 
-#include <stddef.h>
-#include <stdint.h>
-
-typedef uint32_t (*armvm_mem_fn)(void *const param, const uint32_t ppa, const size_t size, uint32_t *const write);
+#include "libarmvm_mem.h"
 
 #include "armvm.h"
 
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 /* **** */
@@ -31,7 +30,7 @@ typedef uint32_t (*armvm_mem_fn)(void *const param, const uint32_t ppa, const si
 /* **** */
 
 typedef struct armvm_mem_callback_tag {
-	armvm_mem_fn fn;
+	libarmvm_mem_fn fn;
 	void* param;
 }armvm_mem_callback_t;
 
@@ -40,7 +39,7 @@ typedef struct armvm_mem_callback_tag {
 extern action_list_t armvm_mem_action_list;
 
 //__attribute__((warn_unused_result))
-armvm_mem_ptr armvm_mem_alloc(armvm_ref avm, armvm_mem_href h2mem);
+armvm_mem_ptr armvm_mem_alloc(libarmvm_ref avm, armvm_mem_href h2mem);
 
 __attribute__((warn_unused_result))
 uint32_t armvm_mem_access_read(armvm_mem_ref mem,
@@ -61,16 +60,6 @@ uint32_t armvm_mem_generic_page_ro(void *const param,
 uint32_t armvm_mem_generic_page_rw(void *const param,
 	const uint32_t ppa, const size_t size,
 	uint32_t *const write);
-
-void armvm_mem_mmap_cb(armvm_mem_ref mem,
-	const uint32_t base, const uint32_t end,
-	armvm_mem_fn const fn, void *const param);
-
-void armvm_mem_mmap_ro(armvm_mem_ref mem,
-	const uint32_t base, const uint32_t end, void *const data);
-
-void armvm_mem_mmap_rw(armvm_mem_ref mem,
-	const uint32_t base, const uint32_t end, void *const data);
 
 /* **** */
 

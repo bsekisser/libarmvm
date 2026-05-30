@@ -15,7 +15,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 #include "libbse/include/action.h"
 

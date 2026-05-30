@@ -4,6 +4,12 @@ CFLAGS += -Os
 CFLAGS += -march=native
 export CFLAGS
 
+INCLUDE += -Igit/libarmvm/include
+INCLUDE += -Igit/libarmvm/armvm
+INCLUDE += -Igit/libarmvm/core
+INCLUDE += -Igit/libarm
+export INCLUDE
+
 LDLIBS += -Lgit/libarmvm -larmvm
 LDLIBS += -Lgit/libarmcc -larmcc
 LDLIBS += -Lgit/libarm -larm

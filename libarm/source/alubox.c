@@ -1,8 +1,10 @@
-#include "arm_alubox.h"
+#include "libarm.h"
+
+#include "alubox.h"
 
 /* **** */
 
-#include "arm_dp.h"
+#include "dp.h"
 
 /* **** */
 
@@ -16,7 +18,8 @@
 
 /* **** */
 
-uint32_t arm_alubox(arm_dp_opcode_tref operation, uint32_t *const rd, const uint32_t rn,
+PUBLIC
+uint32_t arm_alubox(arm_dp_opcode_eref operation, uint32_t *const rd, const uint32_t rn,
 	const uint32_t sop, const unsigned carry_in)
 {
 	uint32_t result = 0;

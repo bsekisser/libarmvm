@@ -13,10 +13,10 @@ extern "C" {
 /* **** */
 
 extern "C" {
-	#include "libarm/include/arm_cc.h"
-	#include "libarm/include/arm_dp.h"
-	#include "libarm/include/arm_ir.h"
-	#include "libarm/include/arm_sop.h"
+	#include "libarm/include/cc.h"
+	#include "libarm/include/dp.h"
+	#include "libarm/include/ir.h"
+	#include "libarm/include/sop.h"
 }
 
 extern "C" {

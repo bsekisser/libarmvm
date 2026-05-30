@@ -7,7 +7,7 @@
 /* **** */
 
 extern "C" {
-	#include "libarm/include/arm_cc.h"
+	#include "libarm/include/cc.h"
 }
 
 /* **** */
@@ -45,7 +45,7 @@ class armcc {
 		armcc_sop_t asr(const arm_reg_t rm, const uint8_t rs);
 		uint32_t asrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs);
 		uint32_t b(const uint32_t pat);
-		uint32_t b(const arm_condition_t cc, const uint32_t pat);
+		uint32_t b(arm_condition_eref cc, const uint32_t pat);
 		uint32_t bics(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm);
 		uint32_t bl(const uint32_t pat);
 		uint32_t blx(const arm_reg_t rm);

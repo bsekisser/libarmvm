@@ -9,7 +9,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_disasm.h"
+#include "libarm/include/disasm.h"
 
 #include "libbse/include/action.h"
 #include "libbse/include/bitops32.h"
@@ -32,7 +32,7 @@ typedef struct armvm_coprocessor_tag {
 	armvm_coprocessor_callback_t cp15[16][16][7][7];
 	uint32_t cp15r[16][16][7][7];
 //
-	armvm_ptr armvm;
+	libarmvm_ptr armvm;
 	armvm_core_ptr core;
 }armvm_coprocessor_t;
 
@@ -132,7 +132,7 @@ uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const writ
 }
 
 
-armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_ref avm,
+armvm_coprocessor_ptr armvm_coprocessor_alloc(libarmvm_ref avm,
 	armvm_coprocessor_href h2cp)
 {
 	ACTION_LOG(alloc);

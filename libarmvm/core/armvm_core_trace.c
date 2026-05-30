@@ -9,9 +9,9 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
-#include "libarm/include/arm_ir.h"
-#include "libarm/include/arm_strings.h"
+#include "libarm/include/cpsr.h"
+#include "libarm/include/ir.h"
+#include "libarm/include/strings.h"
 
 /* **** */
 

@@ -2,16 +2,16 @@
 
 /* **** */
 
-#include "libarm/include/arm_disasm.h"
+#include "libarm/include/disasm.h"
 #include "armvm.h"
 
 /* **** */
 
 //__attribute__((warn_unused_result))
-int armvm_exception_fiq(armvm_ref avm);
+int armvm_exception_fiq(libarmvm_ref avm);
 
 //__attribute__((warn_unused_result))
-int armvm_exception_irq(armvm_ref avm);
+int armvm_exception_irq(libarmvm_ref avm);
 
 /* **** */
 

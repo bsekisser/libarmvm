@@ -9,8 +9,8 @@
 
 /* **** */
 
-#include "libarm/include/arm_disasm.h"
-#include "libarm/include/arm_dp.h"
+#include "libarm/include/disasm.h"
+#include "libarm/include/dp.h"
 
 /* **** */
 

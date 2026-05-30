@@ -1,13 +1,14 @@
-#include "arm_shiftbox.h"
+#include "libarm.h"
+
+#include "shiftbox.h"
 
 /* **** */
 
-#include "arm_sop.h"
+#include "sop.h"
 
 /* **** */
 
 #include "libbse/include/bitfield.h"
-//#include "libbse/include/bitops32.h"
 #include "libbse/include/log.h"
 #include "libbse/include/shift_roll_32.h"
 
@@ -18,7 +19,8 @@
 
 /* **** */
 
-uint32_t arm_shiftbox(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in)
+PUBLIC
+uint32_t arm_shiftbox(arm_sop_eref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in)
 {
 	switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -44,7 +46,8 @@ uint32_t arm_shiftbox(arm_sop_tref shift_type, const uint32_t rm, const uint32_t
 	return(0xdeadbeef);
 }
 
-uint32_t arm_shiftbox_c(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs)
+PUBLIC
+uint32_t arm_shiftbox_c(arm_sop_eref shift_type, const uint32_t rm, const uint32_t rs)
 {
 	switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -70,7 +73,8 @@ uint32_t arm_shiftbox_c(arm_sop_tref shift_type, const uint32_t rm, const uint32
 	return(0xdeadbeef);
 }
 
-uint32_t arm_shiftbox_immediate(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in)
+PUBLIC
+uint32_t arm_shiftbox_immediate(arm_sop_eref shift_type, const uint32_t rm, const uint32_t rs, const unsigned carry_in)
 {
 	if(!rs) switch(shift_type) {
 	case ARM_SOP_ASR:
@@ -93,7 +97,8 @@ uint32_t arm_shiftbox_immediate(arm_sop_tref shift_type, const uint32_t rm, cons
 	return(arm_shiftbox(shift_type, rm, rs, carry_in));
 }
 
-uint32_t arm_shiftbox_c_immediate(arm_sop_tref shift_type, const uint32_t rm, const uint32_t rs)
+PUBLIC
+uint32_t arm_shiftbox_c_immediate(arm_sop_eref shift_type, const uint32_t rm, const uint32_t rs)
 {
 	if(!rs) switch(shift_type) {
 	case ARM_SOP_ASR:

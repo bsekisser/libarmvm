@@ -18,7 +18,7 @@ typedef test_ptr const test_ref;
 #include "libarmcc/include/armcc.hpp"
 
 extern "C" {
-	#include "libarmvm/include/armvm.h"
+	#include "libarmvm/include/libarmvm.h"
 }
 
 /* **** */
@@ -27,7 +27,7 @@ extern "C" {
 
 typedef struct test_tag {
 	armcc_p cc;
-	armvm_ptr armvm;
+	libarmvm_ptr armvm;
 //
 	uint32_t test_pc;
 }test_t;

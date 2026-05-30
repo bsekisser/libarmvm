@@ -7,8 +7,8 @@
 
 /* **** */
 
-#include "libarm/include/arm_cc.h"
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cc.h"
+#include "libarm/include/cpsr.h"
 
 /* **** */
 

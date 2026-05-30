@@ -6,7 +6,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 /* **** */
 

@@ -7,15 +7,16 @@
 #define pARMVM_MEM pARMVM->mem
 
 extern "C" {
-	#include "libarmvm/include/armvm_glue.h"
+	#include "libarmvm/armvm/armvm_glue.h"
 	//#include "libarmvm/include/armvm_mem.h"
-	#include "libarmvm/include/armvm.h"
+	#include "libarmvm/armvm/armvm.h"
+	#include "libarmvm/include/libarmvm_test.h"
 
-	#include "libarm/include/arm_cc.h"
-	#include "libarm/include/arm_cpsr.h"
-	#include "libarm/include/arm_dp.h"
-	#include "libarm/include/arm_sop.h"
-	#include "libarm/include/arm_strings.h"
+	#include "libarm/include/cc.h"
+	#include "libarm/include/cpsr.h"
+	#include "libarm/include/dp.h"
+	#include "libarm/include/sop.h"
+	#include "libarm/include/strings.h"
 }
 
 /* **** */
@@ -26,7 +27,7 @@ extern "C" {
 
 /* **** */
 
-#define rRx(_x) armvm_p2gpr(t->armvm, _x)[0]
+#define rRx(_x) libarmvm_test_p2gpr(t->armvm, _x)[0]
 #define rR(_x) rRx(r##_x)
 
 #define GEN_COUNT t->cc->icount

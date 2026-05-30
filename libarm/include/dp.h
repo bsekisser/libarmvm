@@ -31,5 +31,5 @@ typedef enum arm_dp_opcode_enum {
 	ARM_MUL,
 	ARM_NEG, THUMB_NEG = ARM_NEG,
 //
-}arm_dp_opcode_t;
-typedef enum arm_dp_opcode_enum const arm_dp_opcode_tref;
+}arm_dp_opcode_enum;
+typedef arm_dp_opcode_enum const arm_dp_opcode_eref;

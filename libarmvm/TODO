@@ -1,0 +1,14 @@
+*separation of public/private interfaces
+
+restructure project
+	public/private separation
+	internal state
+	core
+		step/step_arm/step_thumb
+		reg
+	mem
+		direct access
+	inclusion and conversion to c++/classes
+
+remove include-x
+

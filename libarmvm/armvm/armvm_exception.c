@@ -14,11 +14,11 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 /* **** */
 
-int armvm_exception_fiq(armvm_ref avm)
+int armvm_exception_fiq(libarmvm_ref avm)
 {
 	armvm_core_ref core = avm->core;
 
@@ -38,7 +38,7 @@ int armvm_exception_fiq(armvm_ref avm)
 	return(0);
 }
 
-int armvm_exception_irq(armvm_ref avm)
+int armvm_exception_irq(libarmvm_ref avm)
 {
 	armvm_core_ref core = avm->core;
 

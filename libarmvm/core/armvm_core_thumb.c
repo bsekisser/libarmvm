@@ -21,9 +21,9 @@
 
 /* **** */
 
-#include "libarm/include/arm_cc.h"
-#include "libarm/include/arm_disasm.h"
-#include "libarm/include/arm_strings.h"
+#include "libarm/include/cc.h"
+#include "libarm/include/disasm.h"
+#include "libarm/include/strings.h"
 
 /* **** */
 

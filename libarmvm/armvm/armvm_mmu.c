@@ -37,7 +37,7 @@ int armvm_mmu_action_alloc_init(int err, void *const param, action_ref)
 
 	ERR_NULL(mmu->armvm);
 
-	armvm_ref avm = mmu->armvm;
+	libarmvm_ref avm = mmu->armvm;
 
 	ERR_NULL(pARMVM_CORE = avm->core);
 	ERR_NULL(mmu->cp = avm->coprocessor);
@@ -185,7 +185,7 @@ int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 	return(__l1ptd_xx(mmu, ppa));
 }
 
-armvm_mmu_ptr armvm_mmu_alloc(armvm_ref avm, armvm_mmu_href h2mmu)
+armvm_mmu_ptr armvm_mmu_alloc(libarmvm_ref avm, armvm_mmu_href h2mmu)
 {
 	ACTION_LOG(alloc);
 

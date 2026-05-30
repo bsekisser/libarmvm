@@ -8,7 +8,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_dp.h"
+#include "libarm/include/dp.h"
 
 /* **** */
 
@@ -17,7 +17,7 @@
 /* **** */
 
 static uint32_t gen_arm_dp__op_s_rd_rn(armcc_p const p2cc, const unsigned group,
-	const arm_dp_opcode_t opcode, const unsigned s,
+	arm_dp_opcode_eref opcode, const unsigned s,
 	const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
 {
 	return(gen_arm__group_ir(p2cc, group,
@@ -28,7 +28,7 @@ static uint32_t gen_arm_dp__op_s_rd_rn(armcc_p const p2cc, const unsigned group,
 }
 
 static uint32_t gen_arm_dp__op_s_rd_rn_rm(armcc_p const p2cc,
-	const arm_dp_opcode_t opcode, const unsigned s,
+	arm_dp_opcode_eref opcode, const unsigned s,
 	const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
 {
 	return(gen_arm__group_ir(p2cc, 0,
@@ -38,7 +38,7 @@ static uint32_t gen_arm_dp__op_s_rd_rn_rm(armcc_p const p2cc,
 }
 
 static uint32_t gen_arm_dp__op_s_rd_rn_sop(armcc_p const p2cc,
-	const arm_dp_opcode_t opcode, const unsigned s,
+	arm_dp_opcode_eref opcode, const unsigned s,
 	const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
 {
 	return(gen_arm__group_ir(p2cc, 0,

@@ -8,7 +8,7 @@
 
 /* **** */
 
-#include "git/libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 #include "git/libbse/include/action.h"
 #include "git/libbse/include/err_test.h"
@@ -34,7 +34,7 @@ static
 uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
-	armvm_ref armvm = acr->armvm;
+	libarmvm_ref armvm = acr->armvm;
 	armvm_core_ref core = acr->core;
 
 	const uint32_t data = write ? *write : 0;
@@ -78,7 +78,7 @@ static
 uint32_t _armvm_cp15_0_7_10_4_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
-//	armvm_ref armvm = acr->armvm;
+//	libarmvm_ref armvm = acr->armvm;
 	armvm_core_ref core = acr->core;
 
 	if(write) {
@@ -95,7 +95,7 @@ static
 uint32_t _armvm_cp15_0_7_5_0_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
-//	armvm_ref armvm = acr->armvm;
+//	libarmvm_ref armvm = acr->armvm;
 	armvm_core_ref core = acr->core;
 
 	if(write) {
@@ -112,7 +112,7 @@ static
 uint32_t _armvm_cp15_0_7_6_0_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
-//	armvm_ref armvm = acr->armvm;
+//	libarmvm_ref armvm = acr->armvm;
 	armvm_core_ref core = acr->core;
 
 	if(write) {
@@ -130,7 +130,7 @@ static
 uint32_t _armvm_cp15_0_7_7_0_access(void *const param, uint32_t *const write)
 {
 	armvm_cache_ref acr = param;
-//	armvm_ref armvm = acr->armvm;
+//	libarmvm_ref armvm = acr->armvm;
 	armvm_core_ref core = acr->core;
 
 	if(write) {

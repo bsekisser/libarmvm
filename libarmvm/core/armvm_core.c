@@ -14,7 +14,7 @@
 
 /* **** */
 
-#include "libarm/include/arm_cpsr.h"
+#include "libarm/include/cpsr.h"
 
 /* **** */
 
@@ -123,7 +123,7 @@ int armvm_core_action_alloc_init(int err, void *const param, action_ref)
 
 	ERR_NULL(core->armvm);
 
-	armvm_ref armvm = core->armvm;
+	libarmvm_ref armvm = core->armvm;
 
 	ERR_NULL(core->cp = armvm->coprocessor);
 	ERR_NULL(core->mmu = armvm->mmu);
@@ -221,7 +221,7 @@ int armvm_core_action_resume(int err, void *const param, action_ref)
 	return(err);
 }
 
-armvm_core_ptr armvm_core_alloc(armvm_ref avm, armvm_core_href h2core)
+armvm_core_ptr armvm_core_alloc(libarmvm_ref avm, armvm_core_href h2core)
 {
 	ACTION_LOG(alloc);
 

@@ -9,9 +9,9 @@
 
 /* **** */
 
-#include "libarm/include/arm_disasm.h"
-#include "libarm/include/arm_dp.h"
-#include "libarm/include/arm_strings.h"
+#include "libarm/include/disasm.h"
+#include "libarm/include/dp.h"
+#include "libarm/include/strings.h"
 
 #include "libbse/include/bitops32.h"
 

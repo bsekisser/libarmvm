@@ -32,7 +32,7 @@ extern action_list_t armvm_coprocessor_action_list;
 uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const write);
 
 //__attribute__((warn_unused_result))
-armvm_coprocessor_ptr armvm_coprocessor_alloc(armvm_ref avm, armvm_coprocessor_href h2cp);
+armvm_coprocessor_ptr armvm_coprocessor_alloc(libarmvm_ref avm, armvm_coprocessor_href h2cp);
 
 //__attribute__((warn_unused_result))
 uint32_t armvm_coprocessor_cp15r(armvm_coprocessor_ref cp, const uint32_t cpx, uint32_t *const write);

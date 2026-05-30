@@ -1,4 +1,5 @@
 CFLAGS += -O1
+CFLAGS += -fvisibility=hidden
 CFLAGS += -march=native
 export CFLAGS
 
