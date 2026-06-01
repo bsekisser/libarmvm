@@ -8,6 +8,8 @@ typedef libarmvm_hptr const libarmvm_href;
 typedef struct libarmvm_tag* libarmvm_ptr;
 typedef libarmvm_ptr const libarmvm_ref;
 
+#include "libarmvm/include/libarmvm_state.h"
+
 /* **** */
 
 #include "git/libbse/include/action.h"
@@ -50,7 +52,7 @@ void libarmvm_reset(libarmvm_ref avm);
 uint64_t libarmvm_run(libarmvm_ref avm, uint64_t cycles);
 
 // WARN_UNUSED_RESULT
-int libarmvm_step(libarmvm_ref avm);
+libarmvm_state_t libarmvm_step(libarmvm_ref avm);
 
 void* libarmvm_threaded_run(void* param);
 

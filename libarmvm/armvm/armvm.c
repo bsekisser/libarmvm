@@ -25,6 +25,19 @@
 
 /* **** */
 
+static
+libarmvm_state_t _armvm_state(libarmvm_ref avm)
+{
+	armvm_core_ref core = avm->core;
+
+	STATE(crashed) = core->flags.crashed;
+	STATE(halt) = core->flags.halt;
+
+	return(_STATE);
+}
+
+/* **** */
+
 static WARN_UNUSED_RESULT
 libarmvm_ptr _libarmvm_alloc(libarmvm_ref avm)
 {
@@ -44,9 +57,18 @@ libarmvm_ptr _libarmvm_alloc(libarmvm_ref avm)
 static
 int libarmvm_action_exit(int err, void *const param, action_ref)
 {
+	libarmvm_ref avm = param;
+
 	ACTION_LOG(exit);
 
 	/* **** */
+
+	STATE(halt) = 1;
+	STATE(running) = STATE(run) = 0;
+
+	if(STATE(threaded)) {
+		pthread_join(avm->thread, 0);
+	}
 
 	handle_ptrfree(param);
 
@@ -147,8 +169,7 @@ uint64_t libarmvm_run(libarmvm_ref avm, const uint64_t run_cycles)
 
 		const uint64_t start_cycle = CYCLE;
 
-		if(0 > libarmvm_step(avm))
-			return(0);
+		libarmvm_step(avm);
 
 		const uint64_t delta_cycles = CYCLE - start_cycle;
 		const uint64_t _cycles_left = run_cycles_left - delta_cycles;
@@ -157,27 +178,37 @@ uint64_t libarmvm_run(libarmvm_ref avm, const uint64_t run_cycles)
 			return(_cycles_left);
 
 		run_cycles_left = _cycles_left;
+
+		if(STATE(error)) break;
 	}
 
 	return(run_cycles_left);
 }
 
+PUBLIC
+libarmvm_state_t libarmvm_state(libarmvm_ref avm)
+{ return(_STATE); }
+
 PUBLIC // TODO: internal state struct -- istate
-int libarmvm_step(libarmvm_ref avm)
+libarmvm_state_t libarmvm_step(libarmvm_ref avm)
 {
+	STATE(step) = 1;
+
  	armvm_core_ref core = avm->core;
 
 	if(core->flags.halt)
-		return(-1);
+		return(_armvm_state(avm));
 
 	if(core->flags.crashed)
-		return(0);
+		return(_armvm_state(avm));
 
 	const int rval = armvm_core_step(core);
 		core->flags.halt |= (0 > rval);
 		core->flags.crashed |= (IP == PC);
 
-	return(rval);
+	STATE(step) = 0;
+
+	return(_armvm_state(avm));
 }
 
 PUBLIC // TODO: should this be public???

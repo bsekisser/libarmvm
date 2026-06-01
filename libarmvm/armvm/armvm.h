@@ -17,6 +17,8 @@ typedef libarmvm_ptr const libarmvm_ref;
 #include "armvm_mem.h"
 #include "armvm_mmu.h"
 
+#include "libarmvm_state.h"
+
 /* **** */
 
 #include "libbse/include/action.h"
@@ -38,6 +40,11 @@ typedef struct libarmvm_tag {
 //
 	armvm_config_t config;
 	pthread_t thread;
+//
+	volatile libarmvm_state_t state;
+#define _STATE avm->state
+#define STATE(_) (_STATE._)
+//
 }libarmvm_t;
 
 /* **** */
