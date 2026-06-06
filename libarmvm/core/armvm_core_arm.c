@@ -216,36 +216,21 @@ int _arm_inst_dp_immediate(armvm_core_ref core)
 }
 
 static
-int _arm_inst_dp_shift(armvm_core_ref core, unsigned immediate)
+int _arm_inst_dp_shift(armvm_core_ref core)
 {
-	if(CCX) CYCLE++;
+	if(CCX) CYCLE += 1 + ARM_IR4;
 
 	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rs = ARM_IR4
+		? core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S))
+		: setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DP_SHIFT_AMOUNT);
 
-	const uint32_t sop = (immediate ? arm_shiftbox_immediate : arm_shiftbox)
-		(ARM_IR_DP_SHIFT_TYPE, rm, vR(S), IF_CPSR(C));
+	const uint32_t sop = (ARM_IR4 ? arm_shiftbox : arm_shiftbox_immediate)
+		(ARM_IR_DP_SHIFT_TYPE, rm, rs, IF_CPSR(C));
 
 	setup_vR(core, ARMVM_TRACE_R(SOP), sop);
 
 	return(_arm_inst_dp(core));
-}
-
-static
-int _arm_inst_dp_shift_register(armvm_core_ref core)
-{
-	if(CCX) CYCLE++;
-
-	(void)core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
-
-	return(_arm_inst_dp_shift(core, 0));
-}
-
-static
-int _arm_inst_dp_shift_immediate(armvm_core_ref core)
-{
-	(void)setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DP_SHIFT_AMOUNT);
-
-	return(_arm_inst_dp_shift(core, 1));
 }
 
 static
@@ -815,20 +800,12 @@ int armvm_core_arm__step__group0_misc(armvm_core_ref core)
 static
 int armvm_core_arm__step_group0(armvm_core_ref core)
 {
-	if(bext32(IR, 4)) {
-		if(bext32(IR, 7))
-			return(armvm_core_arm__step__group0_ldst(core));
-		else if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
-			return(armvm_core_arm__step__group0_misc(core));
-		else
-			return(_arm_inst_dp_shift_register(core));
-
-	} else {
-		if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
-			return(armvm_core_arm__step__group0_misc(core));
-		else
-			return(_arm_inst_dp_shift_immediate(core));
-	}
+	if(ARM_IR_4and7)
+		return(armvm_core_arm__step__group0_ldst(core));
+	else if((2 == mlBFEXT(IR, 24, 23)) && !ARM_IR_DP_S)
+		return(armvm_core_arm__step__group0_misc(core));
+	else
+		return(_arm_inst_dp_shift(core));
 
 	LOG_ACTION(return(__arm_decode_fail(core)));
 }
