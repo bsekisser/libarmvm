@@ -13,7 +13,7 @@
 
 #include "alubox.h"
 #include "core_arm_trace.h"
-#include "core_reg.h"
+#include "reg.h"
 #include "ldst_arm.h"
 #include "ldstm_arm.h"
 
@@ -139,7 +139,7 @@ int _arm_inst_bx_blx_m(armvm_core_ref core, const int link)
 		assert(15 == ARM_IR_RS);
 	}
 
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	const unsigned thumb = CONFIG->features.thumb ? (rm & 1) : 0;
 
 	/* trace needs to occur before action as thumb state may change,
@@ -175,10 +175,10 @@ int _arm_inst_clz(armvm_core_ref core)
 		assert(15 == ARM_IR_R(S));
 	}
 
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	uint32_t rd = rm ? __builtin_clz(rm) : 32;
 
-	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
+	reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 
 	if(_armvm_trace_start(core, "clz(%s)", irR_NAME(M)))
 		_armvm_trace_end_with_comment(core, "0x%08x => 0x%08x", rm, rd);
@@ -191,8 +191,8 @@ int _arm_inst_clz(armvm_core_ref core)
 static
 int _arm_inst_dp(armvm_core_ref core)
 {
-	core_reg_src_setup(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
-	core_reg_dst(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+	reg_src_setup(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
+	reg_dst(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
 	alubox(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S, 1);
 
@@ -205,12 +205,12 @@ int _arm_inst_dp(armvm_core_ref core)
 static
 int _arm_inst_dp_immediate(armvm_core_ref core)
 {
-	const uint32_t rm = setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_DPI_IMMEDIATE);
-	const uint32_t rs = setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DPI_ROTATE_AMOUNT);
+	const uint32_t rm = reg_setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_DPI_IMMEDIATE);
+	const uint32_t rs = reg_setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DPI_ROTATE_AMOUNT);
 
 	const uint32_t sop = arm_shiftbox(ARM_SOP_ROR, rm, rs, IF_CPSR(C));
 
-	(void)setup_vR(core, ARMVM_TRACE_R(SOP), sop);
+	(void)reg_setup_vR(core, ARMVM_TRACE_R(SOP), sop);
 
 	return(_arm_inst_dp(core));
 }
@@ -220,15 +220,15 @@ int _arm_inst_dp_shift(armvm_core_ref core)
 {
 	if(CCX) CYCLE += 1 + ARM_IR4;
 
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	const uint32_t rs = ARM_IR4
-		? core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S))
-		: setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DP_SHIFT_AMOUNT);
+		? reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S))
+		: reg_setup_vR(core, ARMVM_TRACE_R(S), ARM_IR_DP_SHIFT_AMOUNT);
 
 	const uint32_t sop = (ARM_IR4 ? arm_shiftbox : arm_shiftbox_immediate)
 		(ARM_IR_DP_SHIFT_TYPE, rm, rs, IF_CPSR(C));
 
-	setup_vR(core, ARMVM_TRACE_R(SOP), sop);
+	reg_setup_vR(core, ARMVM_TRACE_R(SOP), sop);
 
 	return(_arm_inst_dp(core));
 }
@@ -246,7 +246,7 @@ int _arm_inst_hlt(armvm_core_ref core)
 static
 int _arm_inst_ldst(armvm_core_ref core)
 {
-	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+	reg_setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
 	int (*ldst_fn)(armvm_core_ref core);
 	if(ARM_IR_LDST_BIT(L)) {
@@ -266,8 +266,8 @@ int _arm_inst_ldst(armvm_core_ref core)
 static
 int _arm_inst_ldst_immediate(armvm_core_ref core)
 {
-	const uint32_t rm = setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_LDST_IMMEDIATE_OFFSET);
-	(void)setup_vR(core, ARMVM_TRACE_R(SOP), rm);
+	const uint32_t rm = reg_setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_LDST_IMMEDIATE_OFFSET);
+	(void)reg_setup_vR(core, ARMVM_TRACE_R(SOP), rm);
 
 	return(_arm_inst_ldst(core));
 }
@@ -275,11 +275,11 @@ int _arm_inst_ldst_immediate(armvm_core_ref core)
 static
 int _arm_inst_ldst_scaled_register_offset(armvm_core_ref core)
 {
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
-	const uint32_t rs = setup_vRml(core, ARMVM_TRACE_R(S), 11, 7);
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rs = reg_setup_vRml(core, ARMVM_TRACE_R(S), 11, 7);
 
 	const uint32_t sop = arm_shiftbox_immediate(ARM_IR_DP_SHIFT_TYPE, rm, rs, IF_CPSR(C));
-	(void)setup_vR(core, ARMVM_TRACE_R(SOP), sop);
+	(void)reg_setup_vR(core, ARMVM_TRACE_R(SOP), sop);
 
 	return(_arm_inst_ldst(core));
 }
@@ -287,8 +287,8 @@ int _arm_inst_ldst_scaled_register_offset(armvm_core_ref core)
 static
 int _arm_inst_ldst_sh(armvm_core_ref core, const uint32_t rm)
 {
-	(void)setup_vR(core, ARMVM_TRACE_R(SOP), rm);
-	setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
+	(void)reg_setup_vR(core, ARMVM_TRACE_R(SOP), rm);
+	reg_setup_rR(core, ARMVM_TRACE_R(D), ARM_IR_R(D));
 
 	const unsigned bwh  = bmov32(IR, ARM_IR_LDST_BIT_L, 2) | mlBFEXT(IR, 6, 5);
 
@@ -315,7 +315,7 @@ int _arm_inst_ldst_sh(armvm_core_ref core, const uint32_t rm)
 static
 int _arm_inst_ldst_sh_immediate(armvm_core_ref core)
 {
-	const uint rm = setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_LDST_SH_OFFSET);
+	const uint rm = reg_setup_vR(core, ARMVM_TRACE_R(M), ARM_IR_LDST_SH_OFFSET);
 	return(_arm_inst_ldst_sh(core, rm));
 }
 
@@ -325,15 +325,15 @@ int _arm_inst_ldst_sh_register(armvm_core_ref core)
 	if(CONFIG->pedantic.ir_checks)
 		assert(0 == ARM_IR_RS);
 
-	const uint rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 	return(_arm_inst_ldst_sh(core, rm));
 }
 
 static
 int _arm_inst_ldstm(armvm_core_ref core)
 {
-	const uint32_t rm = setup_vRml(core, ARMVM_TRACE_R(M), 15, 0);
-	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
+	const uint32_t rm = reg_setup_vRml(core, ARMVM_TRACE_R(M), 15, 0);
+	const uint32_t rn = reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
 
 	const uint8_t _rcount = (uint8_t)__builtin_popcount(rm);
 	const uint8_t rcount_bytes = _rcount << 2;
@@ -408,7 +408,7 @@ int _arm_inst_ldstm(armvm_core_ref core)
 		_armvm_trace_end_with_comment(core, "0x%08x", sp_in);
 	}
 
-	setup_vR(core, ARMVM_TRACE_R(EA), start_address);
+	reg_setup_vR(core, ARMVM_TRACE_R(EA), start_address);
 
 	if(CCX)
 	{
@@ -449,7 +449,7 @@ int _arm_inst_ldstm(armvm_core_ref core)
 
 			assert(end_address == vR(EA) - 4);
 			if(end_address == vR(EA) - 4)
-				core_reg_wb_v(core, ARMVM_TRACE_R(N), sp_out);
+				reg_wb_v(core, ARMVM_TRACE_R(N), sp_out);
 			else
 					LOG_ACTION(exit(-1));
 //				UNDEFINED;
@@ -489,13 +489,13 @@ int _arm_inst_mcr_mrc(armvm_core_ref core)
 static
 int _arm_inst_mla(armvm_core_ref core)
 {
-	const uint32_t rn = core_reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
-	const uint32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
+	const uint32_t rn = reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rs = reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
 
 	const uint32_t rd = (rm * rs) + rn;
 
-	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
+	reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 
 	if(CCX && ARM_IR_DP_S)
 		_alubox_flags_nz(core, irGPR(D));
@@ -528,9 +528,9 @@ int _arm_inst_mrs(armvm_core_ref core)
 
 	if(ARM_IR_MRSR_R) {
 		if(pSPSR)
-			rd = core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), armvm_core_spsr(core, 0));
+			rd = reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), armvm_core_spsr(core, 0));
 	} else
-		rd = core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), CPSR);
+		rd = reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), CPSR);
 
 	/* **** */
 
@@ -634,9 +634,9 @@ if(0)	LOG("mask: 0x%08x", mask);
 	}
 
 	if(core->config.trace) {
-		setup_vR(core, ARMVM_TRACE_R(D), new_psr);
-		setup_vR(core, ARMVM_TRACE_R(N), saved_psr);
-		setup_rR_vR(core, ARMVM_TRACE_R(S), ~field_mask, mask);
+		reg_setup_vR(core, ARMVM_TRACE_R(D), new_psr);
+		reg_setup_vR(core, ARMVM_TRACE_R(N), saved_psr);
+		reg_setup_rR_vR(core, ARMVM_TRACE_R(S), ~field_mask, mask);
 
 		armvm_trace_msr(core);
 	}
@@ -651,8 +651,8 @@ int _arm_inst_msr_register(armvm_core_ref core)
 		assert(0 == ARM_IR_R(S));
 	}
 
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
-	const uint32_t sop = setup_vR(core, ARMVM_TRACE_R(SOP), rm);
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t sop = reg_setup_vR(core, ARMVM_TRACE_R(SOP), rm);
 
 	return(_arm_inst_msr(core, sop));
 }
@@ -660,13 +660,13 @@ int _arm_inst_msr_register(armvm_core_ref core)
 static
 int _arm_inst_mul(armvm_core_ref core)
 {
-	const uint32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rs = reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 
 	rSPR64(RESULT) = rm * rs;
 	const uint32_t rd = rSPR64lo(RESULT);
 
-	core_reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
+	reg_dst_wb(core, ARMVM_TRACE_R(D), ARM_IR_R(D), rd);
 	if(CCX) _alubox_flags_nz(core, rd);
 
 	/* **** */
@@ -686,16 +686,16 @@ int _arm_inst_mul(armvm_core_ref core)
 static
 int _arm_inst_smull(armvm_core_ref core)
 {
-	const int32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
-	const int32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
+	const int32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const int32_t rs = reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
 
 	rSPR64(RESULT) = (int64_t)(rm * rs);
 
 	const uint32_t lo = rSPR64lo(RESULT);
 	const uint32_t hi = rSPR64hi(RESULT);
 
-	core_reg_dst_wb(core, ARMVM_TRACE_R(DLo), ARM_IR_R(DLo), lo);
-	core_reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
+	reg_dst_wb(core, ARMVM_TRACE_R(DLo), ARM_IR_R(DLo), lo);
+	reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
 
 	if(CCX && ARM_IR_DP_S) {
 		ARM_CPSR_BMAS(N, bext32(hi, 31));
@@ -719,16 +719,16 @@ int _arm_inst_smull(armvm_core_ref core)
 static
 int _arm_inst_umull(armvm_core_ref core)
 {
-	const uint32_t rs = core_reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
-	const uint32_t rm = core_reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
+	const uint32_t rs = reg_src(core, ARMVM_TRACE_R(S), ARM_IR_R(S));
+	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), ARM_IR_R(M));
 
 	rSPR64(RESULT) = (uint32_t)rm * (uint32_t)rs;
 
 	const uint32_t lo = rSPR64lo(RESULT);
 	const uint32_t hi = rSPR64hi(RESULT);
 
-	core_reg_dst_wb(core, ARMVM_TRACE_R(DLo), ARM_IR_R(DLo), lo);
-	core_reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
+	reg_dst_wb(core, ARMVM_TRACE_R(DLo), ARM_IR_R(DLo), lo);
+	reg_dst_wb(core, ARMVM_TRACE_R(DHi), ARM_IR_R(DHi), hi);
 
 	if(CCX && ARM_IR_DP_S) {
 		ARM_CPSR_BMAS(N, bext32(hi, 31));
@@ -843,13 +843,13 @@ int armvm_core_arm__step_group7(armvm_core_ref core)
 
 int armvm_core_arm_step(armvm_core_ref core)
 {
-	IP = setup_vR(core, ARMVM_TRACE_R(IP), PC & ~3U); // STUPID KLUDGE!!
+	IP = reg_setup_vR(core, ARMVM_TRACE_R(IP), PC & ~3U); // STUPID KLUDGE!!
 	PC = ARM_IP_NEXT;
 
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 4))
 		return(1);
 
-	setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
+	reg_setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
 
 //	armvm_trace(pARMVM_TRACE);
 //	arm_disasm(IP, IR);

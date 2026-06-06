@@ -5,7 +5,7 @@
 #include "armvm_core.h"
 
 #include "alubox.h"
-#include "core_reg.h"
+#include "reg.h"
 
 /* **** */
 
@@ -38,13 +38,13 @@ static uint32_t alubox_thumb(armvm_core_ref core, const unsigned operation,
 			shift_type = ARM_SOP_ROR;
 			break;
 		default:
-			setup_vR(core, ARMVM_TRACE_R(SOP), vR(M));
+			reg_setup_vR(core, ARMVM_TRACE_R(SOP), vR(M));
 			return(alubox(core, operation, s, 0));
 	}
 
 	assert(~0U != shift_type);
 
-	core_reg_src_load(core, ARMVM_TRACE_R(N));
+	reg_src_load(core, ARMVM_TRACE_R(N));
 	const uint32_t valid_rs = vR(M) & 0xff;
 
 	vR(SOP) = arm_shiftbox(shift_type, vR(N), valid_rs, IF_CPSR(C));

@@ -9,7 +9,7 @@
 
 /* **** */
 
-#include "core_reg.h"
+#include "reg.h"
 
 /* **** */
 
@@ -51,7 +51,7 @@ static int __ldr(armvm_core_ref core, const int arm)
 	if(rR_IS_PC(D))
 		armvm_core_pcx_v5(core, vR(D));
 	else
-		core_reg_wb(core, ARMVM_TRACE_R(D));
+		reg_wb(core, ARMVM_TRACE_R(D));
 
 	return(1);
 }
@@ -66,7 +66,7 @@ static int __ldrb(armvm_core_ref core)
 	if(0 > read_rval)
 		return(read_rval);
 
-	core_reg_wb(core, ARMVM_TRACE_R(D));
+	reg_wb(core, ARMVM_TRACE_R(D));
 
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
@@ -83,7 +83,7 @@ static int __ldrh(armvm_core_ref core)
 	if(0 > read_rval)
 		return(read_rval);
 
-	core_reg_wb(core, ARMVM_TRACE_R(D));
+	reg_wb(core, ARMVM_TRACE_R(D));
 
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
@@ -100,7 +100,7 @@ static int __ldrsb(armvm_core_ref core)
 
 	vR(D) = (int32_t)(int8_t)vR(D);
 
-	core_reg_wb(core, ARMVM_TRACE_R(D));
+	reg_wb(core, ARMVM_TRACE_R(D));
 
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
@@ -120,7 +120,7 @@ static int __ldrsh(armvm_core_ref core)
 
 	vR(D) = (int32_t)(int16_t)vR(D);
 
-	core_reg_wb(core, ARMVM_TRACE_R(D));
+	reg_wb(core, ARMVM_TRACE_R(D));
 
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
 		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
@@ -130,7 +130,7 @@ static int __ldrsh(armvm_core_ref core)
 
 static int __str(armvm_core_ref core)
 {
-	core_reg_src_load(core, ARMVM_TRACE_R(D));
+	reg_src_load(core, ARMVM_TRACE_R(D));
 
 	if((vR(EA) & 3) && CP15_REG1_BIT(A))
 		return(armvm_core_exception_data_abort(core));
@@ -140,14 +140,14 @@ static int __str(armvm_core_ref core)
 
 static int __strb(armvm_core_ref core)
 {
-	core_reg_src_load(core, ARMVM_TRACE_R(D));
+	reg_src_load(core, ARMVM_TRACE_R(D));
 
 	return(armvm_core_mem_write(core, vR(EA), 1, vR(D)));
 }
 
 static int __strh(armvm_core_ref core)
 {
-	core_reg_src_load(core, ARMVM_TRACE_R(D));
+	reg_src_load(core, ARMVM_TRACE_R(D));
 
 	if((vR(EA) & 1) && CP15_REG1_BIT(A))
 		return(armvm_core_exception_data_abort(core));

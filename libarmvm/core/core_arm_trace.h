@@ -17,10 +17,6 @@
 
 /* **** */
 
-#include "core_reg.h"
-
-/* **** */
-
 #include <stdint.h>
 
 /* **** */
