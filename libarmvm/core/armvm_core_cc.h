@@ -1,8 +1,9 @@
 #pragma once
 
+#define pCORE core
+
 /* **** */
 
-#include "armvm_core_glue.h"
 #include "armvm_core.h"
 
 /* **** */

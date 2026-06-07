@@ -30,13 +30,13 @@ static uint32_t __ldst_arm__ea(armvm_core_ref core)
 
 	assert(!(!bit_p && ARM_IR_LDST_BIT(W)));
 
-	const uint32_t rn = reg_src(core, ARMVM_TRACE_R(N), ARM_IR_R(N));
+	const uint32_t rn = reg_src(core, rRN, ARM_IR_R(N));
 	const uint32_t offset = ARM_IR_LDST_BIT(U) ? vR(SOP) : -vR(SOP);
 
 	const uint32_t pre_offset = bit_p ? offset : 0;
 	const uint32_t post_offset = bit_p ? 0 : offset;
 
-	const uint32_t ea = reg_setup_rR_vR(core, ARMVM_TRACE_R(EA), ~0, rn + pre_offset);
+	const uint32_t ea = reg_setup_rR_vR(core, rREA, ~0, rn + pre_offset);
 
 	return(ea + post_offset);
 }
@@ -44,7 +44,7 @@ static uint32_t __ldst_arm__ea(armvm_core_ref core)
 static void __ldst_arm__ea_wb(armvm_core_ref core, uint32_t wb_ea)
 {
 	if((!ARM_IR_LDST_BIT(P)) || ARM_IR_LDST_BIT(W))
-		reg_wb_v(core, ARMVM_TRACE_R(N), wb_ea);
+		reg_wb_v(core, rRN, wb_ea);
 }
 
 static uint32_t __ldst_arm_ea_fn(armvm_core_ref core, ldst_fn fn)

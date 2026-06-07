@@ -15,11 +15,11 @@
 /* **** */
 
 #ifndef rR_IS_PC
-	#define rR_IS_PC(_x) (ARMVM_GPR(PC) == ARM_IR_R(_x))
+	#define rR_IS_PC(_x) (rPC == ARM_IR_R(_x))
 #endif
 
 #ifndef rR_IS_NOT_PC
-	#define rR_IS_NOT_PC(_x) (ARMVM_GPR(PC) != ARM_IR_R(_x))
+	#define rR_IS_NOT_PC(_x) (rPC != ARM_IR_R(_x))
 #endif
 
 /* **** */
@@ -29,7 +29,7 @@ static uint32_t __reg_src_fetch(armvm_core_ref core, const unsigned rrx, const u
 	const unsigned rr = r & 15;
 	uint32_t v = GPRx(rr);
 
-	if(ARMVM_GPR(PC) == r) {
+	if(rPC == r) {
 		const unsigned thumb = IF_CPSR(Thumb);
 		v += (4 >> thumb);
 		v &= ~(3U >> thumb);

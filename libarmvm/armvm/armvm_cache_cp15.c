@@ -1,9 +1,10 @@
+#define pCORE acr->core
+
 #include "armvm_cache.h"
 #include "armvm_coprocessor.h"
 #include "armvm_coprocessor_cp15.h"
 #include "armvm_core.h"
 #include "armvm_core_exception.h"
-#include "armvm_core_glue.h"
 #include "armvm_exception.h"
 
 /* **** */

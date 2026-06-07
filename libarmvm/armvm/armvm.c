@@ -1,5 +1,5 @@
-#include "armvm_core_glue.h"
-#include "armvm_glue.h"
+#define pCORE avm->core
+
 #include "armvm.h"
 
 /* **** */
@@ -134,19 +134,19 @@ libarmvm_ptr libarmvm_halloc(libarmvm_href h2avm)
 
 PUBLIC
 uint64_t libarmvm_cycle(libarmvm_ref avm)
-{ armvm_core_ref core = avm->core; return(CYCLE); }
+{ return(CYCLE); }
 
 PUBLIC
 uint64_t libarmvm_icount(libarmvm_ref avm)
-{ armvm_core_ref core = avm->core; return(ICOUNT); }
+{ return(ICOUNT); }
 
 PUBLIC WARN_UNUSED_RESULT
 uint32_t libarmvm_ip(libarmvm_ref avm)
-{ armvm_core_ref core = avm->core; return(IP); }
+{ return(IP); }
 
 PUBLIC WARN_UNUSED_RESULT
 uint32_t libarmvm_pc(libarmvm_ref avm)
-{ armvm_core_ref core = avm->core; return(PC); }
+{ return(PC); }
 
 PUBLIC
 void libarmvm_reset(libarmvm_ref avm)

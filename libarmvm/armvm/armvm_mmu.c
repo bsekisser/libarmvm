@@ -1,3 +1,6 @@
+#define pCOPROCESSOR mmu->cp
+#define pCORE mmu->core
+
 #include "armvm_mmu.h"
 
 /* **** */
@@ -20,11 +23,6 @@
 
 /* **** */
 
-#define pARMVM mmu->armvm
-#define pARMVM_CORE mmu->core
-
-/* **** */
-
 static
 int armvm_mmu_action_alloc_init(int err, void *const param, action_ref)
 {
@@ -39,7 +37,7 @@ int armvm_mmu_action_alloc_init(int err, void *const param, action_ref)
 
 	libarmvm_ref avm = mmu->armvm;
 
-	ERR_NULL(pARMVM_CORE = avm->core);
+	ERR_NULL(pCORE = avm->core);
 	ERR_NULL(mmu->cp = avm->coprocessor);
 	ERR_NULL(mmu->mem = avm->mem);
 
@@ -226,7 +224,7 @@ int armvm_mmu_ifetch(armvm_mmu_ref mmu, uint32_t *const ir,
 
 	*ir = armvm_mem_access_read(mmu->mem, ppa, size, &src);
 	if(!src)
-		return(armvm_core_exception_prefetch_abort(pARMVM_CORE));
+		return(armvm_core_exception_prefetch_abort(pCORE));
 
 	if(tlb && src)
 		armvm_tlb_fill_instruction_tlbe(tlbe, va, src);
@@ -255,7 +253,7 @@ int armvm_mmu_read(armvm_mmu_ref mmu, uint32_t *const read,
 
 	*read = armvm_mem_access_read(mmu->mem, ppa, size, &src);
 	if(!src)
-		return(armvm_core_exception_data_abort(pARMVM_CORE));
+		return(armvm_core_exception_data_abort(pCORE));
 
 	if(tlb && src)
 		armvm_tlb_fill_data_tlbe(tlbe, va, src);
@@ -284,7 +282,7 @@ int armvm_mmu_write(armvm_mmu_ref mmu, const uint32_t va,
 
 	dst = armvm_mem_access_write(mmu->mem, ppa, size, write);
 	if(!dst)
-		return(armvm_core_exception_data_abort(pARMVM_CORE));
+		return(armvm_core_exception_data_abort(pCORE));
 
 	if(tlb && dst)
 		armvm_tlb_fill_data_tlbe(tlbe, va, dst);

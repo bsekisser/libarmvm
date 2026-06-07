@@ -1,3 +1,5 @@
+#define pCORE cp->core
+
 #include "armvm_coprocessor.h"
 #include "armvm_core.h"
 #include "armvm.h"
@@ -5,7 +7,6 @@
 /* **** */
 
 #include "armvm_coprocessor_glue.h"
-#include "armvm_core_glue.h"
 
 /* **** */
 
@@ -66,7 +67,6 @@ static
 uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
 {
 	armvm_coprocessor_ref cp = param;
-	armvm_core_ref core = cp->armvm->core;
 
 	uint32_t *cp15r1 = _armvm_coprocessor__cp15r_rmw(cp, IR);
 
@@ -115,8 +115,6 @@ int armvm_coprocessor_action_exit(int err, void *const param, action_ref)
 
 uint32_t armvm_coprocessor_access(armvm_coprocessor_ref cp, uint32_t *const write)
 {
-	armvm_core_ref core = cp->core;
-
 	if(15 == ir_cp_num(IR)) {
 		armvm_coprocessor_callback_ref cb = _armvm_coprocessor_callback(cp, IR);
 

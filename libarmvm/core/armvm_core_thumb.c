@@ -1,5 +1,4 @@
-#define pARMVM_CORE core
-#include "armvm_core_glue.h"
+#define pCORE core
 
 /* **** */
 
@@ -60,17 +59,17 @@ int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_ref core)
 
 	uint32_t rn = 0;
 	if(pcsp)
-		rn = reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
+		rn = reg_src(core, rRN, rSP);
 	else
-		rn = reg_setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(PC), THUMB_PC_NEXT & ~3U);
+		rn = reg_setup_rR_vR(core, rRN, rPC, THUMB_PC_NEXT & ~3U);
 
 	const uint16_t imm8 = mlBFMOV(IR, 7, 0, 2);
 
-	reg_dst_decode(core, ARMVM_TRACE_R(D), 10, 8);
+	reg_dst_decode(core, rRD, 10, 8);
 
 	const uint32_t rd = rn + imm8;
 
-	reg_wb_v(core, ARMVM_TRACE_R(D), rd);
+	reg_wb_v(core, rRD, rd);
 
 	if(_armvm_trace_start(core, 0)) {
 		_armvm_trace_(core, "add(%s, %s, 0x%03x)",
@@ -88,8 +87,8 @@ int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 {
 	const uint8_t op2 = bext32(IR, 9);
 
-	reg_setup_rRml(core, ARMVM_TRACE_R(N), 5, 3);
-	reg_dst_decode(core, ARMVM_TRACE_R(D), 2, 0);
+	reg_setup_rRml(core, rRN, 5, 3);
+	reg_dst_decode(core, rRD, 2, 0);
 
 	const unsigned op_list[2] = { ARM_ADD, ARM_SUB };
 	const unsigned opcode = op_list[op2];
@@ -128,7 +127,7 @@ int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 static
 int _armvm_core_thumb_add_sub_rn_rd_imm3(armvm_core_ref core)
 {
-	const uint32_t rm = reg_setup_vRml(core, ARMVM_TRACE_R(M), 8, 6);
+	const uint32_t rm = reg_setup_vRml(core, rRM, 8, 6);
 
 	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 1, rm));
 }
@@ -136,7 +135,7 @@ int _armvm_core_thumb_add_sub_rn_rd_imm3(armvm_core_ref core)
 static
 int _armvm_core_thumb_add_sub_rn_rd_rm(armvm_core_ref core)
 {
-	const uint32_t rm = reg_src_decode(core, ARMVM_TRACE_R(M), 8, 6);
+	const uint32_t rm = reg_src_decode(core, rRM, 8, 6);
 
 	return(_armvm_core_thumb_add_sub_rn_rd__rm(core, 0, rm));
 }
@@ -147,11 +146,11 @@ int _armvm_core_thumb_add_sub_sp_i7(armvm_core_ref core)
 	const int sub = bext32(IR, 7);
 	const uint16_t imm7 = mlBFMOV(IR, 6, 0, 2);
 
-	const uint32_t rn = reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
+	const uint32_t rn = reg_src(core, rRN, rSP);
 
 	uint32_t rd = rn + (sub ? -imm7 : imm7);
 
-	reg_dst_wb(core, ARMVM_TRACE_R(D), ARMVM_GPR(SP), rd);
+	reg_dst_wb(core, rRD, rSP, rd);
 
 	if(_armvm_trace_start(core, 0)) {
 		const unsigned opcode = sub ? ARM_SUB : ARM_ADD;
@@ -171,10 +170,10 @@ int _armvm_core_thumb_ascm_rd_i(armvm_core_ref core)
 {
 	const uint8_t opcode = mlBFEXT(IR, 12, 11);
 
-	const uint32_t rm = reg_setup_vRml(core, ARMVM_TRACE_R(M), 7, 0);
-	reg_setup_rRml(core, ARMVM_TRACE_R(N), 10, 8);
+	const uint32_t rm = reg_setup_vRml(core, rRM, 7, 0);
+	reg_setup_rRml(core, rRN, 10, 8);
 
-	reg_setup_rR(core, ARMVM_TRACE_R(D), rR(N));
+	reg_setup_rR(core, rRD, rR(N));
 
 	const unsigned op_list[4] = {
 		ARM_MOV, ARM_CMP, ARM_ADD, ARM_SUB
@@ -227,7 +226,7 @@ int _armvm_core_thumb_bx(armvm_core_ref core)
 {
 	assert(0 == mlBFEXT(IR, 2, 0));
 
-	const uint32_t rm = reg_src_decode(core, ARMVM_TRACE_R(M), 6, 3);
+	const uint32_t rm = reg_src_decode(core, rRM, 6, 3);
 
 	const int link = bext32(IR, 7);
 
@@ -353,10 +352,10 @@ int _armvm_core_thumb_dp_rms_rdn(armvm_core_ref core)
 		"& ",	"- ",	"- ",	"+ ",	"| ",	"* ",	"& ~",	"-",
 		}};
 
-	const uint32_t rm = reg_src_decode(core, ARMVM_TRACE_R(M), 5, 3);
-	reg_setup_rRml(core, ARMVM_TRACE_R(N), 2, 0);
+	const uint32_t rm = reg_src_decode(core, rRM, 5, 3);
+	reg_setup_rRml(core, rRN, 2, 0);
 
-	reg_setup_rR(core, ARMVM_TRACE_R(D), rR(N));
+	reg_setup_rR(core, rRD, rR(N));
 
 	const uint32_t rd = alubox_thumb(core, opcode, 1);
 
@@ -388,16 +387,16 @@ int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 	const int bit_l = bext32(IR, 11);
 	const uint16_t imm8 = mlBFMOV(IR, 7, 0, 2);
 
-	reg_setup_rRml(core, ARMVM_TRACE_R(D), 10, 8);
+	reg_setup_rRml(core, rRD, 10, 8);
 
 	uint32_t rn;
 	switch(operation)
 	{
 		case	0x4000:
-			rn = reg_setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(PC), THUMB_PC_NEXT & ~3U);
+			rn = reg_setup_rR_vR(core, rRN, rPC, THUMB_PC_NEXT & ~3U);
 			break;
 		case	0x9000:
-			rn = reg_setup_rR_vR(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP), SP);
+			rn = reg_setup_rR_vR(core, rRN, rSP, SP);
 			break;
 		default:
 			LOG("operation = 0x%03x", operation);
@@ -406,7 +405,7 @@ int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 			break;
 	}
 
-	const uint32_t ea = reg_setup_vR(core, ARMVM_TRACE_R(EA), rn + imm8);
+	const uint32_t ea = reg_setup_vR(core, rREA, rn + imm8);
 	int ldst_rval = 0;
 
 	if(bit_l)
@@ -435,13 +434,13 @@ int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_ref core)
 		const unsigned bit_l = bext32(IR, 11);
 //	}bit;
 
-	const uint32_t rn = reg_src_decode(core, ARMVM_TRACE_R(N), 5, 3);
-	reg_setup_rRml(core, ARMVM_TRACE_R(D), 2, 0);
+	const uint32_t rn = reg_src_decode(core, rRN, 5, 3);
+	reg_setup_rRml(core, rRD, 2, 0);
 
 	const unsigned rm_shift = bit_h ? 1 : (bit_b ? 0 : 2);
-	const uint32_t rm = reg_setup_vR(core, ARMVM_TRACE_R(M), mlBFMOV(IR, 10, 6, rm_shift));
+	const uint32_t rm = reg_setup_vR(core, rRM, mlBFMOV(IR, 10, 6, rm_shift));
 
-	const uint32_t ea = reg_setup_vR(core, ARMVM_TRACE_R(EA), rn + rm);
+	const uint32_t ea = reg_setup_vR(core, rREA, rn + rm);
 
 	int ldst_rval = -1, (*ldst_fn)(armvm_core_ref core);
 	const char* ss = "";
@@ -480,11 +479,11 @@ int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_ref core)
 		const uint8_t bwh = mlBFEXT(IR, 11, 9);
 //	}bit;
 
-	const uint32_t rm = reg_src_decode(core, ARMVM_TRACE_R(M), 8, 6);
-	const uint32_t rn = reg_src_decode(core, ARMVM_TRACE_R(N), 5, 3);
-	reg_setup_rRml(core, ARMVM_TRACE_R(D), 2, 0);
+	const uint32_t rm = reg_src_decode(core, rRM, 8, 6);
+	const uint32_t rn = reg_src_decode(core, rRN, 5, 3);
+	reg_setup_rRml(core, rRD, 2, 0);
 
-	const uint32_t ea = reg_setup_vR(core, ARMVM_TRACE_R(EA), rn + rm);
+	const uint32_t ea = reg_setup_vR(core, rREA, rn + rm);
 
 	static const char *_ss[8] = { "", "h", "b", "sb", "", "h", "b", "sh" };
 
@@ -512,7 +511,7 @@ int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 		const int bit_l = bext32(IR, 11);
 //	}bit;
 
-	const uint32_t rn = reg_src_decode(core, ARMVM_TRACE_R(N), 10, 8);
+	const uint32_t rn = reg_src_decode(core, rRN, 10, 8);
 
 	const uint8_t rlist = mlBFEXT(IR, 7, 0);
 
@@ -556,7 +555,7 @@ int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 	const int wb = !bit_l || wb_l;
 
 	if(wb)
-		reg_wb_v(core, ARMVM_TRACE_R(N), ea);
+		reg_wb_v(core, rRN, ea);
 
 	reglist[8] = 0;
 
@@ -577,7 +576,7 @@ int _armvm_core_thumb_pop_push(armvm_core_ref core)
 		const int bit_r = bext32(IR, 8);
 //	}bit;
 
-	const uint32_t rn = reg_src(core, ARMVM_TRACE_R(N), ARMVM_GPR(SP));
+	const uint32_t rn = reg_src(core, rRN, rSP);
 
 	const unsigned rrlist = mlBFEXT(IR, 8, 0);
 	const uint8_t rlist = mlBFEXT(IR, 7, 0);
@@ -594,7 +593,7 @@ int _armvm_core_thumb_pop_push(armvm_core_ref core)
 			data_abort = ~armvm_core_exception_data_abort(core);
 	}
 
-	uint32_t ea = reg_setup_vR(core, ARMVM_TRACE_R(EA), start_address & ~3U);
+	uint32_t ea = reg_setup_vR(core, rREA, start_address & ~3U);
 
 	char reglist[9] = "\0\0\0\0\0\0\0\0\0";
 
@@ -627,7 +626,7 @@ int _armvm_core_thumb_pop_push(armvm_core_ref core)
 			if(bit_l)
 				thumb_ldmia_pc(core, &ea);
 			else
-				thumb_stmia(core, ARMVM_GPR(LR), &ea);
+				thumb_stmia(core, rLR, &ea);
 		}
 
 		if(0) LOG("SP = 0x%08x, PC = 0x%08x", vR(N), PC);
@@ -651,15 +650,15 @@ static
 int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_ref core)
 {
 	const uint32_t shift_type = mlBFEXT(IR, 12, 11);
-	const uint32_t rs = reg_setup_vR(core, ARMVM_TRACE_R(S), mlBFEXT(IR, 10, 6));
+	const uint32_t rs = reg_setup_vR(core, rRS, mlBFEXT(IR, 10, 6));
 
-	const uint32_t rm = reg_src(core, ARMVM_TRACE_R(M), mlBFEXT(IR, 5, 3));
+	const uint32_t rm = reg_src(core, rRM, mlBFEXT(IR, 5, 3));
 
 	const uint32_t rd = arm_shiftbox(shift_type, rm, rs, IF_CPSR(C));
 	ARM_CPSR_BMAS(C, arm_shiftbox_c(shift_type, rm, rs));
 	_alubox_flags_nz(core, rd);
 
-	reg_dst_wb(core, ARMVM_TRACE_R(D), mlBFEXT(IR, 2, 0), rd);
+	reg_dst_wb(core, rRD, mlBFEXT(IR, 2, 0), rd);
 
 	const char* sops = arm_sop_lcase_string[shift_type];
 
@@ -677,10 +676,10 @@ int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 {
 	const uint8_t operation = mlBFEXT(IR, 9, 8);
 
-	const uint32_t rm = reg_src_decode(core, ARMVM_TRACE_R(M), 6, 3);
+	const uint32_t rm = reg_src_decode(core, rRM, 6, 3);
 
-	reg_setup_rR(core, ARMVM_TRACE_R(N), mlBFEXT(IR, 2, 0) | bmov32(IR, 7, 3));
-	reg_setup_rR(core, ARMVM_TRACE_R(D), rR(N));
+	reg_setup_rR(core, rRN, mlBFEXT(IR, 2, 0) | bmov32(IR, 7, 3));
+	reg_setup_rR(core, rRD, rR(N));
 
 	const unsigned op_list[4] = {
 		ARM_ADD, ARM_CMP, ARM_MOV, ~0U
@@ -716,7 +715,7 @@ int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 	if(ARM_CMP == opcode)
 		return(1);
 
-	return(ARMVM_GPR(PC) != rR(D));
+	return(rPC != rR(D));
 }
 
 /* **** */
@@ -822,13 +821,14 @@ int armvm_core_thumb_step(armvm_core_ref core)
 	rSPR32(CC) = CC_AL_NV;
 	CCX = 1;
 
-	IP = reg_setup_vR(core, ARMVM_TRACE_R(IP), PC | 1); // STUPID KLUDGE!!
+	IP = PC | 1;
+//	IP = reg_setup_vR(core, ARMVM_TRACE_R(IP), PC | 1); // STUPID KLUDGE!!
 	PC = THUMB_IP_NEXT;
 
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP & ~1U, 2))
 		return(0);
 
-	reg_setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
+//	reg_setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
 
 	const uint32_t group = mlBFTST(IR, 15, 13);
 	switch(group) {

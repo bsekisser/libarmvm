@@ -2,8 +2,6 @@
 
 /* **** */
 
-#include "armvm_core_glue.h"
-
 #include "armvm_core_trace.h"
 #include "armvm_core.h"
 

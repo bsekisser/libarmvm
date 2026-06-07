@@ -17,10 +17,6 @@ typedef armvm_core_ptr const armvm_core_ref;
 
 /* **** */
 
-#include "armvm_trace.h"
-
-/* **** */
-
 #include "libarm/include/cpsr.h"
 
 #include "libbse/include/action.h"
@@ -31,15 +27,29 @@ typedef armvm_core_ptr const armvm_core_ref;
 
 /* **** */
 
-#define ARMVM_GPR(_x) ARMVM_GPR_##_x
-
-enum {
-	ARMVM_GPR_SP = 13,
-	ARMVM_GPR_LR = 14,
-	ARMVM_GPR_PC = 15,
+typedef enum gpr_enum {
+	r0, r1, r2, r3, r4, r5, r6, r7,
+	r8, r9,r10,r11,r12,r13,r14,r15,
 //
-	_ARMVM_GPR_COUNT_,
-};
+	rLR = r14,
+	rPC = r15,
+	rSP = r13,
+}gpr_enum;
+
+typedef enum reg_enum {
+	rRD = 16, rRM, rRN, rRS,
+//
+	rRDHi, rREA, rRSOP,
+//
+	__REG_COUNT__,
+//
+	rRDLo = rRD,
+}reg_enum;
+
+typedef struct reg_tag {
+	gpr_enum r;
+	uint32_t v;
+}reg_t;
 
 #define ARMVM_SPR32(_x) ARMVM_SPR32_##_x
 
@@ -69,25 +79,23 @@ enum {
 	ARMVM_SPR32_CCX,
 //	ARMVM_SPR32_CP15R1,
 	ARMVM_SPR32_CPSR,
-//	ARMVM_SPR32_EA,
 	ARMVM_SPR32_IP,
 	ARMVM_SPR32_IR,
-//	ARMVM_SPR32_RD,
-//	ARMVM_SPR32_REA,
-//	ARMVM_SPR32_RM,
-//	ARMVM_SPR32_RN,
-//	ARMVM_SPR32_RS,
-//	ARMVM_SPR32_RSOP,
 //
 	_ARMVM_SPR32_COUNT_,
 };
+
+#define rABT(_x) rSPR32(ABT_##_x)
+#define rFIQ(_x) rSPR32(FIQ_##_x)
+#define rIRQ(_x) rSPR32(IRQ_##_x)
+#define rSVC(_x) rSPR32(SVC_##_x)
+#define rUND(_x) rSPR32(UND_##_x)
 
 #define ARMVM_SPR64(_x) ARMVM_SPR64_##_x
 
 enum {
 	ARMVM_SPR64_CYCLE,
 	ARMVM_SPR64_ICOUNT,
-//	ARMVM_SPR64_IFETCH,
 	ARMVM_SPR64_RESULT,
 //
 	_ARMVM_SPR64_COUNT_,
@@ -105,26 +113,34 @@ typedef struct armvm_core_state_flags_tag {
 }armvm_core_state_flags_t;
 
 typedef struct armvm_core_tag {
+	uint32_t gpr[16];
+#define GPRx(_x) pCORE->gpr[_x & 15]
+#define irGPR(_x) GPRx(ARM_IR_R(_x))
+#define vGPR(_) GPRx(r##_)
+//
+	reg_t reg[__REG_COUNT__];
+#define xR(_) (&pCORE->reg[_ - 16])
+#define xRr(_) xR(rR##_)
+#define vR(_) xRr(_)->v
+#define vRx(_) xR(_)->v
+#define rR(_) xRr(_)->r
+#define rRx(_) xR(_)->r
+//
 	uint64_t spr64[_ARMVM_SPR64_COUNT_];
-#define SPR64x(_x) pARMVM_CORE->spr64[_x]
+#define SPR64x(_x) pCORE->spr64[_x]
 #define rSPR64(_x) SPR64x(ARMVM_SPR64(_x))
 #define rSPR64hi(_x) ((rSPR64(_x) >> 32) & 0xffff)
 #define rSPR64lo(_x) (rSPR64(_x) & 0xffff)
 //
-	uint32_t gpr[_ARMVM_GPR_COUNT_];
-#define GPRx(_x) pARMVM_CORE->gpr[_x]
-#define irGPR(_x) GPRx(ARM_IR_R(_x))
-#define vmGPR(_x) GPRx(ARMVM_GPR(_x))
-
 	uint32_t spr32[_ARMVM_SPR32_COUNT_];
-#define SPR32x(_x) pARMVM_CORE->spr32[_x]
+#define SPR32x(_x) pCORE->spr32[_x]
 #define rSPR32(_x) SPR32x(ARMVM_SPR32(_x))
 
 	uint32_t* spsr;
-#define pSPSR pARMVM_CORE->spsr
+#define pSPSR pCORE->spsr
 //
-	armvm_trace_t armvm_trace;
 	armvm_core_config_t config;
+#define CONFIG (&pCORE->config)
 //
 	armvm_core_state_flags_t flags;
 
@@ -132,6 +148,25 @@ typedef struct armvm_core_tag {
 	armvm_coprocessor_ptr cp;
 	armvm_mmu_ptr mmu;
 }armvm_core_t;
+
+#define ARM_IP_NEXT ((4 + IP) & ~3)
+#define ARM_PC_NEXT ((4 + ARM_IP_NEXT) & ~3)
+#define CCX rSPR32(CCX)
+#define CPSR rSPR32(CPSR)
+#define CYCLE rSPR64(CYCLE)
+#define ICOUNT rSPR64(ICOUNT)
+#define LR vGPR(LR)
+#define IP rSPR32(IP)
+#define IR rSPR32(IR)
+#define PC vGPR(PC)
+#define SP vGPR(SP)
+#define THUMB_IP_NEXT ((2 + IP) & ~1)
+#define THUMB_PC_NEXT ((2 + THUMB_IP_NEXT) & ~1)
+#define irR_NAME(_x) rR_NAMEx(ARM_IR_R(_x))
+#define rR_IS_NOT_PC(_x) (rPC != ARM_IR_R(_x))
+#define rR_IS_PC(_x) (rPC == ARM_IR_R(_x))
+#define rR_NAME(_x) rR_NAMEx(rR(_x))
+#define rR_NAMEx(_x) arm_reg_name_lcase_string[0][_x]
 
 /* **** */
 

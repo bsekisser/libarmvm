@@ -1,5 +1,5 @@
-#define pARMVM mmu->armvm
-#define pARMVM_CORE pARMVM->core
+#define pCOPROCESSOR mmu->cp
+#define pCORE mmu->core
 
 #include "armvm_mmu.h"
 
@@ -39,7 +39,7 @@ uint32_t _mmu_cp15__0_2_0_0__ttbr(armvm_mmu_ref mmu, uint32_t *const write, cons
 {
 	const uint32_t mask = mlBF(31, 14 - TTBCR_N) | mlBF(4, 3) | _BV(2) | _BV(1) | _BV(0);
 
-	uint32_t* p2ttbr = armvm_coprocessor_cp15r_rmw(mmu->cp, rSPR32(IR));
+	uint32_t* p2ttbr = armvm_coprocessor_cp15r_rmw(mmu->cp, IR);
 
 	const uint32_t data = write ? *write : *p2ttbr;
 
@@ -73,10 +73,10 @@ uint32_t _mmu_cp15__0_2_0_2_ttbcr(void *const param, uint32_t *const write)
 {
 	armvm_mmu_ref mmu = param;
 
-	const uint32_t ttbcr = armvm_coprocessor_cp15r(mmu->cp, rSPR32(IR), write);
+	const uint32_t ttbcr = armvm_coprocessor_cp15r(mmu->cp, IR, write);
 
 	if(write) {
-		assert(0 == mlBFEXT(rSPR32(IR), 31, 3));
+		assert(0 == mlBFEXT(IR, 31, 3));
 
 		LOG("n: %u", mlBFEXT(ttbcr, 2, 0));
 	}

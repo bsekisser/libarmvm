@@ -29,7 +29,7 @@ static uint32_t alubox(armvm_core_ref core, const unsigned operation,
 			break;
 		case ARM_RSB:
 		case ARM_RSC:
-			sop = reg_src_load(core, ARMVM_TRACE_R(N));
+			sop = reg_src_load(core, rRN);
 			break;
 		default:
 			sop = vR(SOP);
@@ -45,7 +45,7 @@ static uint32_t alubox(armvm_core_ref core, const unsigned operation,
 			rn = vR(SOP);
 			break;
 		default:
-			rn = reg_src_load(core, ARMVM_TRACE_R(N));
+			rn = reg_src_load(core, rRN);
 			break;
 	}
 
@@ -133,7 +133,7 @@ if(0)		LOG("rn: 0x%08x, sop: 0x%08x, rd = 0x%08x, carry_in: %1u",
 		case ARM_TST:
 			break;
 		default:
-			reg_wb(core, ARMVM_TRACE_R(D));
+			reg_wb(core, rRD);
 			break;;
 	}
 

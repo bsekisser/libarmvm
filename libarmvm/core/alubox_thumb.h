@@ -38,13 +38,13 @@ static uint32_t alubox_thumb(armvm_core_ref core, const unsigned operation,
 			shift_type = ARM_SOP_ROR;
 			break;
 		default:
-			reg_setup_vR(core, ARMVM_TRACE_R(SOP), vR(M));
+			reg_setup_vR(core, rRSOP, vR(M));
 			return(alubox(core, operation, s, 0));
 	}
 
 	assert(~0U != shift_type);
 
-	reg_src_load(core, ARMVM_TRACE_R(N));
+	reg_src_load(core, rRN);
 	const uint32_t valid_rs = vR(M) & 0xff;
 
 	vR(SOP) = arm_shiftbox(shift_type, vR(N), valid_rs, IF_CPSR(C));

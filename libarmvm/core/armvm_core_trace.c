@@ -1,11 +1,6 @@
-#include "armvm_core_trace.h"
+#define pCORE core
 
-/* **** */
-
-//#include "armvm_trace_glue.h"
-#include "armvm_trace.h"
-
-#include "armvm_core_glue.h"
+#include "armvm_core.h"
 
 /* **** */
 

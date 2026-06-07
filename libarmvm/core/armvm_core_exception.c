@@ -1,8 +1,4 @@
-#define pARMVM pARMVM_CORE->armvm
-
-#define pARMVM_CORE core
-#include "armvm_core_glue.h"
-#include "armvm_glue.h"
+#define pCORE core
 
 #include "armvm_core_exception.h"
 

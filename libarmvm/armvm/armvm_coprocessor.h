@@ -49,4 +49,4 @@ void armvm_coprocessor_register_callback(armvm_coprocessor_ref cp,
 	const uint32_t cpx,
 	armvm_coprocessor_callback_fn const fn, void *const param);
 
-#define rCP15x(_x, _write) armvm_coprocessor_cp15r(pARMVM->coprocessor, _x, _write)
+#define rCP15x(_x, _write) armvm_coprocessor_cp15r(pCOPROCESSOR, _x, _write)
