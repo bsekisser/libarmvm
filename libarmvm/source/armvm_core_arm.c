@@ -842,16 +842,10 @@ int armvm_core_arm__step_group7(armvm_core_ref core)
 int armvm_core_arm_step(armvm_core_ref core)
 {
 	IP = PC & ~3U;
-//	IP = reg_setup_vR(core, ARMVM_TRACE_R(IP), PC & ~3U); // STUPID KLUDGE!!
 	PC = ARM_IP_NEXT;
 
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 4))
 		return(1);
-
-//	reg_setup_vR(core, ARMVM_TRACE_R(IR), IR); // STUPID KLUDGE!!!
-
-//	armvm_trace(pARMVM_TRACE);
-//	arm_disasm(IP, IR);
 
 	armvm_core_check_cc(core, ARM_IR_CC);
 

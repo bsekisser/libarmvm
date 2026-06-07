@@ -15,9 +15,7 @@ export CFLAGS
 LDLIBS += -lcapstone
 export LDLIBS
 
-SRC_DIR = armvm
-SRC_DIR += core
-export SRC_DIR
+export SRC_DIR = source
 
 TARGETs = libarmvm.a libarmvm.so
 
