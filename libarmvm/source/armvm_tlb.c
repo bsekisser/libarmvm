@@ -94,6 +94,11 @@ armvm_tlb_ptr armvm_tlb_alloc(libarmvm_ref avm, armvm_mmu_ref mmu, armvm_tlb_hre
 {
 	ACTION_LOG(alloc);
 
+	if(STATS) {
+		LOGzx32(sizeof(armvm_tlb_t));
+		LOGzx32(sizeof(armvm_tlbe_t));
+	}
+
 	ERR_NULL(h2tlb);
 	ERR_NULL(avm);
 

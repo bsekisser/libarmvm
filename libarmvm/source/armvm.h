@@ -31,6 +31,11 @@ typedef libarmvm_ptr const libarmvm_ref;
 
 /* **** */
 
+typedef struct hit_miss_tag {
+	unsigned hit;
+	unsigned miss;
+}hit_miss_t;
+
 typedef struct libarmvm_tag {
 	armvm_coprocessor_ptr coprocessor;
 	armvm_cache_ptr cache;
@@ -45,7 +50,25 @@ typedef struct libarmvm_tag {
 #define _STATE avm->state
 #define STATE(_) (_STATE._)
 //
+	struct {
+		unsigned hot[256][2];
+		struct tlb {
+			hit_miss_t ifetch;
+			hit_miss_t read;
+			hit_miss_t write;
+		}tlb;
+	}stats;
 }libarmvm_t;
+
+#define HOT 1
+#ifndef HOT
+	#define HOT 0
+#endif
+
+#define STATS 1
+#ifndef STATS
+	#define STATS 0
+#endif
 
 /* **** */
 

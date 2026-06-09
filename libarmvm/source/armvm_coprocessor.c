@@ -135,6 +135,14 @@ armvm_coprocessor_ptr armvm_coprocessor_alloc(libarmvm_ref avm,
 {
 	ACTION_LOG(alloc);
 
+	if(STATS) {
+		armvm_coprocessor_ref cp = (void*)0;
+
+		LOGzx32(sizeof(armvm_coprocessor_t));
+		LOGzx32(sizeof(cp->cp15));
+		LOGzx32(sizeof(cp->cp15r));
+	}
+
 	ERR_NULL(h2cp);
 	ERR_NULL(avm);
 

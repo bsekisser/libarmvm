@@ -202,6 +202,8 @@ armvm_mem_ptr armvm_mem_alloc(libarmvm_ref avm, armvm_mem_href h2mem)
 	armvm_mem_ref mem = handle_calloc(h2mem, 1, sizeof(armvm_mem_t));
 	ERR_NULL(mem);
 
+	LOGzx32(sizeof(armvm_mem_t));
+
 	avm->config.mem = &mem->config;
 
 	mem->avm = avm;

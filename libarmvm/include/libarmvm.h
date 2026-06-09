@@ -37,6 +37,8 @@ void libarmvm_exit(libarmvm_ref avm);
 
 libarmvm_ptr libarmvm_halloc(libarmvm_href h2avm);
 
+void libarmvm_hot(libarmvm_ref avm);
+
 WARN_UNUSED_RESULT
 uint64_t libarmvm_icount(libarmvm_ref avm);
 
@@ -50,6 +52,8 @@ void libarmvm_reset(libarmvm_ref avm);
 
 //__attribute__((warn_unused_result))
 uint64_t libarmvm_run(libarmvm_ref avm, uint64_t cycles);
+
+void libarmvm_stats(libarmvm_ref avm);
 
 // WARN_UNUSED_RESULT
 libarmvm_state_t libarmvm_step(libarmvm_ref avm);

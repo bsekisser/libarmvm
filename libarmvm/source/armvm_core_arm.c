@@ -847,7 +847,10 @@ int armvm_core_arm_step(armvm_core_ref core)
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 4))
 		return(1);
 
-	armvm_core_check_cc(core, ARM_IR_CC);
+	const unsigned ccx = armvm_core_check_cc(core, ARM_IR_CC);
+
+	if(HOT || STATS)
+		core->armvm->stats.hot[mlBFEXT(IR, 27, 20)][ccx & 1]++;
 
 	switch(ARM_IR_CC) {
 	default:

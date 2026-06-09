@@ -43,6 +43,9 @@ libarmvm_ptr _libarmvm_alloc(libarmvm_ref avm)
 {
 	ERR_NULL(avm);
 
+	if(STATS)
+		LOGzx32(sizeof(libarmvm_t));
+
 	armvm_cache_alloc(avm, &avm->cache);
 	armvm_coprocessor_alloc(avm, &avm->coprocessor);
 	armvm_core_alloc(avm, &avm->core);
@@ -133,6 +136,27 @@ libarmvm_ptr libarmvm_halloc(libarmvm_href h2avm)
 }
 
 PUBLIC
+void libarmvm_hot(libarmvm_ref avm)
+{
+	for(unsigned x = 0; x < 256; x++)
+	{
+		unsigned group = (x >> 5) & 7;
+
+		LOG_START();
+		for(unsigned y = 0; y < 4; y++, x++) {
+			unsigned opcode = (x >> 1) & 15;
+			unsigned s = (x >> 1) & 1;
+
+			uint32_t *const stat = &avm->stats.hot[x][0];
+
+			_LOG_("[%01u:%02x:%01u](%08x, %08x), ",
+				group, opcode, s, stat[0], stat[1]);
+		}
+		LOG_END();
+	}
+}
+
+PUBLIC
 uint64_t libarmvm_cycle(libarmvm_ref avm)
 { return(CYCLE); }
 
@@ -188,6 +212,17 @@ uint64_t libarmvm_run(libarmvm_ref avm, const uint64_t run_cycles)
 PUBLIC
 libarmvm_state_t libarmvm_state(libarmvm_ref avm)
 { return(_STATE); }
+
+PUBLIC
+void libarmvm_stats(libarmvm_ref avm)
+{
+	LOGu(avm->stats.tlb.ifetch.hit);
+	LOGu(avm->stats.tlb.ifetch.miss);
+	LOGu(avm->stats.tlb.read.hit);
+	LOGu(avm->stats.tlb.read.miss);
+	LOGu(avm->stats.tlb.write.hit);
+	LOGu(avm->stats.tlb.write.miss);
+}
 
 PUBLIC // TODO: internal state struct -- istate
 libarmvm_state_t libarmvm_step(libarmvm_ref avm)

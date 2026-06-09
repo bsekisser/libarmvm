@@ -226,6 +226,9 @@ armvm_core_ptr armvm_core_alloc(libarmvm_ref avm, armvm_core_href h2core)
 {
 	ACTION_LOG(alloc);
 
+	if(STATS)
+		LOGzx32(sizeof(armvm_core_t));
+
 	ERR_NULL(avm);
 	ERR_NULL(h2core);
 

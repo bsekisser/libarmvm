@@ -187,6 +187,9 @@ armvm_mmu_ptr armvm_mmu_alloc(libarmvm_ref avm, armvm_mmu_href h2mmu)
 {
 	ACTION_LOG(alloc);
 
+	if(STATS)
+		LOGzx32(sizeof(armvm_mmu_t));
+
 	ERR_NULL(h2mmu);
 	ERR_NULL(avm);
 
@@ -215,12 +218,16 @@ int armvm_mmu_ifetch(armvm_mmu_ref mmu, uint32_t *const ir,
 		src = armvm_tlb_ifetch(mmu->tlb, va, &tlbe);
 
 		if(src) {
+			if(STATS) mmu->armvm->stats.tlb.ifetch.hit++;
+
 			*ir = armvm_mem_callback_io(src, va, size, 0);
 			return(1);
 		}
 
 		tlb = armvm_mmu__vpa2ppa(mmu, &ppa);
 	}
+
+	if(STATS) mmu->armvm->stats.tlb.ifetch.miss++;
 
 	*ir = armvm_mem_access_read(mmu->mem, ppa, size, &src);
 	if(!src)
@@ -244,12 +251,16 @@ int armvm_mmu_read(armvm_mmu_ref mmu, uint32_t *const read,
 		src = armvm_tlb_read(mmu->tlb, va, &tlbe);
 
 		if(src) {
+			if(STATS) mmu->armvm->stats.tlb.read.hit++;
+
 			*read = armvm_mem_callback_io(src, va, size, 0);
 			return(1);
 		}
 
 		tlb = armvm_mmu__vpa2ppa(mmu, &ppa);
 	}
+
+	if(STATS) mmu->armvm->stats.tlb.read.miss++;
 
 	*read = armvm_mem_access_read(mmu->mem, ppa, size, &src);
 	if(!src)
@@ -273,12 +284,16 @@ int armvm_mmu_write(armvm_mmu_ref mmu, const uint32_t va,
 		dst = armvm_tlb_write(mmu->tlb, va, &tlbe);
 
 		if(dst) {
+			if(STATS) mmu->armvm->stats.tlb.write.hit++;
+
 			armvm_mem_callback_io(dst, va, size, (uint32_t*)&write);
 			return(1);
 		}
 
 		tlb = armvm_mmu__vpa2ppa(mmu, &ppa);
 	}
+
+	if(STATS) mmu->armvm->stats.tlb.write.miss++;
 
 	dst = armvm_mem_access_write(mmu->mem, ppa, size, write);
 	if(!dst)
