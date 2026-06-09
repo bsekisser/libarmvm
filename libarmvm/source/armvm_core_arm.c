@@ -122,6 +122,15 @@ int _arm_inst_b_bl(armvm_core_ref core)
 }
 
 static
+int _arm_inst_bkpt(armvm_core_ref core)
+{
+	// TODO: implement breakpoints
+
+	core->config.trace = 1;
+	return(0);
+}
+
+static
 int _arm_inst_blx(armvm_core_ref core)
 {
 	CCX = 1; rSPR32(CC) = CC_AL;
@@ -787,6 +796,7 @@ int armvm_core_arm__step__group0_misc(armvm_core_ref core)
 		case 0x01000070: return(_arm_inst_hlt(core));
 		case 0x01200000: case 0x01600000:
 			return(_arm_inst_msr_register(core));
+		case 0x01200070: return(_arm_inst_bkpt(core));
 		case 0x01200010: return(_arm_inst_bx_blx_m(core, 0));
 		case 0x01200030: return(_arm_inst_bx_blx_m(core, 1));
 		case 0x01600010: return(_arm_inst_clz(core));
