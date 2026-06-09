@@ -2,7 +2,7 @@
 
 /* **** */
 
-#include "armvm_core_trace.h"
+#include "itrace.h"
 #include "armvm_core.h"
 
 /* **** */
@@ -23,74 +23,74 @@ static void _dp_mov_s_s(armvm_core_ref core)
 {
 	if(ARM_IR_DPI) {
 		if(vR(S)) {
-			_armvm_trace_comment(core, "ROR(0x%08x, %u) = 0x%08x",
+			_itrace_comment(core, "ROR(0x%08x, %u) = 0x%08x",
 				vR(M), vR(S), vR(D));
 		} else {
-			_armvm_trace_comment(core, "0x%08x", vR(D));
+			_itrace_comment(core, "0x%08x", vR(D));
 		}
 	} else {
 		if(mlBFEXT(IR, 11, 4)) {
-			_armvm_trace_comment(core, "%s(0x%08x, %u) = 0x%08x",
+			_itrace_comment(core, "%s(0x%08x, %u) = 0x%08x",
 				arm_sop_lcase_string[ARM_IR_DP_SHIFT_TYPE],
 					vR(M), vR(S), vR(D));
 		}
 		else if(rR(D) == rR(M))
 		{
-			_armvm_trace_comment(core, "nop");
+			_itrace_comment(core, "nop");
 		}
 		else
 		{
-			_armvm_trace_comment(core, "0x%08x", vR(D));
+			_itrace_comment(core, "0x%08x", vR(D));
 		}
 	}
 }
 
-static void armvm_trace_dp(armvm_core_ref core)
+static void itrace_dp(armvm_core_ref core)
 {
-	if(!_armvm_trace_start(core, 0))
+	if(!_itrace_start(core, 0))
 		return;
 
-	_armvm_trace_(core, "%s%s(",
+	_itrace_(core, "%s%s(",
 		arm_dp_inst_string[ARM_IR_DP_OPCODE], ARM_IR_DP_S ? "s" : "");
 
 	if(ARM_IR_DP_WB)
-		_armvm_trace_(core, "%s", irR_NAME(D));
+		_itrace_(core, "%s", irR_NAME(D));
 
 	switch(ARM_IR_DP_OPCODE) {
 		case ARM_MOV:
 		case ARM_MVN:
 			break;
 		default:
-			_armvm_trace_(core, "%s%s", ARM_IR_DP_WB ? ", " : "", irR_NAME(N));
+			_itrace_(core, "%s%s", ARM_IR_DP_WB ? ", " : "", irR_NAME(N));
 			break;
 	}
 
 	if(ARM_IR_DPI)
 	{
 		if(vR(S)) {
-			_armvm_trace_(core, ", ROR(%u, %u))", vR(M), vR(S));
+			_itrace_(core, ", ROR(%u, %u))", vR(M), vR(S));
 		} else
-			_armvm_trace_(core, ", %u)", vR(M));
+			_itrace_(core, ", %u)", vR(M));
 	}
 	else
 	{
 		const char* sos = arm_sop_lcase_string[ARM_IR_DP_SHIFT_TYPE];
 
 		if(ARM_IR_DP_I)
-			_armvm_trace_(core, ", %s(%s, %s))", sos, irR_NAME(M), irR_NAME(S));
+			_itrace_(core, ", %s(%s, %s))", sos, irR_NAME(M), irR_NAME(S));
 		else {
 			if(!mlBFEXT(IR, 11, 4))
-				_armvm_trace_(core, ", %s)", irR_NAME(M));
+				_itrace_(core, ", %s)", irR_NAME(M));
 			else {
 				switch(ARM_IR_DP_SHIFT_TYPE) {
 					case ARM_SOP_ROR:
 						if(!vR(S)) {
-							_armvm_trace_(core, ", RRX(%s))", sos, irR_NAME(M));
+							_itrace_(core, ", RRX(%s))", sos, irR_NAME(M));
 							break;
 						}
 					__attribute__((fallthrough));
 					default:
-							_armvm_trace_(core, ", %s(%s, %u))", sos, irR_NAME(M), vR(S));
+							_itrace_(core, ", %s(%s, %u))", sos, irR_NAME(M), vR(S));
 						break;
 				}
 			}
@@ -101,39 +101,39 @@ static void armvm_trace_dp(armvm_core_ref core)
 
 	switch(ARM_IR_DP_OPCODE) {
 		default:
-			_armvm_trace_comment(core, "0x%08x %s0x%08x --> 0x%08x",
+			_itrace_comment(core, "0x%08x %s0x%08x --> 0x%08x",
 				vR(N), dp_op_string, vR(SOP), vR(D));
 			break;
 		case ARM_BIC:
-			_armvm_trace_comment(core, "0x%08x & ~0x%08x(0x%08x) --> 0x%08x",
+			_itrace_comment(core, "0x%08x & ~0x%08x(0x%08x) --> 0x%08x",
 				vR(N), vR(SOP), ~vR(SOP), vR(D));
 			break;
 		case ARM_CMP:
 		case ARM_CMN:
 		case ARM_TEQ:
 		case ARM_TST:
-			_armvm_trace_comment(core, "0x%08x %s0x%08x ??? 0x%08x",
+			_itrace_comment(core, "0x%08x %s0x%08x ??? 0x%08x",
 				vR(N), dp_op_string, vR(SOP), vR(D));
 			break;
 		case ARM_MOV:
 			_dp_mov_s_s(core);
 			break;
 		case ARM_MVN:
-			_armvm_trace_comment(core, "0x%08x", vR(D));
+			_itrace_comment(core, "0x%08x", vR(D));
 			break;
 		case ARM_RSB:
 		case ARM_RSC:
-			_armvm_trace_comment(core, "0x%08x - 0x%08x --> 0x%08x",
+			_itrace_comment(core, "0x%08x - 0x%08x --> 0x%08x",
 				vR(SOP), vR(N), vR(D));
 			break;
 	}
 
-	_armvm_trace_end(core, 0);
+	_itrace_end(core, 0);
 }
 
-void armvm_trace_ldst(armvm_core_ref core)
+void itrace_ldst(armvm_core_ref core)
 {
-	if(!_armvm_trace_start(core, 0))
+	if(!_itrace_start(core, 0))
 		return;
 
 //	int is_ld = 0;
@@ -144,17 +144,17 @@ void armvm_trace_ldst(armvm_core_ref core)
 	switch(ARM_IR_GROUP & ~1) {
 	case 0:
 //		is_ld = ARM_IR_LDST_SH_FLAG_L;
-		_armvm_trace_(core, "%s", ARM_IR_LDST_SH_FLAG_L ? "ldr" : "str");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_SH_FLAG_S ? "s" : "");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_SH_FLAG_H ? "h" : "");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_SH_FLAG_B ? "b" : "");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_SH_FLAG_D ? "d" : "");
+		_itrace_(core, "%s", ARM_IR_LDST_SH_FLAG_L ? "ldr" : "str");
+		_itrace_(core, "%s", ARM_IR_LDST_SH_FLAG_S ? "s" : "");
+		_itrace_(core, "%s", ARM_IR_LDST_SH_FLAG_H ? "h" : "");
+		_itrace_(core, "%s", ARM_IR_LDST_SH_FLAG_B ? "b" : "");
+		_itrace_(core, "%s", ARM_IR_LDST_SH_FLAG_D ? "d" : "");
 	break;
 	case 2:
 //		is_ld = ARM_IR_LDST_BIT(L);
-		_armvm_trace_(core, ARM_IR_LDST_BIT(L) ? "ldr" :  "str");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_BIT(B) ? "b" : "");
-		_armvm_trace_(core, "%s", ARM_IR_LDST_FLAG_T ? "t" : "");
+		_itrace_(core, ARM_IR_LDST_BIT(L) ? "ldr" :  "str");
+		_itrace_(core, "%s", ARM_IR_LDST_BIT(B) ? "b" : "");
+		_itrace_(core, "%s", ARM_IR_LDST_FLAG_T ? "t" : "");
 	break;
 	default:
 		LOG_ACTION(arm_disasm(IP, IR); exit(-1));
@@ -166,27 +166,27 @@ void armvm_trace_ldst(armvm_core_ref core)
 //	const unsigned wb = !bit_p || (bit_p && ARM_IR_LDST_BIT(W));
 	const unsigned wb = (!bit_p && !bit_w) || (bit_p && bit_w);
 
-	_armvm_trace_(core, "(%s, %s%s", irR_NAME(D), irR_NAME(N), wb ? "!" : "");
+	_itrace_(core, "(%s, %s%s", irR_NAME(D), irR_NAME(N), wb ? "!" : "");
 
 	switch(ARM_IR_GROUP) {
 	case 0:
 		if(ARM_IR_LDST_SH_BIT(I)) {
-			_armvm_trace_(core, ", %s0x%04x)",
+			_itrace_(core, ", %s0x%04x)",
 				ARM_IR_LDST_BIT(U) ? "+" : "-",
 				ARM_IR_LDST_SH_OFFSET);
 		} else {
-			_armvm_trace_(core, ", %s%s)",
+			_itrace_(core, ", %s%s)",
 				ARM_IR_LDST_BIT(U) ? "" : "-", irR_NAME(M));
 		}
 	break;
 	case 2:
-		_armvm_trace_(core, ", %c0x%04x)",
+		_itrace_(core, ", %c0x%04x)",
 			ARM_IR_LDST_BIT(U) ? '+' : '-',
 			ARM_IR_LDST_IMMEDIATE_OFFSET);
 	break;
 	case 3:
 		if(!mlBFEXT(IR, 11, 4))
-			_armvm_trace_(core, ", %s)", irR_NAME(M));
+			_itrace_(core, ", %s)", irR_NAME(M));
 		else {
 			const char* sos = arm_sop_lcase_string[ARM_IR_DP_SHIFT_TYPE];
 			const char* rrx = arm_sop_lcase_string[ARM_SOP_RRX];
@@ -194,10 +194,10 @@ void armvm_trace_ldst(armvm_core_ref core)
 			switch(ARM_IR_DP_SHIFT_TYPE) {
 				case ARM_SOP_ROR:
 					if(!vR(S))
-						_armvm_trace_(core, ", %s(%s))", rrx, irR_NAME(M));
+						_itrace_(core, ", %s(%s))", rrx, irR_NAME(M));
 					break;
 				default:
-						_armvm_trace_(core, ", %s(%s, %u))", sos, irR_NAME(M), vR(S));
+						_itrace_(core, ", %s(%s, %u))", sos, irR_NAME(M), vR(S));
 					break;
 			}
 		}
@@ -208,14 +208,14 @@ void armvm_trace_ldst(armvm_core_ref core)
 	}
 
 	if(CCX)
-		_armvm_trace_comment(core, "[0x%08x]: 0x%08x", vR(EA), vR(D));
+		_itrace_comment(core, "[0x%08x]: 0x%08x", vR(EA), vR(D));
 
-	_armvm_trace_end(core, 0);
+	_itrace_end(core, 0);
 }
 
-static void armvm_trace_msr(armvm_core_ref core)
+static void itrace_msr(armvm_core_ref core)
 {
-	if(!_armvm_trace_start(core, 0))
+	if(!_itrace_start(core, 0))
 		return;
 
 	const unsigned field_mask = ~rR(S);
@@ -233,12 +233,12 @@ static void armvm_trace_msr(armvm_core_ref core)
 	const uint32_t operand_masked = vR(SOP) & mask;
 
 	if(ARM_IR_DPI)
-		_armvm_trace_(core, "msr(%cPSR_%s, 0x%08x)", cs, cpsrs, vR(SOP));
+		_itrace_(core, "msr(%cPSR_%s, 0x%08x)", cs, cpsrs, vR(SOP));
 	else
-		_armvm_trace_(core, "msr(%cPSR_%s, %s)", cs, cpsrs, irR_NAME(M));
+		_itrace_(core, "msr(%cPSR_%s, %s)", cs, cpsrs, irR_NAME(M));
 
-	_armvm_trace_comment(core, "(0x%08x & 0x%08x): 0x%08x --> 0x%08x",
+	_itrace_comment(core, "(0x%08x & 0x%08x): 0x%08x --> 0x%08x",
 		vR(SOP), mask, operand_masked, vR(D));
 
-	_armvm_trace_end(core, 0);
+	_itrace_end(core, 0);
 }

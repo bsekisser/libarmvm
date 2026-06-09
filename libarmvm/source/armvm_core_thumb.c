@@ -6,7 +6,7 @@
 #include "armvm_core_exception.h"
 #include "armvm_core_mem.h"
 #include "armvm_core_thumb.h"
-#include "armvm_core_trace.h"
+#include "itrace.h"
 
 #include "armvm_coprocessor_cp15.h"
 
@@ -71,10 +71,10 @@ int _armvm_core_thumb_add_rd_pcsp_i(armvm_core_ref core)
 
 	reg_wb_v(core, rRD, rd);
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "add(%s, %s, 0x%03x)",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "add(%s, %s, 0x%03x)",
 				rR_NAME(D), rR_NAME(N), imm8);
-		_armvm_trace_end_with_comment(core, "0x%08x + 0x%03x = 0x%08x",
+		_itrace_end_with_comment(core, "0x%08x + 0x%03x = 0x%08x",
 				vR(N), imm8, vR(D));
 	}
 
@@ -95,32 +95,32 @@ int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 
 	alubox_thumb(core, opcode, 1);
 
-	if(!_armvm_trace_start(core, 0))
+	if(!_itrace_start(core, 0))
 		return(1);
 
 	if(bit_i)
 	{
 		if(op2 || vR(M)) {
-			_armvm_trace_(core, "%ss(%s, %s, %01u)",
+			_itrace_(core, "%ss(%s, %s, %01u)",
 				arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rm);
-			_armvm_trace_comment(core, "0x%08x %s%01u = 0x%08x",
+			_itrace_comment(core, "0x%08x %s%01u = 0x%08x",
 				vR(N), arm_dp_op_string[opcode], rm, vR(D));
 		}
 		else // pseudo op mov is encoded as adds rd, rn, 0
 		{
-			_armvm_trace_(core, "mov(%s, %s)", rR_NAME(D), rR_NAME(N));
-			_armvm_trace_comment(core, "0x%08x", vR(D));
+			_itrace_(core, "mov(%s, %s)", rR_NAME(D), rR_NAME(N));
+			_itrace_comment(core, "0x%08x", vR(D));
 		}
 	}
 	else
 	{
-		_armvm_trace_(core, "%ss(%s, %s, %s)",
+		_itrace_(core, "%ss(%s, %s, %s)",
 			arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rR_NAME(M));
-		_armvm_trace_comment(core, "0x%08x %s0x%08x = 0x%08x",
+		_itrace_comment(core, "0x%08x %s0x%08x = 0x%08x",
 			vR(N), arm_dp_op_string[opcode], rm, vR(D));
 	}
 
-	_armvm_trace_end(core, 0);
+	_itrace_end(core, 0);
 	return(1);
 }
 
@@ -152,13 +152,13 @@ int _armvm_core_thumb_add_sub_sp_i7(armvm_core_ref core)
 
 	reg_dst_wb(core, rRD, rSP, rd);
 
-	if(_armvm_trace_start(core, 0)) {
+	if(_itrace_start(core, 0)) {
 		const unsigned opcode = sub ? ARM_SUB : ARM_ADD;
 
-		_armvm_trace_(core, "%s(rSP, 0x%04x)",
+		_itrace_(core, "%s(rSP, 0x%04x)",
 			arm_dp_inst_string[opcode], imm7);
 
-		_armvm_trace_end_with_comment(core, "0x%08x %s0x%04x = 0x%08x",
+		_itrace_end_with_comment(core, "0x%08x %s0x%04x = 0x%08x",
 			rn, arm_dp_op_string[opcode], imm7, rd);
 	}
 
@@ -181,23 +181,23 @@ int _armvm_core_thumb_ascm_rd_i(armvm_core_ref core)
 
 	const uint32_t rd = alubox_thumb(core, operation, 1);
 
-	if(!_armvm_trace_start(core, 0))
+	if(!_itrace_start(core, 0))
 		return(1);
 
 	switch(operation)
 	{
 		default:
-			_armvm_trace_(core, "%ss(%s, 0x%03x)",
+			_itrace_(core, "%ss(%s, 0x%03x)",
 				arm_dp_inst_string[operation], rR_NAME(D), rm);
-			_armvm_trace_comment(core, "0x%08x %s0x%03x = 0x%08x",
+			_itrace_comment(core, "0x%08x %s0x%03x = 0x%08x",
 					vR(N), arm_dp_op_string[operation], rm, rd);
 		break;
 		case ARM_MOV:
-			_armvm_trace_(core, "movs(%s, 0x%03x)", rR_NAME(D), rm);
+			_itrace_(core, "movs(%s, 0x%03x)", rR_NAME(D), rm);
 		break;
 	}
 
-	_armvm_trace_end(core, 0);
+	_itrace_end(core, 0);
 
 	return(1);
 }
@@ -213,8 +213,8 @@ int _armvm_core_thumb_bcc(armvm_core_ref core)
 	if(armvm_core_check_cc(core, cond))
 		PC = new_pc;
 
-	if(_armvm_trace_start(core, "b(0x%08x)", new_pc)) {
-		_armvm_trace_end_with_comment(core, "0x%08x + 0x%03x",
+	if(_itrace_start(core, "b(0x%08x)", new_pc)) {
+		_itrace_end_with_comment(core, "0x%08x + 0x%03x",
 			THUMB_PC_NEXT, imm8);
 	}
 
@@ -233,10 +233,10 @@ int _armvm_core_thumb_bx(armvm_core_ref core)
 	const uint32_t new_pc = rm & ~1U;
 	const int thumb = rm & 1;
 
-	if(_armvm_trace_start(core, "b%sx(%s)",
+	if(_itrace_start(core, "b%sx(%s)",
 			link ? "l" : "", rR_NAME(M)))
 	{
-		_armvm_trace_end_with_comment(core, "%c(0x%08x)",
+		_itrace_end_with_comment(core, "%c(0x%08x)",
 			thumb ? 'T' : 'A', new_pc);
 	}
 
@@ -280,8 +280,8 @@ int _armvm_core_thumb_bxx_b(armvm_core_ref core)
 //	int splat = _trace_bx_0 && (new_pc == THUMB_IP_NEXT);
 	int splat = (new_pc == THUMB_IP_NEXT);
 
-	if(_armvm_trace_start(core, "b(0x%08x)", new_pc & ~1U)) {
-		_armvm_trace_end_with_comment(core, "0x%08x + %s0x%03x",
+	if(_itrace_start(core, "b(0x%08x)", new_pc & ~1U)) {
+		_itrace_end_with_comment(core, "0x%08x + %s0x%03x",
 			PC, splat ? "x" : "", eao);
 	}
 
@@ -359,22 +359,22 @@ int _armvm_core_thumb_dp_rms_rdn(armvm_core_ref core)
 
 	const uint32_t rd = alubox_thumb(core, opcode, 1);
 
-	if(_armvm_trace_start(core, "%ss(%s, %s)",
+	if(_itrace_start(core, "%ss(%s, %s)",
 		_dpr_ops[0][operation], rR_NAME(D), rR_NAME(M))) {
 
 		switch(opcode)
 		{
 			default:
-				_armvm_trace_comment(core, "0x%08x %s0x%08x = 0x%08x",
+				_itrace_comment(core, "0x%08x %s0x%08x = 0x%08x",
 					vR(N), _dpr_ops[1][operation], rm, rd);
 				break;
 			case ARM_MVN:
-				_armvm_trace_comment(core, "~0x%08x = 0x%08x",
+				_itrace_comment(core, "~0x%08x = 0x%08x",
 					rm, rd);
 				break;
 		}
 
-		_armvm_trace_end(core, 0);
+		_itrace_end(core, 0);
 	}
 
 	return(1);
@@ -413,11 +413,11 @@ int _armvm_core_thumb_ldst_rd_i(armvm_core_ref core)
 	else
 		ldst_rval = __str(core);
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "%s(%s, %s[0x%03x])",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "%s(%s, %s[0x%03x])",
 			bit_l ? "ldr" : "str", rR_NAME(D), rR_NAME(N), imm8);
 
-		_armvm_trace_end_with_comment(core, "[0x%08x](0x%08x)",
+		_itrace_end_with_comment(core, "[0x%08x](0x%08x)",
 			ea, vR(D));
 	}
 
@@ -460,11 +460,11 @@ int _armvm_core_thumb_ldst_bwh_o_rn_rd(armvm_core_ref core)
 	if(ldst_fn)
 		ldst_rval = ldst_fn(core);
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "%sr%s(%s, %s[0x%03x])",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "%sr%s(%s, %s[0x%03x])",
 			bit_l ? "ld" : "st", ss, rR_NAME(D), rR_NAME(N), rm);
 
-		_armvm_trace_end_with_comment(core, "[(0x%08x + 0x%03x) = 0x%08x](0x%08x)",
+		_itrace_end_with_comment(core, "[(0x%08x + 0x%03x) = 0x%08x](0x%08x)",
 			rn, rm, ea, vR(D));
 	}
 
@@ -494,10 +494,10 @@ int _armvm_core_thumb_ldst_rm_rn_rd(armvm_core_ref core)
 
 	(void)bwh_fn[bwh](core);
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "%sr%s(%s, %s, %s)",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "%sr%s(%s, %s, %s)",
 			bit_l ? "ld" : "st", _ss[bwh], rR_NAME(D), rR_NAME(N), rR_NAME(M));
-		_armvm_trace_end_with_comment(core, "0x%08x[0x%08x](0x%08x) = 0x%08x",
+		_itrace_end_with_comment(core, "0x%08x[0x%08x](0x%08x) = 0x%08x",
 			rm, rn, ea, vR(D));
 	}
 
@@ -559,10 +559,10 @@ int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 
 	reglist[8] = 0;
 
-	if(_armvm_trace_start(core, "%smia(%s%s, r{%s})",
+	if(_itrace_start(core, "%smia(%s%s, r{%s})",
 			bit_l ? "ld" : "st", rR_NAME(N),
 			wb ? "!" : "", reglist)) {
-		_armvm_trace_end_with_comment(core, "0x%08x", rn);
+		_itrace_end_with_comment(core, "0x%08x", rn);
 	}
 
 	return(1);
@@ -615,9 +615,9 @@ int _armvm_core_thumb_pop_push(armvm_core_ref core)
 	const char *pclrs = bit_r ? (bit_l ? ", PC" : ", LR") : "";
 	reglist[8] = 0;
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "%s(rSP, r{%s%s})", bit_l ? "pop" : "push", reglist, pclrs);
-		_armvm_trace_end_with_comment(core, "0x%08x", rn);
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "%s(rSP, r{%s%s})", bit_l ? "pop" : "push", reglist, pclrs);
+		_itrace_end_with_comment(core, "0x%08x", rn);
 	}
 
 	if(!data_abort) {
@@ -662,9 +662,9 @@ int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_ref core)
 
 	const char* sops = arm_sop_lcase_string[shift_type];
 
-	if(_armvm_trace_start(core, "%ss(%s, %s, 0x%02x)",
+	if(_itrace_start(core, "%ss(%s, %s, 0x%02x)",
 			sops, rR_NAME(D), rR_NAME(M), rs)) {
-		_armvm_trace_end_with_comment(core, "%s(0x%08x, 0x%02x) = 0x%08x",
+		_itrace_end_with_comment(core, "%s(0x%08x, 0x%02x) = 0x%08x",
 			sops, rm, rs, rd);
 	}
 
@@ -688,20 +688,20 @@ int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 	const unsigned s = (ARM_CMP == opcode);
 	alubox_thumb(core, opcode, s);
 
-	if(_armvm_trace_start(core, 0))
+	if(_itrace_start(core, 0))
 	{
-		_armvm_trace_(core, "%s%s(%s, %s)",
+		_itrace_(core, "%s%s(%s, %s)",
 			arm_dp_inst_string[opcode], (s ? "s" : ""), rR_NAME(D), rR_NAME(M));
 
 		switch(opcode)
 		{
 			case ARM_ADD:
 			case ARM_CMP:
-				_armvm_trace_comment(core, "0x%08x %s0x%08x = 0x%08x",
+				_itrace_comment(core, "0x%08x %s0x%08x = 0x%08x",
 					vR(N), arm_dp_op_string[opcode], rm, vR(D));
 				break;
 			case ARM_MOV:
-				_armvm_trace_comment(core, "0x%08x", vR(D));
+				_itrace_comment(core, "0x%08x", vR(D));
 				break;
 			default:
 				arm_disasm_thumb(IP, IR);
@@ -709,7 +709,7 @@ int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 				break;
 		}
 
-		_armvm_trace_end(core, 0);
+		_itrace_end(core, 0);
 	}
 
 	if(ARM_CMP == opcode)

@@ -94,7 +94,7 @@ void _armvm_trace(armvm_core_ref core, const char* format, ...)
 	va_end(ap);
 }
 
-void _armvm_trace_(armvm_core_ref core, const char* format, ...)
+void _itrace_(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -107,7 +107,7 @@ void _armvm_trace_(armvm_core_ref core, const char* format, ...)
 
 /* **** */
 
-void _armvm_trace_comment(armvm_core_ref core, const char* format, ...)
+void _itrace_comment(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -118,7 +118,7 @@ void _armvm_trace_comment(armvm_core_ref core, const char* format, ...)
 	va_end(ap);
 }
 
-void _armvm_trace_end(armvm_core_ref core, const char* format, ...)
+void _itrace_end(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -128,7 +128,7 @@ void _armvm_trace_end(armvm_core_ref core, const char* format, ...)
 	va_end(ap);
 }
 
-void _armvm_trace_end_with_comment(armvm_core_ref core, const char* format, ...)
+void _itrace_end_with_comment(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
@@ -141,7 +141,7 @@ void _armvm_trace_end_with_comment(armvm_core_ref core, const char* format, ...)
 	va_end(ap);
 }
 
-int _armvm_trace_start(armvm_core_ref core, const char* format, ...)
+int _itrace_start(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);

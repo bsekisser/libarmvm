@@ -1,7 +1,7 @@
 #include "armvm_core_cc.h"
 #include "armvm_core_config.h"
 #include "armvm_core_shiftbox.h"
-#include "armvm_core_trace.h"
+#include "itrace.h"
 
 /* **** */
 
@@ -10,7 +10,7 @@
 /* **** */
 
 #include "alubox.h"
-#include "core_arm_trace.h"
+#include "itrace_arm.h"
 #include "reg.h"
 #include "ldst_arm.h"
 #include "ldstm_arm.h"
@@ -153,10 +153,10 @@ int _arm_inst_bx_blx_m(armvm_core_ref core, const int link)
 	 *	this will errantly be reflected in the trace
 	 */
 
-	if(_armvm_trace_start(core, "b%sx(%s)",
+	if(_itrace_start(core, "b%sx(%s)",
 		link ? "l" : "", irR_NAME(M))) {
 
-		_armvm_trace_end_with_comment(core, "%s(0x%08x)", thumb ? "T" : "A", rm);
+		_itrace_end_with_comment(core, "%s(0x%08x)", thumb ? "T" : "A", rm);
 	}
 
 	/* **** */
@@ -187,8 +187,8 @@ int _arm_inst_clz(armvm_core_ref core)
 
 	reg_dst_wb(core, rRD, ARM_IR_R(D), rd);
 
-	if(_armvm_trace_start(core, "clz(%s)", irR_NAME(M)))
-		_armvm_trace_end_with_comment(core, "0x%08x => 0x%08x", rm, rd);
+	if(_itrace_start(core, "clz(%s)", irR_NAME(M)))
+		_itrace_end_with_comment(core, "0x%08x => 0x%08x", rm, rd);
 
 	LOG_ACTION(exit(-1));
 
@@ -204,7 +204,7 @@ int _arm_inst_dp(armvm_core_ref core)
 	alubox(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S, 1);
 
 	if(core->config.trace)
-		armvm_trace_dp(core);
+		itrace_dp(core);
 
 	return(rR_IS_NOT_PC(D));
 }
@@ -265,7 +265,7 @@ int _arm_inst_ldst(armvm_core_ref core)
 	const int ldst_rval = __ldst_arm_ea_fn(core, ldst_fn);
 
 	if(core->config.trace)
-		armvm_trace_ldst(core);
+		itrace_ldst(core);
 
 	return(ldst_rval);
 }
@@ -314,7 +314,7 @@ int _arm_inst_ldst_sh(armvm_core_ref core, const uint32_t rm)
 	const int ldst_rval = __ldst_arm_ea_fn(core, ldst_fn);
 
 	if(core->config.trace)
-		armvm_trace_ldst(core);
+		itrace_ldst(core);
 
 	return(ldst_rval);
 }
@@ -405,14 +405,14 @@ int _arm_inst_ldstm(armvm_core_ref core)
 
 	const int user_mode_regs = user_mode_regs_load || user_mode_regs_store;
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "%s%c%c(%s%s, {%s}%s%s)",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "%s%c%c(%s%s, {%s}%s%s)",
 			opstr, bit_u ? 'i' : 'd', bit_p ? 'b' : 'a',
 			irR_NAME(N), bit_w ? "!" : "", reglist,
 			user_mode_regs ? ", USER" : "",
 			load_spsr ? ", SPSR" : "");
 
-		_armvm_trace_end_with_comment(core, "0x%08x", sp_in);
+		_itrace_end_with_comment(core, "0x%08x", sp_in);
 	}
 
 	reg_setup_vR(core, rREA, start_address);
@@ -509,14 +509,14 @@ int _arm_inst_mla(armvm_core_ref core)
 
 	/* **** */
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "mla%s(", ARM_IR_DP_S ? "s" : "");
-		_armvm_trace_(core, "%s", irR_NAME(D));
-		_armvm_trace_(core, ", %s", irR_NAME(M));
-		_armvm_trace_(core, ", %s", irR_NAME(S));
-		_armvm_trace_(core, ", %s)", irR_NAME(N));
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "mla%s(", ARM_IR_DP_S ? "s" : "");
+		_itrace_(core, "%s", irR_NAME(D));
+		_itrace_(core, ", %s", irR_NAME(M));
+		_itrace_(core, ", %s", irR_NAME(S));
+		_itrace_(core, ", %s)", irR_NAME(N));
 
-		_armvm_trace_end_with_comment(core, "(0x%08x * 0x%08x) + 0x%08x = 0x%08x",
+		_itrace_end_with_comment(core, "(0x%08x * 0x%08x) + 0x%08x = 0x%08x",
 			rm, rs, rn, rd);
 	}
 
@@ -541,8 +541,8 @@ int _arm_inst_mrs(armvm_core_ref core)
 
 	/* **** */
 
-	if(_armvm_trace_start(core, "mrs(%s, %s)", irR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr")) {
-		_armvm_trace_end_with_comment(core, "0x%08x", rd);
+	if(_itrace_start(core, "mrs(%s, %s)", irR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr")) {
+		_itrace_end_with_comment(core, "0x%08x", rd);
 	}
 
 	return(rR_IS_NOT_PC(D));
@@ -645,7 +645,7 @@ if(0)	LOG("mask: 0x%08x", mask);
 		reg_setup_vR(core, rRN, saved_psr);
 		reg_setup_rR_vR(core, rRS, ~field_mask, mask);
 
-		armvm_trace_msr(core);
+		itrace_msr(core);
 	}
 
 	return(0);
@@ -678,11 +678,11 @@ int _arm_inst_mul(armvm_core_ref core)
 
 	/* **** */
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "mul%s(%s, %s, %s)",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "mul%s(%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "", irR_NAME(D), irR_NAME(M), irR_NAME(S));
 
-		_armvm_trace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x",
+		_itrace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x",
 			rm, rs, rd);
 
 	}
@@ -711,12 +711,12 @@ int _arm_inst_smull(armvm_core_ref core)
 
 	/* **** */
 
-	if(_armvm_trace_start(core, 0)) {
-		_armvm_trace_(core, "smull%s(%s:%s, %s, %s)",
+	if(_itrace_start(core, 0)) {
+		_itrace_(core, "smull%s(%s:%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "",
 			irR_NAME(DLo), irR_NAME(DHi), irR_NAME(M), irR_NAME(S));
 
-		_armvm_trace_end_with_comment(core, "0x%08x * 0x%08x = 0x%016" PRIx64,
+		_itrace_end_with_comment(core, "0x%08x * 0x%08x = 0x%016" PRIx64,
 			rm, rs, rSPR64(RESULT));
 	}
 
@@ -744,13 +744,13 @@ int _arm_inst_umull(armvm_core_ref core)
 
 	/* **** */
 
-	if(_armvm_trace_start(core, "umull%s(", ARM_IR_DP_S ? "s" : "")) {
-		_armvm_trace_(core, "%s", irR_NAME(DLo));
-		_armvm_trace_(core, ":%s", irR_NAME(DHi));
-		_armvm_trace_(core, ", %s", irR_NAME(M));
-		_armvm_trace_(core, ", %s)", irR_NAME(S));
+	if(_itrace_start(core, "umull%s(", ARM_IR_DP_S ? "s" : "")) {
+		_itrace_(core, "%s", irR_NAME(DLo));
+		_itrace_(core, ":%s", irR_NAME(DHi));
+		_itrace_(core, ", %s", irR_NAME(M));
+		_itrace_(core, ", %s)", irR_NAME(S));
 
-		_armvm_trace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
+		_itrace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
 			vR(M), vR(S), vR(DHi), vR(DLo));
 	}
 
