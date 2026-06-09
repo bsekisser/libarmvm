@@ -84,9 +84,11 @@ static void armvm_trace_dp(armvm_core_ref core)
 			else {
 				switch(ARM_IR_DP_SHIFT_TYPE) {
 					case ARM_SOP_ROR:
-						if(!vR(S))
+						if(!vR(S)) {
 							_armvm_trace_(core, ", RRX(%s))", sos, irR_NAME(M));
-						break;
+							break;
+						}
+					__attribute__((fallthrough));
 					default:
 							_armvm_trace_(core, ", %s(%s, %u))", sos, irR_NAME(M), vR(S));
 						break;
