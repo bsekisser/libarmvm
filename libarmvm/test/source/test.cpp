@@ -10,10 +10,8 @@
 
 extern "C" {
 	#include "libarmvm/include/libarmvm_mem.h"
-	#include "libarmvm/armvm/armvm_glue.h"
-	#include "libarmvm/armvm/armvm_trace.h"
-	#include "libarmvm/armvm/armvm.h"
-	#include "libarmvm/core/armvm_core.h"
+	#include "libarmvm/source/armvm.h"
+	#include "libarmvm/source/armvm_core.h"
 }
 
 /* **** */
@@ -97,15 +95,15 @@ uint32_t _run_test(test_ref t, const uint32_t flag_set)
 	CPSR &= ~ARM_CPSR_MASK_NZCV;
 	CPSR |= flag_set;
 
-	TEST_PC = RUN_PC;
+	TEST_PC = PC;
 
 	while(GEN_COUNT) {
 		libarmvm_step(pARMVM);
 		GEN_COUNT--;
 	}
 
-	GEN_PC = RUN_PC;
-	return(RUN_PC);
+	GEN_PC = PC;
+	return(PC);
 }
 
 static __attribute__((warn_unused_result))
@@ -180,16 +178,16 @@ int main(int argc, char* *const argv)
 
 void test::reset(void)
 {
-if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, RUN_PC: 0x%08x", GEN_COUNT, GEN_PC, RUN_PC);
+if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, PC: 0x%08x", GEN_COUNT, GEN_PC, PC);
 
 	libarmvm_reset(pARMVM);
 
-if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, RUN_PC: 0x%08x", GEN_COUNT, GEN_PC, RUN_PC);
+if(0) LOG("GEN_COUNT: 0x%08x, GEN_PC: 0x%08x, PC: 0x%08x", GEN_COUNT, GEN_PC, PC);
 
-	assert(0 == RUN_PC);
+	assert(0 == PC);
 
 	GEN_COUNT = 0;
-	GEN_PC = RUN_PC;
+	GEN_PC = PC;
 }
 
 uint32_t test::run_test(void)
@@ -200,15 +198,15 @@ uint32_t test::run_test_flags(const uint32_t flag_set)
 
 uint32_t test::step_test(void)
 {
-	TEST_PC = RUN_PC;
+	TEST_PC = PC;
 
 	if(GEN_COUNT) {
 		libarmvm_step(pARMVM);
 		GEN_COUNT--;
 	}
 
-	GEN_PC = RUN_PC;
-	return(RUN_PC);
+	GEN_PC = PC;
+	return(PC);
 }
 
 test::test():cc(mem)

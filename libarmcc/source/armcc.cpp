@@ -37,37 +37,37 @@ extern "C" {
 
 /* **** */
 
-uint32_t armcc::adcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::adcs(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_ADC, 1, rd, rn, rm));
 }
 
-uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+uint32_t armcc::add(gpr_eref rd, gpr_eref rn, armcc_sop_tref sop)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_ADD, 0, rd, rn, sop));
 }
 
-uint32_t armcc::add(const arm_reg_t rd, const arm_reg_t rn, const int imm)
+uint32_t armcc::add(gpr_eref rd, gpr_eref rn, const int imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_ADD, 0, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
-uint32_t armcc::adds(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::adds(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_ADD, 1, rd, rn, rm));
 }
 
-uint32_t armcc::adds(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+uint32_t armcc::adds(gpr_eref rd, gpr_eref rn, armcc_sop_tref sop)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_ADD, 1, rd, rn, sop));
 }
 
-uint32_t armcc::adds(const arm_reg_t rd, const arm_reg_t rn, const int imm)
+uint32_t armcc::adds(gpr_eref rd, gpr_eref rn, const int imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_ADD, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
-uint32_t armcc::ands(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::ands(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_AND, 1, rd, rn, rm));
 }
@@ -92,16 +92,16 @@ armcc::armcc(void *const p2data, const uint32_t cs, const uint32_t ds)
 	org_text(cs);
 }
 
-armcc_sop_t armcc::asr(const arm_reg_t rm, const uint8_t rs)
+armcc_sop_t armcc::asr(gpr_eref rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_ASR, rs)); }
 
-uint32_t armcc::asrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
-{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, asr(rm, rs))); }
+uint32_t armcc::asrs(gpr_eref rd, gpr_eref rm, const uint8_t rs)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, rR0, asr(rm, rs))); }
 
 uint32_t armcc::b(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat))); }
 
-uint32_t armcc::bics(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::bics(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_BIC, 1, rd, rn, rm));
 }
@@ -109,7 +109,7 @@ uint32_t armcc::bics(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
 uint32_t armcc::bl(const uint32_t pat)
 { return(gen_arm__group_ir(&cc, 5, gen_arm__b_offset(&cc, pat) | _BV(24))); }
 
-uint32_t armcc::blx(const arm_reg_t rm)
+uint32_t armcc::blx(gpr_eref rm)
 { return(gen_arm__group_ir(&cc, 0, gen_arm__blx_bx_rm(1, rm))); }
 
 uint32_t armcc::blx(const uint32_t pat)
@@ -125,11 +125,11 @@ uint32_t armcc::blx(const uint32_t pat)
 uint32_t armcc::bne(const uint32_t pat)
 { return(gen_arm__cc_group_ir(&cc, CC_NE, 5, gen_arm__b_offset(&cc, pat))); }
 
-uint32_t armcc::bx(const arm_reg_t rm)
+uint32_t armcc::bx(gpr_eref rm)
 { return(gen_arm__group_ir(&cc, 0, gen_arm__blx_bx_rm(0, rm))); }
 
-uint32_t armcc::cmp(const arm_reg_t rn, const arm_reg_t rm)
-{ return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_CMP, 1, r0, rn, rm)); }
+uint32_t armcc::cmp(gpr_eref rn, gpr_eref rm)
+{ return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_CMP, 1, rR0, rn, rm)); }
 
 uint32_t armcc::dw(const uint32_t data)
 {
@@ -151,7 +151,7 @@ uint32_t armcc::dw(const uint32_t data)
 	return(ds_dp);
 }
 
-uint32_t armcc::ldr(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
+uint32_t armcc::ldr(gpr_eref rd, gpr_eref rn, const uint32_t pat)
 {
 	unsigned bit_u = 0;
 	const uint32_t offset = gen_arm__ldst_offset(&cc, pat, &bit_u);
@@ -163,31 +163,31 @@ uint32_t armcc::ldr(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 	return(gen_arm__group_rd_rn_x(&cc, 2, rd, rn, ir + offset));
 }
 
-armcc_sop_t armcc::lsl(const arm_reg_t rm, const uint8_t rs)
+armcc_sop_t armcc::lsl(gpr_eref rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_LSL, rs)); }
 
-uint32_t armcc::lsls(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
-{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, lsl(rm, rs))); }
+uint32_t armcc::lsls(gpr_eref rd, gpr_eref rm, const uint8_t rs)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, rR0, lsl(rm, rs))); }
 
-armcc_sop_t armcc::lsr(const arm_reg_t rm, const uint8_t rs)
+armcc_sop_t armcc::lsr(gpr_eref rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_LSR, rs)); }
 
-uint32_t armcc::lsrs(const arm_reg_t rd, const arm_reg_t rm, const uint8_t rs)
-{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, lsr(rm, rs))); }
+uint32_t armcc::lsrs(gpr_eref rd, gpr_eref rm, const uint8_t rs)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, rR0, lsr(rm, rs))); }
 
-uint32_t armcc::mov(const arm_reg_t rd, const arm_reg_t rm)
-{ return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_MOV, 0, rd, r0, rm)); }
+uint32_t armcc::mov(gpr_eref rd, gpr_eref rm)
+{ return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_MOV, 0, rd, rR0, rm)); }
 
-uint32_t armcc::mov(const arm_reg_t rd, const int imm)
+uint32_t armcc::mov(gpr_eref rd, const int imm)
 {
-	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_MOV, 0, rd, r0, ror(imm, 0)));
+	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_MOV, 0, rd, rR0, ror(imm, 0)));
 }
 
-uint32_t armcc::movs(const arm_reg_t rd, const arm_reg_t rm)
-{ return(gen_arm_dp__op_s_rd_rn_sop(&cc, ARM_MOV, 1, rd, r0, lsl(rm, 0))); }
+uint32_t armcc::movs(gpr_eref rd, gpr_eref rm)
+{ return(gen_arm_dp__op_s_rd_rn_sop(&cc, ARM_MOV, 1, rd, rR0, lsl(rm, 0))); }
 
-uint32_t armcc::movs(const arm_reg_t rd, const armcc_sop_t sop)
-{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, r0, sop)); }
+uint32_t armcc::movs(gpr_eref rd, armcc_sop_tref sop)
+{ return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_MOV, 1, rd, rR0, sop)); }
 
 uint32_t armcc::org_data(const uint32_t ds)
 {
@@ -233,34 +233,34 @@ uint32_t armcc::org_text(const uint32_t cs)
 armcc_p armcc::p2armcc_t(void)
 { return(&cc); }
 
-armcc_sop_t armcc::ror(const arm_reg_t rm, const uint8_t rs)
+armcc_sop_t armcc::ror(gpr_eref rm, const uint8_t rs)
 { return(gen_arm_dp_sop__rm_i(rm, ARM_SOP_ROR, rs)); }
 
 armcc_sop_t armcc::ror(const uint8_t rm, const uint8_t rs)
 //armcc_sop_t armcc::ror(const int rm, const int rs)
 { return(gen_arm_dp_sop__ror_i(rm, rs)); }
 
-uint32_t armcc::rsbs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::rsbs(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_RSB, 1, rd, rn, rm));
 }
 
-uint32_t armcc::rsbs(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+uint32_t armcc::rsbs(gpr_eref rd, gpr_eref rn, armcc_sop_tref sop)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_RSB, 1, rd, rn, sop));
 }
 
-uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
+uint32_t armcc::sbcs(gpr_eref rd, gpr_eref rn, const uint8_t imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_SBC, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
-uint32_t armcc::sbcs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::sbcs(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_SBC, 1, rd, rn, rm));
 }
 
-uint32_t armcc::str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
+uint32_t armcc::str(gpr_eref rd, gpr_eref rn, const uint32_t pat)
 {
 	unsigned bit_u = 0;
 	const uint32_t offset = gen_arm__ldst_offset(&cc, pat, &bit_u);
@@ -271,17 +271,17 @@ uint32_t armcc::str(const arm_reg_t rd, const arm_reg_t rn, const uint32_t pat)
 	return(gen_arm__group_rd_rn_x(&cc, 2, rd, rn, ir + offset));
 }
 
-uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const uint8_t imm)
+uint32_t armcc::subs(gpr_eref rd, gpr_eref rn, const uint8_t imm)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 1, ARM_SUB, 1, rd, rn, gen_arm_dp_sop__ror_i(imm, 0)));
 }
 
-uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+uint32_t armcc::subs(gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm_dp__op_s_rd_rn_rm(&cc, ARM_SUB, 1, rd, rn, rm));
 }
 
-uint32_t armcc::subs(const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+uint32_t armcc::subs(gpr_eref rd, gpr_eref rn, armcc_sop_tref sop)
 {
 	return(gen_arm_dp__op_s_rd_rn(&cc, 0, ARM_SUB, 1, rd, rn, sop));
 }

@@ -18,7 +18,7 @@
 
 static uint32_t gen_arm_dp__op_s_rd_rn(armcc_p const p2cc, const unsigned group,
 	arm_dp_opcode_eref opcode, const unsigned s,
-	const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+	gpr_eref rd, gpr_eref rn, const armcc_sop_t sop)
 {
 	return(gen_arm__group_ir(p2cc, group,
 		gen_arm_ir__dp_opcode_s(opcode, s)
@@ -29,7 +29,7 @@ static uint32_t gen_arm_dp__op_s_rd_rn(armcc_p const p2cc, const unsigned group,
 
 static uint32_t gen_arm_dp__op_s_rd_rn_rm(armcc_p const p2cc,
 	arm_dp_opcode_eref opcode, const unsigned s,
-	const arm_reg_t rd, const arm_reg_t rn, const arm_reg_t rm)
+	gpr_eref rd, gpr_eref rn, gpr_eref rm)
 {
 	return(gen_arm__group_ir(p2cc, 0,
 		gen_arm_ir__dp_opcode_s(opcode, s)
@@ -39,7 +39,7 @@ static uint32_t gen_arm_dp__op_s_rd_rn_rm(armcc_p const p2cc,
 
 static uint32_t gen_arm_dp__op_s_rd_rn_sop(armcc_p const p2cc,
 	arm_dp_opcode_eref opcode, const unsigned s,
-	const arm_reg_t rd, const arm_reg_t rn, const armcc_sop_t sop)
+	gpr_eref rd, gpr_eref rn, const armcc_sop_t sop)
 {
 	return(gen_arm__group_ir(p2cc, 0,
 		gen_arm_ir__dp_opcode_s(opcode, s)

@@ -9,6 +9,10 @@ typedef libarmvm_state_ptr const libarmvm_state_ref;
 
 /* **** */
 
+#include "libbse/include/static_assert.h"
+
+/* **** */
+
 typedef union libarmvm_state_tag {
 	unsigned raw_flags;
 	struct {
@@ -31,10 +35,11 @@ typedef union libarmvm_state_tag {
 			char wfi:1;
 		};
 	};
+//
 }libarmvm_state_t;
 typedef libarmvm_state_t const libarmvm_state_tref;
 
-_Static_assert(4 == sizeof(libarmvm_state_t));
+STATIC_ASSERT(4 == sizeof(libarmvm_state_t));
 
 /* **** */
 

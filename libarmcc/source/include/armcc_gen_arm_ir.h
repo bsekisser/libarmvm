@@ -35,19 +35,19 @@ static uint32_t gen_arm_ir__group(const unsigned group)
 	return(pbBFMOV(group, 0, 3, 25));
 }
 
-static uint32_t gen_arm_ir__rd(const arm_reg_t rd)
+static uint32_t gen_arm_ir__rd(gpr_eref rd)
 {
 	assert(0 == (rd & ~15));
 	return(pbBFMOV(rd, 0, 4, 12));
 }
 
-static uint32_t gen_arm_ir__rn(const arm_reg_t rn)
+static uint32_t gen_arm_ir__rn(gpr_eref rn)
 {
 	assert(0 == (rn & ~15));
 	return(pbBFMOV(rn, 0, 4, 16));
 }
 
-static uint32_t gen_arm_ir__rm(const arm_reg_t rm)
+static uint32_t gen_arm_ir__rm(gpr_eref rm)
 {
 	assert(0 == (rm & ~15));
 	return(rm & 15);
@@ -61,9 +61,9 @@ static uint32_t gen_arm_ir__shift_type(arm_sop_eref shift_type)
 
 /* **** */
 
-static uint32_t gen_arm_ir__rd_rn(const arm_reg_t rd, const arm_reg_t rn)
+static uint32_t gen_arm_ir__rd_rn(gpr_eref rd, gpr_eref rn)
 { return(gen_arm_ir__rd(rd) | gen_arm_ir__rn(rn)); }
 
-static uint32_t gen_arm_ir__rd_rn_rm(const arm_reg_t rd, const arm_reg_t rn,
-	const arm_reg_t rm)
+static uint32_t gen_arm_ir__rd_rn_rm(gpr_eref rd, gpr_eref rn,
+	gpr_eref rm)
 { return(gen_arm_ir__rd_rn(rd, rn) | gen_arm_ir__rm(rm)); }

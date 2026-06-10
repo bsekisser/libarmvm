@@ -20,40 +20,40 @@ int test_arm::b_bl(void)
 
 	cc.b(0x10);
 	run_test();
-	fail_if(0x10 != rR(PC));
+	fail_if(0x10 != PC);
 
 	cc.bl(0x20);
 	run_test();
-	fail_if(0x20 != rR(PC));
-	fail_if(4 != (rR(LR) - TEST_PC));
+	fail_if(0x20 != PC);
+	fail_if(4 != (LR - TEST_PC));
 
-	const uint32_t bl_LR = rR(LR);
+	const uint32_t bl_LR = LR;
 
 	cc.blx(rLR);
 	run_test();
-	fail_if(bl_LR != rR(PC));
-	fail_if(4 != (rR(LR) - TEST_PC));
+	fail_if(bl_LR != PC);
+	fail_if(4 != (LR - TEST_PC));
 	fail_if(ARM_CPSR_BEXT(Thumb));
 
-	const uint32_t blx_LR = rR(LR);
+	const uint32_t blx_LR = LR;
 
 	cc.bx(rLR);
 	run_test();
-	fail_if(blx_LR != rR(PC));
+	fail_if(blx_LR != PC);
 	fail_if(ARM_CPSR_BEXT(Thumb));
 
 	cc.bx(rPC);
 	run_test();
-	fail_if(8 != (rR(PC) - TEST_PC));
+	fail_if(8 != (PC - TEST_PC));
 
 	cc.blx(rPC);
 	run_test();
-	fail_if(4 != (rR(LR) - TEST_PC));
-	fail_if(8 != (rR(PC) - TEST_PC));
+	fail_if(4 != (LR - TEST_PC));
+	fail_if(8 != (PC - TEST_PC));
 
 	cc.blx(0x43);
 	run_test();
-	fail_if(0x42 != rR(PC));
+	fail_if(0x42 != PC);
 	fail_if(!ARM_CPSR_BEXT(Thumb));
 
 	return(1);

@@ -12,28 +12,28 @@ int test_arm::bics(void)
 {
 	reset();
 
-	rR(1) = 0xffffffff; rR(2) = 0x0f0f0f0f;
-	cc.bics(r0, r1, r2);
+	vR(1) = 0xffffffff; vR(2) = 0x0f0f0f0f;
+	cc.bics(rR0, rR1, rR2);
 	run_test();
-	fail_if(0xf0f0f0f0 != rRx(0));
+	fail_if(0xf0f0f0f0 != vR(0));
 	check_nz(1, 0);
 
-	rR(1) = 0xffffffff; rR(2) = 0xf0f0f0f0;
-	cc.bics(r0, r1, r2);
+	vR(1) = 0xffffffff; vR(2) = 0xf0f0f0f0;
+	cc.bics(rR0, rR1, rR2);
 	run_test();
-	fail_if(0x0f0f0f0f != rRx(0));
+	fail_if(0x0f0f0f0f != vR(0));
 	check_nz(0, 0);
 
-	rR(1) = 0x0f0f0f0f; rR(2) = 0xf0f0f0f0;
-	cc.bics(r0, r1, r2);
+	vR(1) = 0x0f0f0f0f; vR(2) = 0xf0f0f0f0;
+	cc.bics(rR0, rR1, rR2);
 	run_test();
-	fail_if(0x0f0f0f0f != rRx(0));
+	fail_if(0x0f0f0f0f != vR(0));
 	check_nz(0, 0);
 
-	rR(1) = 0x0f0f0f0f; rR(2) = 0x0f0f0f0f;
-	cc.bics(r0, r1, r2);
+	vR(1) = 0x0f0f0f0f; vR(2) = 0x0f0f0f0f;
+	cc.bics(rR0, rR1, rR2);
 	run_test();
-	fail_if(0 != rRx(0));
+	fail_if(0 != vR(0));
 	check_nz(0, 1);
 
 	return(1);

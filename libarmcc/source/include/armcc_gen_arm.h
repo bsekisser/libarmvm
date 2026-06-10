@@ -27,7 +27,7 @@ static uint32_t _gen_arm__word_offset(const uint32_t pc, const uint32_t pat)
 
 /* **** */
 
-static uint32_t gen_arm__blx_bx_rm(const unsigned link, const arm_reg_t rm)
+static uint32_t gen_arm__blx_bx_rm(const unsigned link, gpr_eref rm)
 { return(0x012fff10 | bmov32(!!link, 0, 5) | gen_arm_ir__rm(rm)); }
 
 static uint32_t gen_arm__b_offset(armcc_p p2cc, const uint32_t pat)
@@ -62,7 +62,7 @@ static uint32_t gen_arm__group_ir(armcc_p const p2cc, const unsigned group, cons
 { return(gen_arm__cc_group_ir(p2cc, CC_AL, group, ir)); }
 
 static uint32_t gen_arm__group_rd_rn_x(armcc_p const p2cc, const unsigned group,
-	const arm_reg_t rd, const arm_reg_t rn, const uint32_t x)
+	gpr_eref rd, gpr_eref rn, const uint32_t x)
 { return(gen_arm__group_ir(p2cc, group, gen_arm_ir__rd_rn(rd, rn) | x)); }
 
 static uint32_t gen_arm__ldst_offset(armcc_p p2cc,

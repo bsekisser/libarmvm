@@ -18,6 +18,7 @@ typedef armvm_core_ptr const armvm_core_ref;
 /* **** */
 
 #include "libarm/include/cpsr.h"
+#include "libarm/include/gpr.h"
 
 #include "libbse/include/action.h"
 
@@ -27,29 +28,15 @@ typedef armvm_core_ptr const armvm_core_ref;
 
 /* **** */
 
-typedef enum gpr_enum {
-	r0, r1, r2, r3, r4, r5, r6, r7,
-	r8, r9,r10,r11,r12,r13,r14,r15,
-//
-	rLR = r14,
-	rPC = r15,
-	rSP = r13,
-}gpr_enum;
-
 typedef enum reg_enum {
 	rRD = 16, rRM, rRN, rRS,
 //
 	rRDHi, rREA, rRSOP,
 //
-	__REG_COUNT__,
+	__GPR_COUNT__, __REG_COUNT__ = __GPR_COUNT__ - 16,
 //
 	rRDLo = rRD,
 }reg_enum;
-
-typedef struct reg_tag {
-	gpr_enum r;
-	uint32_t v;
-}reg_t;
 
 #define ARMVM_SPR32(_x) ARMVM_SPR32_##_x
 
@@ -113,18 +100,18 @@ typedef struct armvm_core_state_flags_tag {
 }armvm_core_state_flags_t;
 
 typedef struct armvm_core_tag {
-	uint32_t gpr[16];
+	uint32_t gpr[__GPR_COUNT__];
 #define GPRx(_x) pCORE->gpr[_x & 15]
 #define irGPR(_x) GPRx(ARM_IR_R(_x))
-#define vGPR(_) GPRx(r##_)
+#define vGPR(_) GPRx(rR##_)
 //
-	reg_t reg[__REG_COUNT__];
-#define xR(_) (&pCORE->reg[_ - 16])
+	gpr_enum reg[__REG_COUNT__];
+#define xR(_) pCORE->reg[_ - 16]
 #define xRr(_) xR(rR##_)
-#define vR(_) xRr(_)->v
-#define vRx(_) xR(_)->v
-#define rR(_) xRr(_)->r
-#define rRx(_) xR(_)->r
+#define vRx(_) pCORE->gpr[_]
+#define vR(_) vRx(rR##_)
+#define rR(_) xRr(_)
+#define rRx(_) xR(_)
 //
 	uint64_t spr64[_ARMVM_SPR64_COUNT_];
 #define SPR64x(_x) pCORE->spr64[_x]

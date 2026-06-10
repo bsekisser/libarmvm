@@ -12,22 +12,22 @@ int test_arm::add(void)
 {
 	reset();
 
-	rR(0) = 0;
-	cc.add(r0, r0, 1);
+	vR(0) = 0;
+	cc.add(rR0, rR0, 1);
 	run_test();
-	fail_if(1 != rR(0));
+	fail_if(1 != vR(0));
 
-	cc.add(r0, r0, cc.lsl(r0, 1));
+	cc.add(rR0, rR0, cc.lsl(rR0, 1));
 	run_test();
-	fail_if(3 != rR(0));
+	fail_if(3 != vR(0));
 
 	cc.add(rPC, rPC, 0);
 	run_test();
-	fail_if(8 != (rR(PC) - TEST_PC));
+	fail_if(8 != (PC - TEST_PC));
 
-	cc.add(r0, rPC, 0);
+	cc.add(rR0, rPC, 0);
 	run_test();
-	fail_if(8 != (rR(0) - TEST_PC));
+	fail_if(8 != (vR(0) - TEST_PC));
 
 	return(1);
 }
@@ -36,34 +36,34 @@ int test_arm::adds(void)
 {
 	reset();
 
-	rR(0) = 1;
-	cc.adds(r0, r0, cc.lsl(r0, 3));
+	vR(0) = 1;
+	cc.adds(rR0, rR0, cc.lsl(rR0, 3));
 	run_test();
-	fail_if(0x00000009 != rR(0));
+	fail_if(0x00000009 != vR(0));
 	check_nzcv(0, 0, 0, 0);
 
-	rR(1) = 0x7fffffff; rR(2) = 0x7fffffff;
-	cc.adds(r0, r1, r2);
+	vR(1) = 0x7fffffff; vR(2) = 0x7fffffff;
+	cc.adds(rR0, rR1, rR2);
 	run_test();
-	fail_if(0xfffffffe != rR(0));
+	fail_if(0xfffffffe != vR(0));
 	check_nzcv(1, 0, 0, 1);
 
-	rR(1) = 0xffffffff; rR(2) = 0x00000001;
-	cc.adds(r0, r1, r2);
+	vR(1) = 0xffffffff; vR(2) = 0x00000001;
+	cc.adds(rR0, rR1, rR2);
 	run_test();
-	fail_if(0x00000000 != rR(0));
+	fail_if(0x00000000 != vR(0));
 	check_nzcv(0, 1, 1, 0);
 
-	rR(1) = 0x60000000; rR(2) = 0x20000000;
-	cc.adds(r0, r1, r2);
+	vR(1) = 0x60000000; vR(2) = 0x20000000;
+	cc.adds(rR0, rR1, rR2);
 	run_test();
-	fail_if(0x80000000 != rR(0));
+	fail_if(0x80000000 != vR(0));
 	check_nzcv(1, 0, 0, 1);
 
-	rR(1) = 0x60000000; rR(2) = 0xc0000000;
-	cc.adds(r0, r1, r2);
+	vR(1) = 0x60000000; vR(2) = 0xc0000000;
+	cc.adds(rR0, rR1, rR2);
 	run_test();
-	fail_if(0x20000000 != rR(0));
+	fail_if(0x20000000 != vR(0));
 	check_nzcv(0, 0, 1, 0);
 
 	return(1);
