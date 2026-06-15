@@ -39,7 +39,7 @@ static uint32_t alubox_thumb(armvm_core_ref core, const unsigned operation,
 			break;
 		default:
 			reg_setup_vR(core, rRSOP, vR(M));
-			return(alubox(core, operation, s, 0));
+			return(alubox(core, operation, s));
 	}
 
 	assert(~0U != shift_type);
@@ -49,5 +49,5 @@ static uint32_t alubox_thumb(armvm_core_ref core, const unsigned operation,
 
 	vR(SOP) = arm_shiftbox(shift_type, vR(N), valid_rs, IF_CPSR(C));
 	ARM_CPSR_BMAS(C, !!arm_shiftbox_c(shift_type, vR(N), valid_rs));
-	return(alubox(core, ARM_MOV, s, 0));
+	return(alubox(core, ARM_MOV, s));
 }

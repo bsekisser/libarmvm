@@ -201,7 +201,7 @@ int _arm_inst_dp(armvm_core_ref core)
 	reg_src_setup(core, rRN, ARM_IR_R(N));
 	reg_dst(core, rRD, ARM_IR_R(D));
 
-	alubox(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S, 1);
+	alubox(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S);
 
 	if(core->config.trace)
 		itrace_dp(core);
@@ -499,13 +499,16 @@ int _arm_inst_mla(armvm_core_ref core)
 	const uint32_t rn = reg_src(core, rRN, ARM_IR_R(N));
 	const uint32_t rm = reg_src(core, rRM, ARM_IR_R(M));
 	const uint32_t rs = reg_src(core, rRS, ARM_IR_R(S));
+	reg_dst(core, rRD, ARM_IR_R(D));
 
-	const uint32_t rd = (rm * rs) + rn;
+	const uint32_t rd = (vR(D) = ((rm * rs) + rn));
 
-	reg_dst_wb(core, rRD, ARM_IR_R(D), rd);
+	if(CCX) { // documentation verified, shows no pc check
+		reg_wb(core, rRD);
 
-	if(CCX && ARM_IR_DP_S)
-		_alubox_flags_nz(core, irGPR(D));
+		if(ARM_IR_DP_S)
+			__flags_nz(core, rd);
+	}
 
 	/* **** */
 
@@ -669,12 +672,17 @@ int _arm_inst_mul(armvm_core_ref core)
 {
 	const uint32_t rs = reg_src(core, rRS, ARM_IR_R(S));
 	const uint32_t rm = reg_src(core, rRM, ARM_IR_R(M));
+	reg_dst(core, rRD, ARM_IR_R(D));
 
 	rSPR64(RESULT) = rm * rs;
-	const uint32_t rd = rSPR64lo(RESULT);
+	const uint32_t rd = (vR(D) = rSPR64lo(RESULT));
 
-	reg_dst_wb(core, rRD, ARM_IR_R(D), rd);
-	if(CCX) _alubox_flags_nz(core, rd);
+	if(CCX) { // documentation verified, shows no pc check
+		reg_wb(core, rRD);
+
+		if(ARM_IR_DP_S)
+			__flags_nz(core, rd);
+	}
 
 	/* **** */
 
@@ -695,29 +703,33 @@ int _arm_inst_smull(armvm_core_ref core)
 {
 	const int32_t rm = reg_src(core, rRM, ARM_IR_R(M));
 	const int32_t rs = reg_src(core, rRS, ARM_IR_R(S));
+	reg_dst(core, rRDLo, ARM_IR_R(DLo));
+	reg_dst(core, rRDHi, ARM_IR_R(DHi));
 
 	rSPR64(RESULT) = (int64_t)(rm * rs);
 
-	const uint32_t lo = rSPR64lo(RESULT);
-	const uint32_t hi = rSPR64hi(RESULT);
+	const uint32_t lo = (vR(DLo) = rSPR64lo(RESULT));
+	const int32_t hi = (vR(DHi) = rSPR64hi(RESULT));
 
-	reg_dst_wb(core, rRDLo, ARM_IR_R(DLo), lo);
-	reg_dst_wb(core, rRDHi, ARM_IR_R(DHi), hi);
+	if(CCX) { // documentation verified, shows no pc check
+		reg_wb(core, rRDLo);
+		reg_wb(core, rRDHi);
 
-	if(CCX && ARM_IR_DP_S) {
-		ARM_CPSR_BMAS(N, bext32(hi, 31));
-		ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+		if(ARM_IR_DP_S) {
+			ARM_CPSR_BMAS(N, (0 > hi));
+			ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+		}
 	}
 
 	/* **** */
 
-	if(_itrace_start(core, 0)) {
-		_itrace_(core, "smull%s(%s:%s, %s, %s)",
+	if(_itrace_start(core, "smull%s(%s:%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "",
-			irR_NAME(DLo), irR_NAME(DHi), irR_NAME(M), irR_NAME(S));
-
-		_itrace_end_with_comment(core, "0x%08x * 0x%08x = 0x%016" PRIx64,
-			rm, rs, rSPR64(RESULT));
+			irR_NAME(DLo), irR_NAME(DHi),
+			irR_NAME(M), irR_NAME(S)))
+	{
+		_itrace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
+			rm, rs, hi, lo);
 	}
 
 	return(rR_IS_NOT_PC(D));
@@ -728,30 +740,33 @@ int _arm_inst_umull(armvm_core_ref core)
 {
 	const uint32_t rs = reg_src(core, rRS, ARM_IR_R(S));
 	const uint32_t rm = reg_src(core, rRM, ARM_IR_R(M));
+	reg_dst(core, rRDLo, ARM_IR_R(DLo));
+	reg_dst(core, rRDHi, ARM_IR_R(DHi));
 
 	rSPR64(RESULT) = (uint32_t)rm * (uint32_t)rs;
 
-	const uint32_t lo = rSPR64lo(RESULT);
-	const uint32_t hi = rSPR64hi(RESULT);
+	const uint32_t lo = (vR(DLo) = rSPR64lo(RESULT));
+	const int32_t hi = (vR(DHi) = rSPR64hi(RESULT));
 
-	reg_dst_wb(core, rRDLo, ARM_IR_R(DLo), lo);
-	reg_dst_wb(core, rRDHi, ARM_IR_R(DHi), hi);
+	if(CCX) { // documentation verified, shows no pc check
+		reg_wb(core, rRDLo);
+		reg_wb(core, rRDHi);
 
-	if(CCX && ARM_IR_DP_S) {
-		ARM_CPSR_BMAS(N, bext32(hi, 31));
-		ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+		if(ARM_IR_DP_S) {
+			ARM_CPSR_BMAS(N, (0 > hi));
+			ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+		}
 	}
 
 	/* **** */
 
-	if(_itrace_start(core, "umull%s(", ARM_IR_DP_S ? "s" : "")) {
-		_itrace_(core, "%s", irR_NAME(DLo));
-		_itrace_(core, ":%s", irR_NAME(DHi));
-		_itrace_(core, ", %s", irR_NAME(M));
-		_itrace_(core, ", %s)", irR_NAME(S));
-
+	if(_itrace_start(core, "umull%s(%s:%s, %s, %s)",
+			ARM_IR_DP_S ? "s" : "",
+			irR_NAME(DLo), irR_NAME(DHi),
+			irR_NAME(M), irR_NAME(S)))
+	{
 		_itrace_end_with_comment(core, "0x%08x * 0x%08x = 0x%08x%08x",
-			vR(M), vR(S), vR(DHi), vR(DLo));
+			rm, rs, hi, lo);
 	}
 
 	return(rR_IS_NOT_PC(D));

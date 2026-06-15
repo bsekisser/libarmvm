@@ -9,6 +9,8 @@
 
 /* **** */
 
+#include "libbse/include/shift_roll_32.h"
+
 #include "libarm/include/disasm.h"
 #include "libarm/include/dp.h"
 
@@ -18,149 +20,89 @@
 
 /* **** */
 
-static uint32_t alubox(armvm_core_ref core, const unsigned operation,
-	const unsigned s, const unsigned nzc)
+static uint32_t alubox(armvm_core_ref core, arm_dp_opcode_eref operation,
+	const unsigned s_in)
 {
-	uint32_t sop = 0;
-	switch(operation) {
-		case ARM_BIC:
-		case ARM_MVN:
-			sop = ~vR(SOP);
-			break;
-		case ARM_RSB:
-		case ARM_RSC:
-			sop = reg_src_load(core, rRN);
-			break;
-		default:
-			sop = vR(SOP);
-			break;
-	}
+	const unsigned is_cmp = (010 == (~3 & operation));
+	const unsigned is_mov = (015 == (~2 & operation));
+	const unsigned mode_switch = s_in && CCX && rR_IS_PC(D);
+	const unsigned s = s_in && CCX && rR_IS_NOT_PC(D);
+	const unsigned wb = !is_cmp && CCX;
 
-	uint32_t rn = 0;
-	switch(operation) {
-		case ARM_MOV: break;
-		case ARM_MVN: break;
-		case ARM_RSB:
-		case ARM_RSC:
-			rn = vR(SOP);
-			break;
-		default:
-			rn = reg_src_load(core, rRN);
-			break;
-	}
+	const uint32_t rn = is_mov ? 0 : reg_src_load(core, rRN);
+	const uint32_t sop = vR(SOP);
 
-	uint32_t rd = rn;
+	uint32_t rd = 0;
 
 	switch(operation) {
 		case ARM_ADC:
-		case ARM_ADD:
-		case ARM_CMN:
-			rd += sop;
+			rd = flags_adc(core, s, rn, sop);
 			break;
-		case ARM_AND:
+		case ARM_ADD: case ARM_CMN:
+			rd = flags_add(core, s, rn, sop);
+			break;
+		case ARM_AND: case ARM_TST:
+			rd = flags_nzc(core, s, rn & sop);
+			break;
 		case ARM_BIC:
-		case ARM_TST:
-			rd &= sop;
+			rd = flags_nzc(core, s, rn & ~sop);
 			break;
-		case ARM_CMP:
-		case ARM_NEG:
-		case ARM_RSB:
-		case ARM_RSC:
-		case ARM_SBC:
-		case ARM_SUB:
-			rd -= sop;
-if(0)		LOG("rn: 0x%08x, sop: 0x%08x, rd = 0x%08x, carry_in: %1u",
-				rn, sop, rd, !!IF_CPSR(C));
+		case ARM_CMP: case ARM_SUB:
+			rd = flags_sub(core, s, rn, sop);
 			break;
-		case ARM_EOR:
-		case ARM_TEQ:
-			rd ^= sop;
+		case ARM_EOR: case ARM_TEQ:
+			rd = flags_nzc(core,s , rn ^ sop);
 			break;
 		case ARM_MOV:
-		case ARM_MVN:
-			rd = sop;
+			rd = flags_nzc(core, s, sop);
 			break;
-		case ARM_MUL:
-			rd *= sop;
+		case ARM_MVN:
+			rd = flags_nzc(core, s, ~sop);
 			break;
 		case ARM_ORR:
-			rd |= sop;
+			rd = flags_nzc(core, s, rn | sop);
 			break;
-		default:
-			arm_disasm(IP, IR);
-			LOG_ACTION(exit(-1));
-			break;
-	}
-
-	const unsigned carry_in = IF_CPSR(C);
-
-	switch(operation) {
-		case ARM_ADC:
-			rd += !!carry_in;
+		case ARM_RSB:
+			rd = flags_sub(core, s, sop, rn);
 			break;
 		case ARM_RSC:
-		case ARM_SBC:
-			rd -= !!(!carry_in);
+			rd = flags_sbc(core, s, sop, rn);
 			break;
+		case ARM_SBC:
+			rd = flags_sbc(core, s, rn, sop);
+			break;
+		default: switch((thumb_dp_opcode_eref)operation) {
+			case ARM_ASR:
+				rd = flags_nzc(core, s, asr32(rn, sop));
+				break;
+			case ARM_LSL:
+				rd = flags_nzc(core, s, lsl32(rn, sop));
+				break;
+			case ARM_LSR:
+				rd = flags_nzc(core, s, lsr32(rn, sop));
+				break;
+			case ARM_MUL:
+				rd = flags_nz(core, s, rn * sop);
+				break;
+			case ARM_NEG:
+				rd = flags_sub(core,s , 0, sop);
+				break;
+			case ARM_ROR:
+				rd = flags_nzc(core, s, ror32(rn, sop));
+				break;
+			// should not get here
+			default:
+				LOG_ACTION(exit(-1));
+		}
 	}
 
 	vR(D) = rd;
-	if(!CCX) return(rd);
 
-	if(s && nzc) {
-		switch(operation) {
-			case ARM_ADC:
-			case ARM_ADD:
-			case ARM_CMN:
-			case ARM_NEG:
-				break;
-			case ARM_CMP:
-			case ARM_RSB:
-			case ARM_RSC:
-			case ARM_SBC:
-			case ARM_SUB:
-				break;
-			default:
-				ARM_CPSR_BMAS(C, _shifter_operand_c(core));
-				break;
-		}
-	}
+	if(wb)
+		reg_wb(core, rRD);
 
-	switch(operation) {
-		case ARM_CMN:
-		case ARM_CMP:
-		case ARM_TEQ:
-		case ARM_TST:
-			break;
-		default:
-			reg_wb(core, rRD);
-			break;;
-	}
-
-	if(s) {
-		if(rR_IS_PC(D)) {
-			if(pSPSR) armvm_core_psr_mode_switch_cpsr_spsr(core);
-		} else {
-			switch(operation) {
-				case ARM_ADC:
-				case ARM_ADD:
-				case ARM_CMN:
-				case ARM_NEG:
-					_alubox_flags_x_add_sub(core, rd, rn, sop);
-					break;
-				case ARM_CMP:
-				case ARM_RSB:
-				case ARM_RSC:
-				case ARM_SBC:
-				case ARM_SUB:
-					_alubox_flags_x_add_sub(core, rd, rn, ~sop);
-					break;
-				default:
-					_alubox_flags_nz(core, rd);
-					break;
-			}
-		}
-	}
+	if(mode_switch && pSPSR)
+		armvm_core_psr_mode_switch_cpsr_spsr(core);
 
 	return(rd);
 }

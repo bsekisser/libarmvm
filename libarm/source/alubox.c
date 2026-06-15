@@ -34,9 +34,6 @@ uint32_t arm_alubox(arm_dp_opcode_eref operation, uint32_t *const rd, const uint
 		case ARM_AND: case ARM_TST:
 			result = rn & sop;
 			break;
-		case ARM_ASR:
-			_LOGx32(result = asr32(rn, sop));
-			break;
 		case ARM_BIC:
 			result = rn & ~sop;
 			break;
@@ -46,29 +43,14 @@ uint32_t arm_alubox(arm_dp_opcode_eref operation, uint32_t *const rd, const uint
 		case ARM_EOR: case ARM_TEQ:
 			result = rn ^ sop;
 			break;
-		case ARM_LSL:
-			_LOGx32(result = lsl32(rn, sop));
-			break;
-		case ARM_LSR:
-			_LOGx32(result = lsr32(rn, sop));
-			break;
 		case ARM_MOV:
 			result = sop;
-			break;
-		case ARM_MUL:
-			result = rn * sop;
 			break;
 		case ARM_MVN:
 			result = ~sop;
 			break;
-		case ARM_NEG:
-			result = -sop;
-			break;
 		case ARM_ORR:
 			result = rn | sop;
-			break;
-		case ARM_ROR:
-			_LOGx32(result = ror32(rn, sop));
 			break;
 		case ARM_RSC:
 			result = sop - rn - carry_in;
@@ -79,6 +61,26 @@ uint32_t arm_alubox(arm_dp_opcode_eref operation, uint32_t *const rd, const uint
 		case ARM_SBC:
 			result = rn - sop - carry_in;
 			break;
+		default: switch((thumb_dp_opcode_eref)operation) {
+			case ARM_ASR:
+				_LOGx32(result = asr32(rn, sop));
+				break;
+			case ARM_LSL:
+				_LOGx32(result = lsl32(rn, sop));
+				break;
+			case ARM_LSR:
+				_LOGx32(result = lsr32(rn, sop));
+				break;
+			case ARM_MUL:
+				result = rn * sop;
+				break;
+			case ARM_NEG:
+				result = -sop;
+				break;
+			case ARM_ROR:
+				_LOGx32(result = ror32(rn, sop));
+				break;
+		}
 	}
 
 	if(rd)

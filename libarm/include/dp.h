@@ -22,8 +22,12 @@ typedef enum arm_dp_opcode_enum {
 	ARM_MOV,
 	ARM_BIC,
 	ARM_MVN,
+}arm_dp_opcode_enum;
+typedef arm_dp_opcode_enum const arm_dp_opcode_eref;
+
+typedef enum thumb_dp_opcode_enum {
 // TUUMB EXTENSIONS
-	ARM_ASR,
+	ARM_ASR = 16,
 	ARM_LSL,
 	ARM_LSR,
 	ARM_ROR,
@@ -31,5 +35,5 @@ typedef enum arm_dp_opcode_enum {
 	ARM_MUL,
 	ARM_NEG, THUMB_NEG = ARM_NEG,
 //
-}arm_dp_opcode_enum;
-typedef arm_dp_opcode_enum const arm_dp_opcode_eref;
+}thumb_dp_opcode_enum;
+typedef thumb_dp_opcode_enum const thumb_dp_opcode_eref;

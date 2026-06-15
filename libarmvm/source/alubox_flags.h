@@ -4,6 +4,7 @@
 
 #include "armvm_core_shiftbox.h"
 #include "armvm_core.h"
+#include "reg.h"
 
 /* **** */
 
@@ -21,42 +22,110 @@
 
 /* **** */
 
-static void _alubox_flags_nz(armvm_core_ref core, const int32_t rd)
+static
+unsigned __builtin_add_overflow_vf(int32_t s1, int32_t s2, int32_t carry_in)
+{
+	int32_t result = 0;
+
+	return(__builtin_add_overflow(s1, s2, &result)
+		| __builtin_add_overflow(result, carry_in, &result));
+}
+
+static
+unsigned __builtin_sub_overflow_vf(int32_t s1, int32_t s2, int32_t carry_in)
+{
+	int32_t result = 0;
+
+	return(__builtin_sub_overflow(s1, s2, &result)
+		| __builtin_sub_overflow(result, carry_in, &result));
+}
+
+static // used directly at parts, no s or pc check
+uint32_t __flags_nz(armvm_core_ref core, const int32_t rd)
 {
 	ARM_CPSR_BMAS(N, 0 > rd);
 	ARM_CPSR_BMAS(Z, 0 == rd);
+
+	return(rd);
 }
 
-UNUSED_FN
-static void _alubox_flags_nzc(armvm_core_ref core, const uint32_t rd)
+/* **** */
+
+static
+uint32_t _flags_add(armvm_core_ref core, const unsigned s,
+	const uint32_t s1, const uint32_t s2, const unsigned c)
 {
-	ARM_CPSR_BMAS(C, _shifter_operand_c(core));
+	const uint32_t carry_in = c && IF_CPSR(C);
+	uint32_t result = 0;
 
-	return(_alubox_flags_nz(core, rd));
+	const unsigned cf
+		= __builtin_add_overflow(s1, s2, &result)
+		| __builtin_add_overflow(result, carry_in, &result);
+
+	if(s) {
+		ARM_CPSR_BMAS(C, cf);
+		ARM_CPSR_BMAS(V, __builtin_add_overflow_vf(s1, s2, carry_in));
+		return(__flags_nz(core, result));
+	}
+
+	return(result);
 }
 
-/*
- * Credit to:
- * 		http://www.emulators.com/docs/nx11_flags.htm
- *
- * OF(A+B) = ((A XOR D) AND NOT (A XOR B)) < 0
- * OF(A-B) = ((A XOR D) AND (A XOR B)) < 0
- *
- * CF(A+B) = (((A XOR B) XOR D) < 0) XOR (((A XOR D) AND NOT (A XOR B)) < 0)
- * CF(A-B) = (((A XOR B) XOR D) < 0) XOR (((A XOR D) AND (A XOR B)) < 0)
- *
- */
-
-static void _alubox_flags_x_add_sub(armvm_core_ref core, const uint32_t rd,
-	const uint32_t s1, const uint32_t s2)
+static
+uint32_t _flags_sub(armvm_core_ref core, const unsigned s,
+	const uint32_t s1, const uint32_t s2, const unsigned c)
 {
-	_alubox_flags_nz(core, rd);
+	const uint32_t carry_in = c ? IF_CPSR(C) : 1;
+	uint32_t result = 0;
 
-	const int32_t xvec = (s1 ^ s2);
-	const int32_t ovec = (s1 ^ rd) & ~xvec;
-	const int32_t cvec = xvec ^ ovec ^ rd;
+	const unsigned cf
+		= __builtin_add_overflow(s1, ~s2, &result)
+		| __builtin_add_overflow(result, carry_in, &result);
 
-	ARM_CPSR_BMAS(C, 0 > cvec);
+	if(s) {
+		ARM_CPSR_BMAS(C, cf);
+		ARM_CPSR_BMAS(V, __builtin_sub_overflow_vf(s1, s2, carry_in));
+		return(__flags_nz(core, result));
+	}
 
-	ARM_CPSR_BMAS(V, 0 > ovec);
+	return(result);
 }
+
+/* **** */
+
+static
+uint32_t flags_adc(armvm_core_ref core, const unsigned s,
+	const uint32_t rn, const uint32_t sop)
+{ return(_flags_add(core, s, rn, sop, 1)); }
+
+static
+uint32_t flags_add(armvm_core_ref core, const unsigned s,
+	const uint32_t rn, const uint32_t sop)
+{ return(_flags_add(core, s, rn, sop, 0)); }
+
+static
+uint32_t flags_nz(armvm_core_ref core, const unsigned s,
+	const uint32_t rd)
+{ return(s ? __flags_nz(core, rd) : rd); }
+
+static
+uint32_t flags_nzc(armvm_core_ref core, const unsigned s,
+	const uint32_t rd)
+{
+	if(s) {
+		ARM_CPSR_BMAS(C, _shifter_operand_c(core));
+		return(__flags_nz(core, rd));
+	}
+
+	return(rd);
+}
+
+static
+uint32_t flags_sbc(armvm_core_ref core, const unsigned s,
+	const uint32_t rn, const uint32_t sop)
+{ return(_flags_sub(core, s, rn, sop, 1)); }
+
+static
+uint32_t flags_sub(armvm_core_ref core, const unsigned s,
+	const uint32_t rn, const uint32_t sop)
+{ return(_flags_sub(core, s, rn, sop, 0)); }

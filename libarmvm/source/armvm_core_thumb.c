@@ -656,9 +656,9 @@ int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_ref core)
 
 	const uint32_t rd = arm_shiftbox(shift_type, rm, rs, IF_CPSR(C));
 	ARM_CPSR_BMAS(C, arm_shiftbox_c(shift_type, rm, rs));
-	_alubox_flags_nz(core, rd);
 
 	reg_dst_wb(core, rRD, mlBFEXT(IR, 2, 0), rd);
+	__flags_nz(core, rd);
 
 	const char* sops = arm_sop_lcase_string[shift_type];
 
