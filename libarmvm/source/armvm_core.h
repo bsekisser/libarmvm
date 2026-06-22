@@ -88,15 +88,18 @@ enum {
 	_ARMVM_SPR64_COUNT_,
 };
 
-typedef struct armvm_core_state_flags_tag* armvm_core_state_flags_ptr;
+typedef union armvm_core_state_flags_tag* armvm_core_state_flags_ptr;
 typedef armvm_core_state_flags_ptr const armvm_core_state_flags_ref;
 
-typedef struct armvm_core_state_flags_tag {
-	unsigned crashed:1;
-	unsigned halt:1;
-	unsigned pause:1;
-	unsigned paused:1;
-	unsigned thread_running:1;
+typedef union armvm_core_state_flags_tag {
+	unsigned raw_flags;
+	struct {
+		unsigned crashed:1;
+		unsigned halt:1;
+		unsigned pause:1;
+		unsigned paused:1;
+		unsigned thread_running:1;
+	};
 }armvm_core_state_flags_t;
 
 typedef struct armvm_core_tag {

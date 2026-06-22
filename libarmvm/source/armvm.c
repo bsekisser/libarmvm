@@ -81,6 +81,23 @@ int libarmvm_action_exit(int err, void *const param, action_ref)
 }
 
 static
+int libarmvm_action_reset(int err, void *const param, action_ref)
+{
+	ACTION_LOG(reset);
+
+	/* **** */
+
+	libarmvm_ref avm = param;
+
+	STATE(raw_flags) = 0;
+	memset(&avm->stats, 0, sizeof(avm->stats));
+
+	/* **** */
+
+	return(err);
+}
+
+static
 action_handler_t libarmvm_action_sublist[] = {
 	{{ .list = &armvm_cache_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, cache) },
 	{{ .list = &armvm_coprocessor_action_list } , { .dereference = 1, .is_list = 1 }, offsetof(libarmvm_t, coprocessor) },
@@ -95,6 +112,7 @@ ACTION_LIST(libarmvm_action_list,
 	.list = {
 //		[_ACTION_ALLOC] = {{ libarmvm_action_alloc }, { 0 }, 0 },
 		[_ACTION_EXIT] = {{ libarmvm_action_exit }, { 0 }, 0 },
+		[_ACTION_RESET] = {{ libarmvm_action_reset }, { 0 }, 0 },
 	},
 
 	SUBLIST(libarmvm_action_sublist),

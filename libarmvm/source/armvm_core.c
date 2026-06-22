@@ -197,7 +197,13 @@ int armvm_core_action_reset(int err, void *const param, action_ref)
 {
 	ACTION_LOG(reset);
 
+	armvm_core_ref core = param;
+
 	/* **** */
+
+	core->flags.raw_flags = 0;
+	CYCLE = 0;
+	ICOUNT = 0;
 
 	armvm_core_exception_reset(param);
 
