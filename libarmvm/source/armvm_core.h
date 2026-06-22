@@ -63,7 +63,6 @@ enum {
 	ARMVM_SPR32_UND_SPSR,
 //
 	ARMVM_SPR32_CC,
-	ARMVM_SPR32_CCX,
 //	ARMVM_SPR32_CP15R1,
 	ARMVM_SPR32_CPSR,
 	ARMVM_SPR32_IP,
@@ -139,9 +138,11 @@ typedef struct armvm_core_tag {
 	armvm_mmu_ptr mmu;
 }armvm_core_t;
 
+#define CCx rSPR32(CC)
 #define ARM_IP_NEXT ((4 + IP) & ~3)
 #define ARM_PC_NEXT ((4 + ARM_IP_NEXT) & ~3)
-#define CCX rSPR32(CCX)
+#define CCv (CCX ? ~CCx : CCx)
+#define CCX (0 > (int32_t)CCx)
 #define CPSR rSPR32(CPSR)
 #define CYCLE rSPR64(CYCLE)
 #define ICOUNT rSPR64(ICOUNT)

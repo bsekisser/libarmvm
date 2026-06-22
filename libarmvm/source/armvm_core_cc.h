@@ -14,7 +14,7 @@
 /* **** */
 
 static //__attribute__((warn_unused_result))
-int armvm_core_check_cc(armvm_core_ref core, const uint8_t cc)
+int armvm_core_check_cc(armvm_core_ref core, const uint32_t cc)
 {
 	uint32_t res = 0;
 
@@ -51,12 +51,14 @@ int armvm_core_check_cc(armvm_core_ref core, const uint8_t cc)
 			break;
 	}
 
-	rSPR32(CC) = cc;
-
 	res = !!res;
 	res = (cc & 1) ? !res : res;
 
-	CCX = res;
+	CCx = res ? ~cc : cc;
+
+if(0)
+	LOG("res: 0x%08x(%01u), cc: 0x%08x(%01u), CCx: 0x%08x",
+		res, res & 1, cc, cc & 1, CCX);
 
 	return(res);
 }

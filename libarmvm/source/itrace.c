@@ -72,7 +72,7 @@ int __trace_start(armvm_core_ref core, const char *format, va_list ap)
 		thumb ? 'T' : 'A',
 		IP & ~(3U >> thumb), IR,
 		flags,
-		arm_cc_ucase_string[1][rSPR32(CC)],
+		arm_cc_ucase_string[1][CCv],
 		CCX ? '>' : 'X');
 
 	if(format)

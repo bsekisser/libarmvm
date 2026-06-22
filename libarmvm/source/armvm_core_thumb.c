@@ -818,8 +818,7 @@ int armvm_core_thumb__step_group7_e000_ffff(armvm_core_ref core)
 
 int armvm_core_thumb_step(armvm_core_ref core)
 {
-	rSPR32(CC) = CC_AL_NV;
-	CCX = 1;
+	CCx = ~CC_AL_NV;
 
 	IP = PC | 1;
 	PC = THUMB_IP_NEXT;

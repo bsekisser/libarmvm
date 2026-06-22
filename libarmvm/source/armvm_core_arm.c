@@ -133,7 +133,7 @@ int _arm_inst_bkpt(armvm_core_ref core)
 static
 int _arm_inst_blx(armvm_core_ref core)
 {
-	CCX = 1; rSPR32(CC) = CC_AL;
+	CCx = ~CC_AL;
 	return(__arm__b_bl_blx(core, 1, 1, ARM_IR_BLX_OFFSET));
 }
 
