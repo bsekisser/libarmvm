@@ -9,7 +9,9 @@ export CFLAGS
 LDLIBS += -lcapstone
 export LDLIBS
 
-SRC_DIR = source source/apsr
+SRC_DIR = source
+SRC_DIR += source/apsr
+SRC_DIR += source/cpsr
 export SRC_DIR
 
 TARGETs = libarm.a libarm.so
