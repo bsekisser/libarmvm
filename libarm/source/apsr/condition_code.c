@@ -17,7 +17,7 @@
 #define NeqV (APSR(n) == APSR(v))
 
 __attribute__((visibility("default")))
-unsigned arm_condition_check(arm_apsr_tref apsr, arm_condition_eref cc)
+unsigned _arm_condition_check(arm_apsr_tref apsr, arm_condition_eref cc)
 {
 	switch(cc) {
 		case CC_AL: return(1);
@@ -40,4 +40,11 @@ unsigned arm_condition_check(arm_apsr_tref apsr, arm_condition_eref cc)
 	}
 
 	return(0);
+}
+
+__attribute__((visibility("default")))
+unsigned arm_condition_check(arm_apsr_tref apsr, arm_condition_eref cc)
+{
+	const unsigned result = _arm_condition_check(apsr, cc);
+	return(result ? ~cc : cc);
 }

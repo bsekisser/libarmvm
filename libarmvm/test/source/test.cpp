@@ -9,6 +9,7 @@
 /* **** */
 
 extern "C" {
+	#include "libarmvm/include/libarmvm.h"
 	#include "libarmvm/include/libarmvm_mem.h"
 	#include "libarmvm/source/armvm.h"
 	#include "libarmvm/source/armvm_core.h"
@@ -17,7 +18,7 @@ extern "C" {
 /* **** */
 
 extern "C" {
-	#include "libarm/include/cpsr.h"
+	#include "libarm/include/apsr/apsr.h"
 }
 
 /* **** */
@@ -92,8 +93,7 @@ void _preflight_tests(void)
 static __attribute__((warn_unused_result))
 uint32_t _run_test(test_ref t, const uint32_t flag_set)
 {
-	CPSR &= ~ARM_CPSR_MASK_NZCV;
-	CPSR |= flag_set;
+	libarmvm_apsr_mask_set(pARMVM, ~ARM_APSR_MASK_NZCV, flag_set);
 
 	TEST_PC = PC;
 
@@ -107,14 +107,14 @@ uint32_t _run_test(test_ref t, const uint32_t flag_set)
 }
 
 static __attribute__((warn_unused_result))
-int _test_cpsr_xpsr_mask(test_ref t, const uint32_t cpsr, const uint32_t xpsr, const uint32_t mask)
+int _test_apsr_xpsr_mask(test_ref t, const uint32_t apsr, const uint32_t xpsr, const uint32_t mask)
 {
-	const uint32_t test_cpsr = cpsr & mask;
+	const uint32_t test_apsr = apsr & mask;
 	const uint32_t test_xpsr = xpsr & mask;
 
-	if(test_cpsr != test_xpsr) {
-		TRACE_PSR(cpsr);
-		TRACE_PSR(xpsr);
+	if(test_apsr != test_xpsr) {
+		TRACE_APSR(apsr);
+		TRACE_APSR(xpsr);
 
 		return(0);
 	}
@@ -125,42 +125,40 @@ int _test_cpsr_xpsr_mask(test_ref t, const uint32_t cpsr, const uint32_t xpsr, c
 }
 
 static __attribute__((warn_unused_result))
-int _test_cpsr_xpsr(test_ref t, const uint32_t cpsr, const uint32_t xpsr)
-{
-	return(_test_cpsr_xpsr_mask(t, cpsr, xpsr, ARM_CPSR_MASK_NZCV));
-}
+int _test_apsr_xpsr(test_ref t, const uint32_t apsr, const uint32_t xpsr)
+{ return(_test_apsr_xpsr_mask(t, apsr, xpsr, ARM_APSR_MASK_NZCV)); }
 
 int test::check_nz(const int n, const int z)
 {
-	uint32_t xpsr = 0;
+	const uint32_t apsr = libarmvm_apsr(pARMVM); // vAPSR cannot be used here, compiler error.
+	const uint32_t xpsr = 0
+		| _ARM_APSR_BSET_AS(N, n)
+		| _ARM_APSR_BSET_AS(Z, z);
 
-	ARM_CPSRx_BMAS(xpsr, N, !!n);
-	ARM_CPSRx_BMAS(xpsr, Z, !!z);
-
-	return(_test_cpsr_xpsr_mask(t, CPSR, xpsr, ARM_CPSR_MASK_NZ));
+	return(_test_apsr_xpsr_mask(t, apsr, xpsr, ARM_APSR_MASK_NZ));
 }
 
 int test::check_nzc(const int n, const int z, const int c)
 {
-	uint32_t xpsr = 0;
+	const uint32_t apsr = libarmvm_apsr(pARMVM); // vAPSR cannot be used here, compiler error.
+	const uint32_t xpsr = 0
+		| _ARM_APSR_BSET_AS(C, c)
+		| _ARM_APSR_BSET_AS(N, n)
+		| _ARM_APSR_BSET_AS(Z, z);
 
-	ARM_CPSRx_BMAS(xpsr, N, !!n);
-	ARM_CPSRx_BMAS(xpsr, Z, !!z);
-	ARM_CPSRx_BMAS(xpsr, C, !!c);
-
-	return(_test_cpsr_xpsr_mask(t, CPSR, xpsr, ARM_CPSR_MASK_NZC));
+	return(_test_apsr_xpsr_mask(t, apsr, xpsr, ARM_APSR_MASK_NZC));
 }
 
 int test::check_nzcv(const int n, const int z, const int c, const int v)
 {
-	unsigned xpsr = 0;
+	const uint32_t apsr = libarmvm_apsr(pARMVM); // vAPSR cannot be used here, compiler error.
+	const uint32_t xpsr = 0
+		| _ARM_APSR_BSET_AS(C, c)
+		| _ARM_APSR_BSET_AS(N, n)
+		| _ARM_APSR_BSET_AS(V, v)
+		| _ARM_APSR_BSET_AS(Z, z);
 
-	ARM_CPSRx_BMAS(xpsr, N, !!n);
-	ARM_CPSRx_BMAS(xpsr, Z, !!z);
-	ARM_CPSRx_BMAS(xpsr, C, !!c);
-	ARM_CPSRx_BMAS(xpsr, V, !!v);
-
-	return(_test_cpsr_xpsr(t, CPSR, xpsr));
+	return(_test_apsr_xpsr(t, apsr, xpsr));
 }
 
 int main(int argc, char* *const argv)

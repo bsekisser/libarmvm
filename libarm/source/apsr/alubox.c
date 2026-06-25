@@ -27,19 +27,19 @@ uint32_t arm_apsr_alubox(arm_apsr_ref apsr, arm_dp_opcode_eref opcode, const uin
 		case ARM_ADD: case ARM_CMN:
 			return(flags_add(apsr, rn, sop));
 		case ARM_AND: case ARM_TST:
-			return(flags_nz(apsr, rn & sop));
+			return(flags_nzc(apsr, rn & sop));
 		case ARM_BIC:
-			return(flags_nz(apsr, rn & ~sop));
+			return(flags_nzc(apsr, rn & ~sop));
 		case ARM_CMP: case ARM_SUB:
 			return(flags_sub(apsr, rn, sop));
 		case ARM_EOR: case ARM_TEQ:
-			return(flags_nz(apsr, rn ^ sop));
+			return(flags_nzc(apsr, rn ^ sop));
 		case ARM_ORR:
-			return(flags_nz(apsr, rn | sop));
+			return(flags_nzc(apsr, rn | sop));
 		case ARM_MOV:
-			return(flags_nz(apsr, sop));
+			return(flags_nzc(apsr, sop));
 		case ARM_MVN:
-			return(flags_nz(apsr, ~sop));
+			return(flags_nzc(apsr, ~sop));
 		case ARM_RSB:
 			return(flags_sub(apsr, sop, rn));
 		case ARM_RSC:

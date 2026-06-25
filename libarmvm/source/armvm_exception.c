@@ -10,9 +10,11 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 
 /* **** */
+
+// TODO: combine/reduce
 
 int armvm_exception_fiq(libarmvm_ref avm)
 {
@@ -23,11 +25,11 @@ int armvm_exception_fiq(libarmvm_ref avm)
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(FIQ));
 
-	ARM_CPSR_BMAS(Thumb, 0);
-	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x1c;
 
@@ -43,11 +45,11 @@ int armvm_exception_irq(libarmvm_ref avm)
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(IRQ));
 
-	ARM_CPSR_BMAS(Thumb, 0);
-//	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+//	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x18;
 

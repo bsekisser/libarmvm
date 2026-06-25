@@ -15,7 +15,7 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 #include "libarm/include/ir.h"
 
 /* **** */
@@ -70,8 +70,9 @@ static int __ldrb(armvm_core_ref core)
 
 	reg_wb(core, rRD);
 
+	// TODO: is this the correct behavior???
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
-		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
+		CPSR(thumb) = (vR(D) & 1);
 
 	return(1);
 }
@@ -87,8 +88,9 @@ static int __ldrh(armvm_core_ref core)
 
 	reg_wb(core, rRD);
 
+	// TODO: is this the correct behavior???
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
-		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
+		CPSR(thumb) = (vR(D) & 1);
 
 	return(1);
 }
@@ -104,8 +106,9 @@ static int __ldrsb(armvm_core_ref core)
 
 	reg_wb(core, rRD);
 
+	// TODO: is this the correct behavior???
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
-		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
+		CPSR(thumb) = (vR(D) & 1);
 
 	return(1);
 }
@@ -124,8 +127,9 @@ static int __ldrsh(armvm_core_ref core)
 
 	reg_wb(core, rRD);
 
+	// TODO: is this the correct behavior???
 	if(rR_IS_PC(D) && (arm_v5t <= CONFIG->version))
-		ARM_CPSR_BMAS(Thumb, vR(D) & 1);
+		CPSR(thumb) = (vR(D) & 1);
 
 	return(1);
 }

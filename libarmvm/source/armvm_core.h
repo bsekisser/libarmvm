@@ -17,7 +17,8 @@ typedef armvm_core_ptr const armvm_core_ref;
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/apsr/apsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 #include "libarm/include/gpr.h"
 
 #include "libbse/include/action.h"
@@ -62,6 +63,7 @@ enum {
 	ARMVM_SPR32_UND_R14,
 	ARMVM_SPR32_UND_SPSR,
 //
+	ARMVM_SPR32_APSR,
 	ARMVM_SPR32_CC,
 //	ARMVM_SPR32_CP15R1,
 	ARMVM_SPR32_CPSR,
@@ -138,12 +140,28 @@ typedef struct armvm_core_tag {
 	armvm_mmu_ptr mmu;
 }armvm_core_t;
 
+#define rAPSR rSPR32(APSR)
+#define pAPSR ((arm_apsr_ptr)&rAPSR)
+#define tAPSR ((arm_apsr_t)rAPSR)
+#define vAPSR arm_apsr_read(tAPSR)
+#define APSRp(_) (pAPSR->_)
+
+#define rCPSR rSPR32(CPSR)
+#define pCPSR ((arm_cpsr_ptr)&rCPSR)
+#define tCPSR ((arm_cpsr_t)rCPSR)
+#define vCPSR arm_cpsr_read(tAPSR, tCPSR)
+
 #define CCx rSPR32(CC)
+
+#define APSR(_) APSRp(in._)
+#define APSR_FLAGS(_) APSRp(flags._)
+//#define APSR_OUT(_) APSRp(out._)
+#define APSR_SET(_) APSRp(set._)
 #define ARM_IP_NEXT ((4 + IP) & ~3)
 #define ARM_PC_NEXT ((4 + ARM_IP_NEXT) & ~3)
 #define CCv (CCX ? ~CCx : CCx)
 #define CCX (0 > (int32_t)CCx)
-#define CPSR rSPR32(CPSR)
+#define CPSR(_) (pCPSR->_)
 #define CYCLE rSPR64(CYCLE)
 #define ICOUNT rSPR64(ICOUNT)
 #define LR vGPR(LR)

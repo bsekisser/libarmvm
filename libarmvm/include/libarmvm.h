@@ -31,6 +31,19 @@ WARN_UNUSED_RESULT
 libarmvm_ptr libarmvm_alloc(void);
 
 WARN_UNUSED_RESULT
+uint32_t libarmvm_apsr(libarmvm_ref avm);
+
+void libarmvm_apsr_mask(libarmvm_ref avm, const uint32_t mask);
+
+void libarmvm_apsr_mask_set(libarmvm_ref avm, const uint32_t mask, const uint32_t set);
+
+WARN_UNUSED_RESULT
+uint32_t libarmvm_apsr_masked(libarmvm_ref avm, const uint32_t mask);
+
+WARN_UNUSED_RESULT
+uint32_t libarmvm_cpsr(libarmvm_ref avm);
+
+WARN_UNUSED_RESULT
 uint64_t libarmvm_cycle(libarmvm_ref avm);
 
 void libarmvm_exit(libarmvm_ref avm);

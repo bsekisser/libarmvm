@@ -9,9 +9,8 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
-
-/* **** */
+#include "libarm/include/apsr/apsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 
 #include "libbse/include/action.h"
 #include "libbse/include/err_test.h"
@@ -173,6 +172,39 @@ void libarmvm_hot(libarmvm_ref avm)
 		LOG_END();
 	}
 }
+
+PUBLIC WARN_UNUSED_RESULT
+uint32_t libarmvm_apsr(libarmvm_ref avm)
+{ return(vAPSR); }
+
+PUBLIC WARN_UNUSED_RESULT
+uint32_t libarmvm_apsr_masked(libarmvm_ref avm, const uint32_t mask)
+{ return(arm_apsr_read_masked(tAPSR, mask)); }
+
+PUBLIC
+void libarmvm_apsr_mask(libarmvm_ref avm, const uint32_t mask)
+{ arm_apsr_write(pAPSR, arm_apsr_read_masked(tAPSR, mask)); }
+
+PUBLIC
+void libarmvm_apsr_mask_set(libarmvm_ref avm, const uint32_t mask, const uint32_t set)
+{
+	const uint32_t apsrv = arm_apsr_read(tAPSR);
+	const uint32_t apsrv_masked = apsrv & mask;
+	const uint32_t apsrv_set = apsrv_masked | set;
+	arm_apsr_write(pAPSR, apsrv_set);
+
+if(0) {
+	LOG("apsr: 0x%08x, mask: 0x%08x(0x%08x), set: 0x%08x, result: 0x%08x",
+		apsrv, mask, apsrv_masked, set, apsrv_set);
+}
+//	return(apsrv_set);
+}
+
+//{ arm_apsr_write(pAPSR, arm_apsr_read_masked(tAPSR, mask) | set); }
+
+PUBLIC WARN_UNUSED_RESULT
+uint32_t libarmvm_cpsr(libarmvm_ref avm)
+{ return(vCPSR); }
 
 PUBLIC
 uint64_t libarmvm_cycle(libarmvm_ref avm)

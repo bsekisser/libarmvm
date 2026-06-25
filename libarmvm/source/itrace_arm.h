@@ -9,6 +9,7 @@
 
 #include "libarm/include/disasm.h"
 #include "libarm/include/dp.h"
+#include "libarm/include/ir.h"
 #include "libarm/include/strings.h"
 
 #include "libbse/include/bitops32.h"

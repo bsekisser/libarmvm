@@ -7,6 +7,9 @@
 
 /* **** */
 
+#define ARM_DP_CMP(_) (010 == (~3 & (_)))
+#define ARM_DP_MOV(_) (015 == (~2 & (_)))
+
 #define ARM_IR4 ARM_IR_BIT(4)
 #define ARM_IR7 ARM_IR_BIT(7)
 
@@ -32,10 +35,10 @@
 #define ARM_IR_BLX_H bext32(IR, 24)
 #define ARM_IR_BLX_OFFSET (mlBFMOVs(IR, 23, 0, 2) | (ARM_IR_BLX_H << 1))
 
-#define ARM_IR_DP_CMP (010 == (~3 & ARM_IR_DP_OPCODE))
+#define ARM_IR_DP_CMP (ARM_IR_DP_S && ARM_DP_CMP(ARM_IR_DP_OPCODE))
 #define ARM_IR_DP_I bext32(IR, 4)
 #define ARM_IR_DP_FLAG_SPC (ARM_IR_DP_S && rR_IS_NOT_PC(D))
-#define ARM_IR_DP_MOV (015 == (~2 & ARM_IR_DP_OPCODE))
+#define ARM_IR_DP_MOV ARM_DP_MOV(ARM_IR_DP_OPCODE)
 #define ARM_IR_DP_OPCODE mlBFEXT(IR, 24, 21)
 #define ARM_IR_DP_OPCODES mlBFEXT(IR, 24, 20)
 #define ARM_IR_DP_S bext32(IR, 20)

@@ -21,6 +21,10 @@ uint32_t arm_apsr_read(arm_apsr_tref apsr)
 }
 
 __attribute__((visibility("default")))
+uint32_t arm_apsr_read_masked(arm_apsr_tref apsr, const uint32_t mask)
+{ return(arm_apsr_read(apsr) & mask); }
+
+__attribute__((visibility("default")))
 void arm_apsr_write(arm_apsr_ref apsr, const uint32_t v)
 {
 #pragma push_macro("BX")
@@ -30,7 +34,6 @@ void arm_apsr_write(arm_apsr_ref apsr, const uint32_t v)
 
 	apsr->raw_flags = ((arm_apsr_t){
 		.in = { BX(c, C), BX(n, N), BX(v, V), BX(z, Z) },
-		.out.raw_flags = 0,
 	}).raw_flags;
 
 #pragma pop_macro("BX")

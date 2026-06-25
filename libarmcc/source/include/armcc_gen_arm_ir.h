@@ -41,16 +41,22 @@ static uint32_t gen_arm_ir__rd(gpr_eref rd)
 	return(pbBFMOV(rd, 0, 4, 12));
 }
 
+static uint32_t gen_arm_ir__rm(gpr_eref rm)
+{
+	assert(0 == (rm & ~15));
+	return(rm & 15);
+}
+
 static uint32_t gen_arm_ir__rn(gpr_eref rn)
 {
 	assert(0 == (rn & ~15));
 	return(pbBFMOV(rn, 0, 4, 16));
 }
 
-static uint32_t gen_arm_ir__rm(gpr_eref rm)
+static uint32_t gen_arm_ir__rs(gpr_eref rn)
 {
-	assert(0 == (rm & ~15));
-	return(rm & 15);
+	assert(0 == (rn & ~15));
+	return(pbBFMOV(rn, 0, 4, 8));
 }
 
 static uint32_t gen_arm_ir__shift_type(arm_sop_eref shift_type)

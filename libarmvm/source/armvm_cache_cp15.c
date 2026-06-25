@@ -9,7 +9,8 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/apsr/apsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 
 #include "git/libbse/include/action.h"
 #include "git/libbse/include/err_test.h"
@@ -43,9 +44,9 @@ uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32_t *con
 	if(write) {
 		LOG(">>: Wait For Interrupt");
 
-		if(0 && !ARM_CPSR_BTST(FIQ)) {
+		if(0 && !CPSR(fiq)) { // TODO
 			LOG_ACTION(armvm_exception_fiq(armvm));
-		} else if(0 && !ARM_CPSR_BTST(IRQ)) {
+		} else if(0 && !CPSR(irq)) {
 			LOG_ACTION(armvm_exception_irq(armvm));
 		} else if(0) {
 			LOG_ACTION(armvm_core_exception_reset(core));
@@ -62,13 +63,14 @@ uint32_t _armvm_cp15_0_7_0_4_wait_for_interrupt(void *const param, uint32_t *con
 static
 uint32_t _armvm_cp15_0_7_10_3_access(void *const param, uint32_t *const write)
 {
+	armvm_cache_ref acr = param;
 	uint32_t data = write ? *write : 0;
 
 	if(write) {
 		DEBUG(LOG("Cache, Test and Clean"));
 	} else {
 		LOG("Cache, Test and Clean");
-		ARM_CPSRx_BSET(data, Z);
+		return(ARM_APSR_BSET(vAPSR, Z));
 	}
 
 	return(data);

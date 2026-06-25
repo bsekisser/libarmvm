@@ -1,6 +1,6 @@
-#include "armvm_core_cc.h"
+#define pCORE core
+
 #include "armvm_core_config.h"
-#include "armvm_core_shiftbox.h"
 #include "itrace.h"
 
 /* **** */
@@ -9,7 +9,6 @@
 
 /* **** */
 
-#include "alubox.h"
 #include "itrace_arm.h"
 #include "reg.h"
 #include "ldst_arm.h"
@@ -17,12 +16,16 @@
 
 /* **** */
 
+#include "libarm/include/apsr/alubox.h"
+#include "libarm/include/apsr/apsr.h"
+#include "libarm/include/apsr/condition_code.h"
+#include "libarm/include/apsr/shiftbox.h"
 #include "libarm/include/cc.h"
-#include "libarm/include/cpsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 #include "libarm/include/disasm.h"
 #include "libarm/include/dp.h"
 #include "libarm/include/ir.h"
-#include "libarm/include/shiftbox.h"
+//#include "libarm/include/shiftbox.h"
 #include "libarm/include/strings.h"
 
 /* **** */
@@ -90,7 +93,7 @@ int __arm__b_bl_blx(armvm_core_ref core, int const link, const int blx, int32_t 
 		CYCLE++;
 		PC = new_pc;
 
-		if(blx) ARM_CPSR_BSET(Thumb);
+		if(blx) CPSR(thumb) = 1;
 	}
 
 	return(0);
@@ -196,12 +199,27 @@ int _arm_inst_clz(armvm_core_ref core)
 }
 
 static
-int _arm_inst_dp(armvm_core_ref core)
+int _arm_inst_dp(armvm_core_ref core, const uint32_t sop)
 {
-	reg_src_setup(core, rRN, ARM_IR_R(N));
-	reg_dst(core, rRD, ARM_IR_R(D));
+	if(ARM_IR_DP_CMP) assert(15 != ARM_IR_R(N));
 
-	alubox(core, ARM_IR_DP_OPCODE, ARM_IR_DP_S);
+	const uint32_t rn = ARM_IR_DP_MOV ? 0 : reg_src(core, rRN, ARM_IR_R(N));
+
+	if(!ARM_IR_DP_CMP)
+		reg_dst(core, rRD, ARM_IR_R(D));
+
+	APSR_FLAGS(set) = (CCX && ARM_IR_DP_S && (ARM_IR_DP_CMP || rR_IS_NOT_PC(D)));
+
+	vR(D) = arm_apsr_alubox(pAPSR, ARM_IR_DP_OPCODE, rn, sop);
+
+	if(CCX) {
+		if(!ARM_IR_DP_CMP) {
+			reg_wb(core, rRD);
+
+			if(ARM_IR_DP_S && rR_IS_PC(D) && pSPSR)
+				armvm_core_cpsr(core, pSPSR);
+		}
+	}
 
 	if(core->config.trace)
 		itrace_dp(core);
@@ -215,11 +233,10 @@ int _arm_inst_dp_immediate(armvm_core_ref core)
 	const uint32_t rm = reg_setup_vR(core, rRM, ARM_IR_DPI_IMMEDIATE);
 	const uint32_t rs = reg_setup_vR(core, rRS, ARM_IR_DPI_ROTATE_AMOUNT);
 
-	const uint32_t sop = arm_shiftbox(ARM_SOP_ROR, rm, rs, IF_CPSR(C));
-
+	const uint32_t sop = arm_apsr_shiftbox(pAPSR, ARM_SOP_ROR, rm, rs);
 	(void)reg_setup_vR(core, rRSOP, sop);
 
-	return(_arm_inst_dp(core));
+	return(_arm_inst_dp(core, sop));
 }
 
 static
@@ -232,12 +249,12 @@ int _arm_inst_dp_shift(armvm_core_ref core)
 		? reg_src(core, rRS, ARM_IR_R(S))
 		: reg_setup_vR(core, rRS, ARM_IR_DP_SHIFT_AMOUNT);
 
-	const uint32_t sop = (ARM_IR4 ? arm_shiftbox : arm_shiftbox_immediate)
-		(ARM_IR_DP_SHIFT_TYPE, rm, rs, IF_CPSR(C));
+	const uint32_t sop
+		= (ARM_IR4 ? arm_apsr_shiftbox : arm_apsr_shiftbox_immediate)
+			(pAPSR, ARM_IR_DP_SHIFT_TYPE, rm, rs);
+	(void)reg_setup_vR(core, rRSOP, sop);
 
-	reg_setup_vR(core, rRSOP, sop);
-
-	return(_arm_inst_dp(core));
+	return(_arm_inst_dp(core, sop));
 }
 
 static
@@ -285,7 +302,7 @@ int _arm_inst_ldst_scaled_register_offset(armvm_core_ref core)
 	const uint32_t rm = reg_src(core, rRM, ARM_IR_R(M));
 	const uint32_t rs = reg_setup_vRml(core, rRS, 11, 7);
 
-	const uint32_t sop = arm_shiftbox_immediate(ARM_IR_DP_SHIFT_TYPE, rm, rs, IF_CPSR(C));
+	const uint32_t sop = arm_apsr_shiftbox_immediate(pAPSR, ARM_IR_DP_SHIFT_TYPE, rm, rs);
 	(void)reg_setup_vR(core, rRSOP, sop);
 
 	return(_arm_inst_ldst(core));
@@ -469,6 +486,9 @@ int _arm_inst_ldstm(armvm_core_ref core)
 static
 int _arm_inst_mcr_mrc(armvm_core_ref core)
 {
+	if(ARM_IR_MCRC_L)
+		assert(rRPC != ARM_IR_R(D));
+
 	if(core->config.trace) {
 		_armvm_trace(core, "m%s(p(%u), %u, %s, %s, %s, %u)",
 			ARM_IR_MCRC_L ? "rc" : "cr", ARM_IR_MCRC_CPx, ARM_IR_MCRC_OP1,
@@ -484,7 +504,7 @@ int _arm_inst_mcr_mrc(armvm_core_ref core)
 		uint32_t rd = armvm_coprocessor_access(core->cp, 0);
 
 		if(rR_IS_PC(D)) {
-			ARM_CPSR_BIC(ARM_CPSR_MASK_NZCV, rd);
+			arm_apsr_write(pAPSR, rd);
 		} else
 			irGPR(D) = rd;
 	} else
@@ -506,8 +526,8 @@ int _arm_inst_mla(armvm_core_ref core)
 	if(CCX) { // documentation verified, shows no pc check
 		reg_wb(core, rRD);
 
-		if(ARM_IR_DP_S)
-			__flags_nz(core, rd);
+		APSR_FLAGS(set) = ARM_IR_DP_S;
+		arm_apsr_flags_nz(pAPSR, rd);
 	}
 
 	/* **** */
@@ -611,7 +631,13 @@ if(0) LOG("priv_mask: 0x%08x", priv_mask);
 
 			saved_psr = armvm_core_spsr(core, 0);
 			new_psr = (saved_psr & ~mask) | (sop & mask);
-
+if(0) {
+			LOGx32(mask);
+			LOG("saved_psr: 0x%08x, mode: %02u, thumb: %01u",
+				saved_psr, saved_psr & 31, ARM_CPSR_BEXT(saved_psr, T));
+			LOG(" new_psr: 0x%08x, mode: %02u, thumb: %01u",
+				new_psr, new_psr & 31, ARM_CPSR_BEXT(new_psr, T));
+}
 			if(CCX)
 				armvm_core_spsr(core, &new_psr);
 		}
@@ -634,11 +660,15 @@ if(0) LOG("priv_mask: 0x%08x", priv_mask);
 		else
 			mask = byte_mask & user_mask;
 
-if(0)	LOG("mask: 0x%08x", mask);
-
 		saved_psr = armvm_core_cpsr(core, 0);
 		new_psr = (saved_psr & ~mask) | (sop & mask);
-
+if(0) {
+		LOGx32(mask);
+		LOG("saved_psr: 0x%08x, mode: %02u, thumb: %01u",
+			saved_psr, saved_psr & 31, ARM_CPSR_BEXT(saved_psr, T));
+		LOG(" new_psr: 0x%08x, mode: %02u, thumb: %01u",
+			new_psr, new_psr & 31, ARM_CPSR_BEXT(new_psr, T));
+}
 		if(CCX)
 			armvm_core_cpsr(core, &new_psr);
 	}
@@ -680,8 +710,8 @@ int _arm_inst_mul(armvm_core_ref core)
 	if(CCX) { // documentation verified, shows no pc check
 		reg_wb(core, rRD);
 
-		if(ARM_IR_DP_S)
-			__flags_nz(core, rd);
+		APSR_FLAGS(set) = ARM_IR_DP_S;
+		arm_apsr_flags_nz(pAPSR, rd);
 	}
 
 	/* **** */
@@ -716,8 +746,8 @@ int _arm_inst_smull(armvm_core_ref core)
 		reg_wb(core, rRDHi);
 
 		if(ARM_IR_DP_S) {
-			ARM_CPSR_BMAS(N, (0 > hi));
-			ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+			APSR_SET(n) = (0 > hi);
+			APSR_SET(z) = (0 == rSPR64(RESULT));
 		}
 	}
 
@@ -753,8 +783,8 @@ int _arm_inst_umull(armvm_core_ref core)
 		reg_wb(core, rRDHi);
 
 		if(ARM_IR_DP_S) {
-			ARM_CPSR_BMAS(N, (0 > hi));
-			ARM_CPSR_BMAS(Z, (0 == rSPR64(RESULT)));
+			APSR_SET(n) = (0 > hi);
+			APSR_SET(z) = (0 == rSPR64(RESULT));
 		}
 	}
 
@@ -872,10 +902,10 @@ int armvm_core_arm_step(armvm_core_ref core)
 	if(0 > armvm_core_mem_ifetch(core, &IR, IP, 4))
 		return(1);
 
-	const unsigned ccx = armvm_core_check_cc(core, ARM_IR_CC);
+	CCx = arm_condition_check(tAPSR, ARM_IR_CC);
 
 	if(HOT || STATS)
-		core->armvm->stats.hot[mlBFEXT(IR, 27, 20)][ccx & 1]++;
+		core->armvm->stats.hot[mlBFEXT(IR, 27, 20)][CCX]++;
 
 	switch(ARM_IR_CC) {
 	default:

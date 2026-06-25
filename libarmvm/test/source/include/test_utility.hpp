@@ -13,7 +13,7 @@ extern "C" {
 	#include "libarmvm/include/libarmvm_test.h"
 
 	#include "libarm/include/cc.h"
-	#include "libarm/include/cpsr.h"
+	#include "libarm/include/apsr/apsr.h"
 	#include "libarm/include/dp.h"
 	#include "libarm/include/sop.h"
 	#include "libarm/include/strings.h"
@@ -34,9 +34,9 @@ extern "C" {
 
 #define TEST_PC t->test_pc
 
-#define TRACE_PSR(psr) \
+#define TRACE_APSR(psr) \
 	do { \
 		LOG(#psr " -- N = %1u, Z = %1u, C = %1u, V = %1u -- 0x%08x", \
-			ARM_CPSRx_BEXT(psr, N), ARM_CPSRx_BEXT(psr, Z), \
-			ARM_CPSRx_BEXT(psr, C), ARM_CPSRx_BEXT(psr, V), psr); \
+			ARM_APSR_BEXT(psr, N), ARM_APSR_BEXT(psr, Z), \
+			ARM_APSR_BEXT(psr, C), ARM_APSR_BEXT(psr, V), psr); \
 	}while(0);

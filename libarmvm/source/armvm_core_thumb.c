@@ -2,7 +2,6 @@
 
 /* **** */
 
-#include "armvm_core_cc.h"
 #include "armvm_core_exception.h"
 #include "armvm_core_mem.h"
 #include "armvm_core_thumb.h"
@@ -14,14 +13,17 @@
 
 #include "armvm.h"
 
-#include "alubox_thumb.h"
 #include "ldst.h"
 #include "ldstm_thumb.h"
 
 /* **** */
 
+#include "libarm/include/apsr/alubox.h"
+#include "libarm/include/apsr/condition_code.h"
+#include "libarm/include/apsr/shiftbox.h"
 #include "libarm/include/cc.h"
 #include "libarm/include/disasm.h"
+#include "libarm/include/dp.h"
 #include "libarm/include/strings.h"
 
 /* **** */
@@ -87,29 +89,31 @@ int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 {
 	const uint8_t op2 = bext32(IR, 9);
 
-	reg_setup_rRml(core, rRN, 5, 3);
+	const uint32_t rn = reg_src_decode(core, rRN, 5, 3);
 	reg_dst_decode(core, rRD, 2, 0);
 
-	const unsigned op_list[2] = { ARM_ADD, ARM_SUB };
-	const unsigned opcode = op_list[op2];
+	arm_dp_opcode_eref op_list[2] = { ARM_ADD, ARM_SUB };
+	arm_dp_opcode_eref opcode = op_list[op2];
 
-	alubox_thumb(core, opcode, 1);
+	APSR_FLAGS(set) = 1;
+	const uint32_t rd = arm_apsr_alubox(pAPSR, opcode, rn, rm);
+	reg_wb_v(core, rRD, rd);
 
 	if(!_itrace_start(core, 0))
 		return(1);
 
 	if(bit_i)
 	{
-		if(op2 || vR(M)) {
+		if(op2 || rm) {
 			_itrace_(core, "%ss(%s, %s, %01u)",
 				arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rm);
 			_itrace_comment(core, "0x%08x %s%01u = 0x%08x",
-				vR(N), arm_dp_op_string[opcode], rm, vR(D));
+				rn, arm_dp_op_string[opcode], rm, rd);
 		}
 		else // pseudo op mov is encoded as adds rd, rn, 0
 		{
 			_itrace_(core, "mov(%s, %s)", rR_NAME(D), rR_NAME(N));
-			_itrace_comment(core, "0x%08x", vR(D));
+			_itrace_comment(core, "0x%08x", rd);
 		}
 	}
 	else
@@ -117,7 +121,7 @@ int _armvm_core_thumb_add_sub_rn_rd__rm(armvm_core_ref core,
 		_itrace_(core, "%ss(%s, %s, %s)",
 			arm_dp_inst_string[opcode], rR_NAME(D), rR_NAME(N), rR_NAME(M));
 		_itrace_comment(core, "0x%08x %s0x%08x = 0x%08x",
-			vR(N), arm_dp_op_string[opcode], rm, vR(D));
+			rn, arm_dp_op_string[opcode], rm, rd);
 	}
 
 	_itrace_end(core, 0);
@@ -168,33 +172,34 @@ int _armvm_core_thumb_add_sub_sp_i7(armvm_core_ref core)
 static
 int _armvm_core_thumb_ascm_rd_i(armvm_core_ref core)
 {
-	const uint8_t opcode = mlBFEXT(IR, 12, 11);
+	const uint8_t operation = mlBFEXT(IR, 12, 11);
+
+	arm_dp_opcode_eref op_list[4] =
+		{ ARM_MOV, ARM_CMP, ARM_ADD, ARM_SUB };
+	arm_dp_opcode_eref opcode = op_list[operation];
 
 	const uint32_t rm = reg_setup_vRml(core, rRM, 7, 0);
-	reg_setup_rRml(core, rRN, 10, 8);
+	const uint32_t rn = operation ? reg_src_decode(core, rRN, 10, 8) : 0;
+	reg_setup_rRml(core, rRD, 10, 8);
 
-	reg_setup_rR(core, rRD, rR(N));
+	APSR_FLAGS(set) = 1;
+	const uint32_t rd = arm_apsr_alubox(pAPSR, opcode, rn, rm);
 
-	const unsigned op_list[4] = {
-		ARM_MOV, ARM_CMP, ARM_ADD, ARM_SUB
-	}, operation = op_list[opcode];
-
-	const uint32_t rd = alubox_thumb(core, operation, 1);
+	if(1 != operation)
+		reg_wb_v(core, rRD, rd);
+	else
+		vR(D) = rd;
 
 	if(!_itrace_start(core, 0))
 		return(1);
 
-	switch(operation)
-	{
-		default:
-			_itrace_(core, "%ss(%s, 0x%03x)",
-				arm_dp_inst_string[operation], rR_NAME(D), rm);
-			_itrace_comment(core, "0x%08x %s0x%03x = 0x%08x",
-					vR(N), arm_dp_op_string[operation], rm, rd);
-		break;
-		case ARM_MOV:
-			_itrace_(core, "movs(%s, 0x%03x)", rR_NAME(D), rm);
-		break;
+	if(ARM_DP_MOV(opcode))
+		_itrace_(core, "movs(%s, 0x%03x)", rR_NAME(D), rm);
+	else {
+		_itrace_(core, "%ss(%s, 0x%03x)",
+			arm_dp_inst_string[opcode], rR_NAME(D), rm);
+		_itrace_comment(core, "0x%08x %s0x%03x = 0x%08x",
+				rn, arm_dp_op_string[opcode], rm, rd);
 	}
 
 	_itrace_end(core, 0);
@@ -210,7 +215,8 @@ int _armvm_core_thumb_bcc(armvm_core_ref core)
 
 	const uint32_t new_pc = (THUMB_PC_NEXT + imm8) & ~1U;
 
-	if(armvm_core_check_cc(core, cond))
+	CCx = arm_condition_check(tAPSR, cond);
+	if(CCX)
 		PC = new_pc;
 
 	if(_itrace_start(core, "b(0x%08x)", new_pc)) {
@@ -352,21 +358,50 @@ int _armvm_core_thumb_dp_rms_rdn(armvm_core_ref core)
 		"& ",	"- ",	"- ",	"+ ",	"| ",	"* ",	"& ~",	"-",
 		}};
 
+	const unsigned rdn = mlBFEXT(IR, 2, 0);
+
 	const uint32_t rm = reg_src_decode(core, rRM, 5, 3);
-	reg_setup_rRml(core, rRN, 2, 0);
 
-	reg_setup_rR(core, rRD, rR(N));
+	uint32_t rn = 0;
+	uint32_t rd = 0;
 
-	const uint32_t rd = alubox_thumb(core, opcode, 1);
+	APSR_FLAGS(set) = 1;
+
+	switch(opcode) {
+		case ARM_ASR: case ARM_LSL: case ARM_LSR: case ARM_ROR:
+			rn = reg_src(core, rRN, rdn);
+			rd = arm_apsr_shiftbox(pAPSR, opcode & 3, rn, rm);
+			arm_apsr_flags_nzc(pAPSR, rd);
+			break;
+		default:
+			rn = reg_src(core, rRN, rdn);
+			rd = arm_apsr_alubox(pAPSR, opcode, rn, rm);
+			break;
+		case ARM_NEG: // technically RSB....
+			rd = arm_apsr_alubox(pAPSR, ARM_SUB, rn, rm);
+			break;
+		case ARM_MUL:
+			rn = reg_src(core, rRN, rdn);
+			rd = rn * rm;
+			arm_apsr_flags_nz(pAPSR, rd);
+			break;
+	}
+
+	if(!ARM_DP_CMP(opcode))
+		reg_dst_wb(core, rRD, rdn, rd);
 
 	if(_itrace_start(core, "%ss(%s, %s)",
-		_dpr_ops[0][operation], rR_NAME(D), rR_NAME(M))) {
-
+		_dpr_ops[0][operation], rR_NAMEx(rdn), rR_NAME(M)))
+	{
 		switch(opcode)
 		{
 			default:
 				_itrace_comment(core, "0x%08x %s0x%08x = 0x%08x",
-					vR(N), _dpr_ops[1][operation], rm, rd);
+					rn, _dpr_ops[1][operation], rm, rd);
+				break;
+			case ARM_NEG:
+				_itrace_comment(core, "-0x%08x = 0x%08x",
+					rm, rd);
 				break;
 			case ARM_MVN:
 				_itrace_comment(core, "~0x%08x = 0x%08x",
@@ -654,11 +689,12 @@ int _armvm_core_thumb_sbi_imm5_rm_rd(armvm_core_ref core)
 
 	const uint32_t rm = reg_src(core, rRM, mlBFEXT(IR, 5, 3));
 
-	const uint32_t rd = arm_shiftbox(shift_type, rm, rs, IF_CPSR(C));
-	ARM_CPSR_BMAS(C, arm_shiftbox_c(shift_type, rm, rs));
+	APSR_FLAGS(set) = 1;
 
+	const uint32_t rd = arm_apsr_shiftbox_immediate(pAPSR, shift_type, rm, rs);
 	reg_dst_wb(core, rRD, mlBFEXT(IR, 2, 0), rd);
-	__flags_nz(core, rd);
+
+	arm_apsr_flags_nzc(pAPSR, rd);
 
 	const char* sops = arm_sop_lcase_string[shift_type];
 
@@ -675,33 +711,38 @@ static
 int _armvm_core_thumb_sdp_rms_rdn(armvm_core_ref core)
 {
 	const uint8_t operation = mlBFEXT(IR, 9, 8);
+	const unsigned rdn = mlBFEXT(IR, 2, 0) | bmov32(IR, 7, 3);
+
+	arm_dp_opcode_eref op_list[4] = {
+		ARM_ADD, ARM_CMP, ARM_MOV, ~0U
+	};
+	arm_dp_opcode_eref opcode = op_list[operation];
 
 	const uint32_t rm = reg_src_decode(core, rRM, 6, 3);
+	const uint32_t rn = ARM_DP_MOV(opcode) ? 0 : reg_src(core, rRN, rdn);
 
-	reg_setup_rR(core, rRN, mlBFEXT(IR, 2, 0) | bmov32(IR, 7, 3));
-	reg_setup_rR(core, rRD, rR(N));
+	const unsigned s = ARM_DP_CMP(opcode);
+	APSR_FLAGS(set) = s;
 
-	const unsigned op_list[4] = {
-		ARM_ADD, ARM_CMP, ARM_MOV, ~0U
-	}, opcode = op_list[operation];
+	const uint32_t rd = arm_apsr_alubox(pAPSR, opcode, rn, rm);
 
-	const unsigned s = (ARM_CMP == opcode);
-	alubox_thumb(core, opcode, s);
+	if(!ARM_DP_CMP(opcode))
+		reg_dst_wb(core, rRD, rdn, rd);
 
 	if(_itrace_start(core, 0))
 	{
 		_itrace_(core, "%s%s(%s, %s)",
-			arm_dp_inst_string[opcode], (s ? "s" : ""), rR_NAME(D), rR_NAME(M));
+			arm_dp_inst_string[opcode], (s ? "s" : ""), rR_NAMEx(rdn), rR_NAME(M));
 
 		switch(opcode)
 		{
 			case ARM_ADD:
 			case ARM_CMP:
 				_itrace_comment(core, "0x%08x %s0x%08x = 0x%08x",
-					vR(N), arm_dp_op_string[opcode], rm, vR(D));
+					rn, arm_dp_op_string[opcode], rm, rd);
 				break;
 			case ARM_MOV:
-				_itrace_comment(core, "0x%08x", vR(D));
+				_itrace_comment(core, "0x%08x", rd);
 				break;
 			default:
 				arm_disasm_thumb(IP, IR);

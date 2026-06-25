@@ -36,7 +36,9 @@ class armcc {
 		armcc(void *const p2data, armcc_h h2armcc_t);
 		armcc(void *const p2data, const uint32_t cs, const uint32_t ds);
 		armcc_sop_t asr(gpr_eref rm, const uint8_t rs);
+		armcc_sop_t asr(gpr_eref rm, gpr_eref rs);
 		uint32_t asrs(gpr_eref rd, gpr_eref rm, const uint8_t rs);
+		uint32_t asrs(gpr_eref rd, gpr_eref rm, gpr_eref rs);
 		uint32_t b(const uint32_t pat);
 		uint32_t b(arm_condition_eref cc, const uint32_t pat);
 		uint32_t bics(gpr_eref rd, gpr_eref rn, gpr_eref rm);
@@ -49,9 +51,13 @@ class armcc {
 		uint32_t dw(const uint32_t data);
 		uint32_t ldr(gpr_eref rd, gpr_eref rn, const uint32_t pat);
 		armcc_sop_t lsl(gpr_eref rm, const uint8_t rs);
+		armcc_sop_t lsl(gpr_eref rm, gpr_eref rs);
 		uint32_t lsls(gpr_eref rd, gpr_eref rm, const uint8_t rs);
+		uint32_t lsls(gpr_eref rd, gpr_eref rm, gpr_eref rs);
 		armcc_sop_t lsr(gpr_eref rm, const uint8_t rs);
+		armcc_sop_t lsr(gpr_eref rm, gpr_eref rs);
 		uint32_t lsrs(gpr_eref rd, gpr_eref rm, const uint8_t rs);
+		uint32_t lsrs(gpr_eref rd, gpr_eref rm, gpr_eref rs);
 		uint32_t mov(gpr_eref rd, gpr_eref rm);
 		uint32_t mov(gpr_eref rd, const int imm);
 		uint32_t movs(gpr_eref rd, gpr_eref rm);

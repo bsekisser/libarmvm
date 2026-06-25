@@ -4,7 +4,8 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/apsr/apsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 #include "libarm/include/ir.h"
 #include "libarm/include/strings.h"
 
@@ -59,10 +60,10 @@ int __trace_start(armvm_core_ref core, const char *format, va_list ap)
 
 	char flags[5], *dst = flags;
 
-	*dst++ = IF_CPSR(C) ? 'C' : 'c';
-	*dst++ = IF_CPSR(N) ? 'N' : 'n';
-	*dst++ = IF_CPSR(V) ? 'V' : 'v';
-	*dst++ = IF_CPSR(Z) ? 'Z' : 'z';
+	*dst++ = APSR(c) ? 'C' : 'c';
+	*dst++ = APSR(n) ? 'N' : 'n';
+	*dst++ = APSR(v) ? 'V' : 'v';
+	*dst++ = APSR(z) ? 'Z' : 'z';
 	*dst = 0;
 
 //	const unsigned thumb = ARM_CPSR_BEXT(Thumb); //  should be the CORRECT way...

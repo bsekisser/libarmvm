@@ -15,11 +15,12 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 
 /* **** */
 
 #include "libbse/include/action.h"
+#include "libbse/include/bitfield.h"
 #include "libbse/include/err_test.h"
 #include "libbse/include/handle.h"
 
@@ -252,11 +253,16 @@ armvm_core_ptr armvm_core_alloc(libarmvm_ref avm, armvm_core_href h2core)
 
 uint32_t armvm_core_cpsr(armvm_core_ref core, uint32_t *const write)
 {
-	const uint32_t data = write ? *write : CPSR;
+	const uint32_t cpsr = arm_cpsr_read(tAPSR, tCPSR);
+	const uint32_t data = write ? *write : cpsr;
 
 	if(write) {
+if(0) {
+		LOG("cpsr 0x%08x, thumb: %01u", cpsr, ARM_CPSR_BEXT(cpsr, T));
+		LOG("new_cpsr 0x%08x, thumb: %01u", data, ARM_CPSR_BEXT(data, T));
+}
 		armvm_core_psr_mode_switch(core, data);
-		CPSR = ARM_CPSR_M(32) | *write;
+		arm_cpsr_write(pAPSR, pCPSR, ARM_CPSR_M(32) | *write);
 	}
 
 	return(data);
@@ -266,7 +272,7 @@ void armvm_core_cpsr_from_spsr(armvm_core_ref core)
 { (void)armvm_core_cpsr(core, pSPSR); }
 
 int armvm_core_in_a_privaleged_mode(armvm_core_ref core)
-{ return(0 != mlBFEXT(CPSR, 3, 0)); }
+{ return(0 != CPSR(mode)); }
 
 int armvm_core_pcx(armvm_core_ref core, const uint32_t new_pc)
 {
@@ -276,7 +282,7 @@ int armvm_core_pcx(armvm_core_ref core, const uint32_t new_pc)
 
 	PC = new_pc & ~(3 >> thumb);
 
-	ARM_CPSR_BMAS(Thumb, thumb);
+	CPSR(thumb) = thumb;
 
 	return(0);
 }
@@ -292,10 +298,15 @@ int armvm_core_pcx_v5(armvm_core_ref core, const uint32_t new_pc)
 void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr)
 {
 	const uint32_t new_mode = ARM_CPSR_M(32) | (new_cpsr & 31);
-	const uint32_t old_mode = ARM_CPSR_M(32) | (CPSR & 31);
+	const uint32_t old_mode = ARM_CPSR_M(32) | CPSR(mode);
 
-	if(old_mode == new_mode) return;
-
+	if(old_mode == new_mode)
+		return;
+if(0) {
+	LOG("old_mode: %02u, thumb: %01u", old_mode, CPSR(thumb));
+	LOG("new_mode: %02u, thumb: %01u, new_cpsr: 0x%08x",
+		new_mode, ARM_CPSR_BEXT(new_cpsr, T), new_cpsr);
+}
 	unsigned sreg = 0;
 	void *dst = _armvm_core_psr_mode_regs(core, old_mode, &sreg, 0);
 	_armvm_core_psr_swap_regs(core, dst, 0, sreg, 0);
@@ -304,15 +315,14 @@ void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr)
 	void *src = _armvm_core_psr_mode_regs(core, new_mode, &dreg, &swap_spsr);
 	_armvm_core_psr_swap_regs(core, 0, src, dreg, swap_spsr);
 
-	CPSR &= 31;
-	CPSR |= new_mode;
+	CPSR(mode) = new_mode;
 }
 
 uint32_t armvm_core_reg_user(armvm_core_ref core, const unsigned r, uint32_t *const v)
 {
 	unsigned reg = 0;
 
-	const unsigned mode = mlBFEXT(CPSR, 4, 0);
+	const unsigned mode = CPSR(mode);
 	uint32_t *const usr_regs = _armvm_core_psr_mode_regs(core, mode, &reg, 0);
 
 	uint32_t vout = 0;
@@ -347,7 +357,7 @@ int armvm_core_step(armvm_core_ref core)
 	CYCLE++;
 	ICOUNT++;
 
-	if(ARM_CPSR_BEXT(Thumb))
+	if(CPSR(thumb))
 		return(armvm_core_thumb_step(core));
 
 	return(armvm_core_arm_step(core));

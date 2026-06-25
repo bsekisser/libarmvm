@@ -11,11 +11,14 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/apsr/apsr.h"
+#include "libarm/include/cpsr/cpsr.h"
 
 #include "libbse/include/action.h"
 
 /* **** */
+
+// TODO: combine/reduce
 
 int armvm_core_exception_data_abort(armvm_core_ref core)
 {
@@ -24,11 +27,11 @@ int armvm_core_exception_data_abort(armvm_core_ref core)
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Abort));
 
-	ARM_CPSR_BMAS(Thumb, 0);
-//	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+//	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x10;
 
@@ -42,11 +45,11 @@ int armvm_core_exception_prefetch_abort(armvm_core_ref core)
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Abort));
 
-	ARM_CPSR_BMAS(Thumb, 0);
-//	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+//	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x0c;
 
@@ -60,13 +63,13 @@ void armvm_core_exception_reset(armvm_core_ref core)
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;
 
-	CPSR = ARM_CPSR_M32_BMAS(Supervisor);
+	CPSR(mode) = ARM_CPSR_M32(Supervisor);
 
-	ARM_CPSR_BMAS(Thumb, 0);
-	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x00;
 }
@@ -78,11 +81,11 @@ int armvm_core_exception_swi(armvm_core_ref core)
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Supervisor));
 
-	ARM_CPSR_BMAS(Thumb, 0);
-//	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-//	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+//	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+//	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x08;
 
@@ -96,11 +99,11 @@ int armvm_core_exception_undefined_instruction(armvm_core_ref core)
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Undefined));
 
-	ARM_CPSR_BMAS(Thumb, 0);
-//	ARM_CPSR_BMAS(FIQ, 1);
-	ARM_CPSR_BMAS(IRQ, 1);
-//	ARM_CPSR_BMAS(Abort, 1);
-	ARM_CPSR_BMAS(E, CP15_REG1_BIT(EE));
+	CPSR(thumb) = 0;
+//	CPSR(fiq) = 1;
+	CPSR(irq) = 1;
+//	CPSR(abort) = 1;
+	CPSR(endian) = CP15_REG1_BIT(EE);
 
 	PC = _high_vectors(core) | 0x04;
 

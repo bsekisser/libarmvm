@@ -27,10 +27,8 @@ typedef arm_dp_opcode_enum const arm_dp_opcode_eref;
 
 typedef enum thumb_dp_opcode_enum {
 // TUUMB EXTENSIONS
-	ARM_ASR = 16,
-	ARM_LSL,
-	ARM_LSR,
-	ARM_ROR,
+	ARM_LSL = 16, ARM_LSR, ARM_ASR, ARM_ROR,
+//	ARM_ASR = 16, ARM_LSL, ARM_LSR,	ARM_ROR,
 //
 	ARM_MUL,
 	ARM_NEG, THUMB_NEG = ARM_NEG,

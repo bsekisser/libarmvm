@@ -12,6 +12,121 @@ int test_arm::shift()
 {
 	reset();
 
+// asr tests
+	vR(2) = (0x55555555 << 1) | 1;
+	cc.lsrs(rR1, rR2, 1);
+	step_test();
+	fail_if(0x55555555 != vR(1));
+	check_nzc(0, 0, 1);
+
+		// shift by immediate
+		cc.asrs(rR0, rR2, 0);
+		step_test();
+		fail_if(~0 != vR(0));
+		check_nzc(1, 0, 1);
+		
+		cc.asrs(rR0, rR1, 0);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 0);
+
+		// shift by register
+		vR(3) = 0;
+		cc.asrs(rR0, rR1, rR3);
+		step_test();
+		fail_if(0x55555555 != vR(1));
+		check_nzc(0, 0, 0);
+
+		vR(3) = 32;
+		cc.asrs(rR0, rR1, rR3);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 0);
+
+		cc.asrs(rR0, rR2, rR3);
+		step_test();
+		fail_if(~0 != vR(0));
+		check_nzc(1, 0, 1);
+
+		vR(3) = 33;
+		cc.asrs(rR0, rR1, rR3);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 0);
+
+		cc.asrs(rR0, rR2, rR3);
+		step_test();
+		fail_if(~0 != vR(0));
+		check_nzc(1, 0, 1);
+
+// lsl tests
+	vR(2) = (0x55555555 << 1) | 1;
+	cc.lsrs(rR1, rR2, 1);
+	step_test();
+	fail_if(0x55555555 != vR(1));
+	check_nzc(0, 0, 1);
+
+		// shift by immediate
+		cc.lsls(rR0, rR1, 0);
+		step_test();
+		fail_if(0x55555555 != vR(0));
+		check_nzc(0, 0, 1);
+
+		// shift by register
+		vR(2) = 0;
+		cc.lsls(rR0, rR1, rR2);
+		step_test();
+		fail_if(0x55555555 != vR(0));
+		check_nzc(0, 0, 1);
+
+		vR(2) = 32;
+		cc.lsls(rR0, rR1, rR2);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 1);
+
+		vR(2) = 33;
+		cc.lsls(rR0, rR1, rR2);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 0);
+
+// lsr tests
+	vR(2) = (0x55555555 << 1) | 1;
+	cc.lsrs(rR1, rR2, 1);
+	step_test();
+	fail_if(0x55555555 != vR(1));
+	check_nzc(0, 0, 1);
+
+		// shift by immediate
+		cc.lsrs(rR0, rR1, 0);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 0);
+
+		// shift by register
+		vR(2) = 0;
+		cc.lsrs(rR0, rR1, rR2);
+		step_test();
+		fail_if(0x55555555 != vR(0));
+		check_nzc(0, 0, 0);
+
+		vR(1) <<= 1; vR(2) = 32;
+		cc.lsrs(rR0, rR1, rR2);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 1);
+
+		vR(2) = 33;
+		cc.lsrs(rR0, rR1, rR2);
+		step_test();
+		fail_if(0 != vR(0));
+		check_nzc(0, 1, 0);
+		
+
+
+
+
 	vR(1) = 1;
 	cc.asrs(rR0, rR1, 0);
 	run_test();

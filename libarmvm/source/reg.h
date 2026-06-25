@@ -6,7 +6,9 @@
 
 /* **** */
 
-#include "libarm/include/cpsr.h"
+#include "libarm/include/cpsr/cpsr.h"
+
+#include "libbse/include/unused.h"
 
 /* **** */
 
@@ -14,13 +16,7 @@
 
 /* **** */
 
-#ifndef rR_IS_PC
-	#define rR_IS_PC(_x) (rPC == ARM_IR_R(_x))
-#endif
-
-#ifndef rR_IS_NOT_PC
-	#define rR_IS_NOT_PC(_x) (rPC != ARM_IR_R(_x))
-#endif
+// TODO: rs treeated as raw when pc source?
 
 /* **** */
 
@@ -30,7 +26,7 @@ static uint32_t __reg_src_fetch(armvm_core_ref core, const unsigned rrx, const u
 	uint32_t v = GPRx(rr);
 
 	if(rPC == r) {
-		const unsigned thumb = IF_CPSR(Thumb);
+		const unsigned thumb = CPSR(thumb);
 		v += (4 >> thumb);
 		v &= ~(3U >> thumb);
 	}

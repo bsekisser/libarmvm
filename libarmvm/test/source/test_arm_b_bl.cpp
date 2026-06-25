@@ -33,14 +33,14 @@ int test_arm::b_bl(void)
 	run_test();
 	fail_if(bl_LR != PC);
 	fail_if(4 != (LR - TEST_PC));
-	fail_if(ARM_CPSR_BEXT(Thumb));
+	fail_if(CPSR(thumb));
 
 	const uint32_t blx_LR = LR;
 
 	cc.bx(rLR);
 	run_test();
 	fail_if(blx_LR != PC);
-	fail_if(ARM_CPSR_BEXT(Thumb));
+	fail_if(CPSR(thumb));
 
 	cc.bx(rPC);
 	run_test();
@@ -54,7 +54,7 @@ int test_arm::b_bl(void)
 	cc.blx(0x43);
 	run_test();
 	fail_if(0x42 != PC);
-	fail_if(!ARM_CPSR_BEXT(Thumb));
+	fail_if(!CPSR(thumb));
 
 	return(1);
 }

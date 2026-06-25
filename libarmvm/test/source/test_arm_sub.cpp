@@ -62,13 +62,13 @@ int test_arm::subs(void)
 
 	vR(1) = 0x60000000; vR(2) = 0x20000000;
 	cc.subs(rR0, rR1, rR2);
-	run_test_flags(_BV(ARM_CPSR(C)));
+	run_test_flags(_ARM_APSR_BSET(C));
 	fail_if(0x40000000 != vR(0));
 	check_nzcv(0, 0, 1, 0);
 
 	vR(1) = 0x60000000; vR(2) = 0xc0000000;
 	cc.subs(rR0, rR1, rR2);
-	run_test_flags(_BV(ARM_CPSR(C)));
+	run_test_flags(_ARM_APSR_BSET(C));
 	fail_if(0xa0000000 != vR(0));
 	check_nzcv(1, 0, 0, 1);
 
