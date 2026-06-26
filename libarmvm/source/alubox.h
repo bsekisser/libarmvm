@@ -102,7 +102,7 @@ static uint32_t alubox(armvm_core_ref core, arm_dp_opcode_eref operation,
 		reg_wb(core, rRD);
 
 	if(mode_switch && pSPSR)
-		armvm_core_psr_mode_switch_cpsr_spsr(core);
+		armvm_core_cpsr_from_spsr(core);
 
 	return(rd);
 }

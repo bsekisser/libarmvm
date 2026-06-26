@@ -443,7 +443,7 @@ int _arm_inst_ldstm(armvm_core_ref core)
 		}
 
 		if(load_spsr && pSPSR) {
-			LOG_ACTION(armvm_core_psr_mode_switch(core, armvm_core_spsr(core, 0)));
+			LOG_ACTION((void)armvm_core_cpsr_from_spsr(core));
 		}
 
 		if((bit_w && (user_mode_regs || load_spsr))
@@ -540,7 +540,7 @@ int _arm_inst_mrs(armvm_core_ref core)
 		if(pSPSR)
 			rd = reg_dst_wb(core, rRD, ARM_IR_R(D), armvm_core_spsr(core, 0));
 	} else
-		rd = reg_dst_wb(core, rRD, ARM_IR_R(D), CPSR);
+		rd = reg_dst_wb(core, rRD, ARM_IR_R(D), armvm_core_cpsr(core, 0));
 
 	/* **** */
 
@@ -636,11 +636,11 @@ if(0) LOG("priv_mask: 0x%08x", priv_mask);
 
 if(0)	LOG("mask: 0x%08x", mask);
 
-		saved_psr = CPSR;
+		saved_psr = armvm_core_cpsr(core, 0);
 		new_psr = (saved_psr & ~mask) | (sop & mask);
 
 		if(CCX)
-			armvm_core_psr_mode_switch_cpsr(core, new_psr);
+			armvm_core_cpsr(core, &new_psr);
 	}
 
 	if(core->config.trace) {

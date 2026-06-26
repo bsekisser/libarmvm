@@ -250,6 +250,21 @@ armvm_core_ptr armvm_core_alloc(libarmvm_ref avm, armvm_core_href h2core)
 	return(core);
 }
 
+uint32_t armvm_core_cpsr(armvm_core_ref core, uint32_t *const write)
+{
+	const uint32_t data = write ? *write : CPSR;
+
+	if(write) {
+		armvm_core_psr_mode_switch(core, data);
+		CPSR = ARM_CPSR_M(32) | *write;
+	}
+
+	return(data);
+}
+
+void armvm_core_cpsr_from_spsr(armvm_core_ref core)
+{ (void)armvm_core_cpsr(core, pSPSR); }
+
 int armvm_core_in_a_privaleged_mode(armvm_core_ref core)
 { return(0 != mlBFEXT(CPSR, 3, 0)); }
 
@@ -276,13 +291,10 @@ int armvm_core_pcx_v5(armvm_core_ref core, const uint32_t new_pc)
 
 void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr)
 {
-	const uint32_t old_mode = ARM_CPSR_M(32) | mlBFEXT(CPSR, 4, 0);
-	const uint32_t new_mode = ARM_CPSR_M(32) | mlBFEXT(new_cpsr, 4, 0);
+	const uint32_t new_mode = ARM_CPSR_M(32) | (new_cpsr & 31);
+	const uint32_t old_mode = ARM_CPSR_M(32) | (CPSR & 31);
 
-	if(old_mode == new_mode)
-		return;
-
-	pbBFINS(CPSR, new_mode, 0, 5);
+	if(old_mode == new_mode) return;
 
 	unsigned sreg = 0;
 	void *dst = _armvm_core_psr_mode_regs(core, old_mode, &sreg, 0);
@@ -291,16 +303,10 @@ void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr)
 	unsigned dreg = 0, swap_spsr = 0;
 	void *src = _armvm_core_psr_mode_regs(core, new_mode, &dreg, &swap_spsr);
 	_armvm_core_psr_swap_regs(core, 0, src, dreg, swap_spsr);
-}
 
-void armvm_core_psr_mode_switch_cpsr(armvm_core_ref core, const uint32_t new_cpsr)
-{
-	armvm_core_psr_mode_switch(core, new_cpsr);
-	CPSR = ARM_CPSR_M(32) | new_cpsr;
+	CPSR &= 31;
+	CPSR |= new_mode;
 }
-
-void armvm_core_psr_mode_switch_cpsr_spsr(armvm_core_ref core)
-{ armvm_core_psr_mode_switch_cpsr(core, armvm_core_spsr(core, 0)); }
 
 uint32_t armvm_core_reg_user(armvm_core_ref core, const unsigned r, uint32_t *const v)
 {

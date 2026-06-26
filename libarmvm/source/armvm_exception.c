@@ -19,7 +19,7 @@ int armvm_exception_fiq(libarmvm_ref avm)
 	armvm_core_ref core = avm->core;
 
 	rFIQ(R14) = ARM_PC_NEXT;
-	rFIQ(SPSR) = CPSR;
+	rFIQ(SPSR) = armvm_core_cpsr(core, 0);
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(FIQ));
 
@@ -39,7 +39,7 @@ int armvm_exception_irq(libarmvm_ref avm)
 	armvm_core_ref core = avm->core;
 
 	rIRQ(R14) = ARM_PC_NEXT;
-	rIRQ(SPSR) = CPSR;
+	rIRQ(SPSR) = armvm_core_cpsr(core, 0);
 
 	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(IRQ));
 
