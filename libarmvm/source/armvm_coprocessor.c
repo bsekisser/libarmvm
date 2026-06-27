@@ -7,6 +7,7 @@
 /* **** */
 
 #include "armvm_coprocessor_glue.h"
+#include "control.h"
 
 /* **** */
 
@@ -68,12 +69,22 @@ uint32_t _armvm_cp15_0_1_0_0_access(void *const param, uint32_t *const write)
 {
 	armvm_coprocessor_ref cp = param;
 
-	uint32_t *cp15r1 = _armvm_coprocessor__cp15r_rmw(cp, IR);
+//	uint32_t *cp15r1 = _armvm_coprocessor__cp15r_rmw(cp, IR);
 
 	const uint32_t sbo = _BV(18) | _BV(16) | mlBF(6, 4);
 	const uint32_t sbz = mlBF(31, 26) | _BV(20) | _BV(19) | _BV(17);
 
-	return((mem_32_access(cp15r1, write) & ~sbz) | sbo);
+	uint32_t data = ((write ? *write : 0) & sbz) | sbo;
+	if(0 && write) LOGx32(*write);
+
+	ARM_CONTROL_BX(data, write, a, A);
+	ARM_CONTROL_BX(data, write, ee, EE);
+	ARM_CONTROL_BX(data, write, m, M);
+	ARM_CONTROL_BX(data, write, u, U);
+	ARM_CONTROL_BX(data, write, v, V);
+	if(0 && !write) LOGx32(data);
+
+	return((data & ~sbz) | sbo);
 }
 
 /* **** */

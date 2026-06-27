@@ -5,10 +5,11 @@
 
 /* **** */
 
-#include "armvm_coprocessor_cp15.h"
 #include "armvm_coprocessor.h"
+#include "armvm_coprocessor_glue.h"
 #include "armvm_core.h"
 #include "armvm.h"
+#include "control.h"
 
 /* **** */
 

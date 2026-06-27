@@ -3,6 +3,7 @@
 #include "armvm_coprocessor.h"
 #include "armvm_coprocessor_glue.h"
 #include "armvm.h"
+#include "control.h"
 
 /* **** */
 

@@ -8,6 +8,7 @@
 
 #include "libarm/include/cpsr/cpsr.h"
 
+#include "libbse/include/bitfield.h"
 #include "libbse/include/unused.h"
 
 /* **** */

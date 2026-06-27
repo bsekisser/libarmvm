@@ -11,6 +11,7 @@ typedef armvm_mmu_ptr const armvm_mmu_ref;
 /* **** */
 
 #include "armvm_coprocessor.h"
+#include "armvm_coprocessor_glue.h"
 #include "armvm_core.h"
 #include "armvm_mem.h"
 #include "armvm_tlb.h"

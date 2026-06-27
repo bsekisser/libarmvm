@@ -4,9 +4,9 @@
 
 /* **** */
 
-#include "armvm_coprocessor_cp15.h"
 #include "armvm_exception_utility.h"
 #include "armvm.h"
+#include "control.h"
 
 /* **** */
 
@@ -29,7 +29,7 @@ int armvm_exception_fiq(libarmvm_ref avm)
 	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x1c;
 
@@ -49,7 +49,7 @@ int armvm_exception_irq(libarmvm_ref avm)
 //	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x18;
 

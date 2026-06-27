@@ -6,6 +6,7 @@
 /* **** */
 
 #include "armvm.h"
+#include "control.h"
 
 /* **** */
 
@@ -436,7 +437,7 @@ int _arm_inst_ldstm(armvm_core_ref core)
 
 	if(CCX)
 	{
-		if(CP15_REG1_BIT(U)) {
+		if(CONTROL(u)) {
 			if(vR(EA) & 3)
 				return(armvm_core_exception_data_abort(core));
 		}

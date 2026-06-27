@@ -5,12 +5,12 @@
 
 /* **** */
 
-#include "armvm_coprocessor_cp15.h"
 #include "armvm_core.h"
 #include "armvm_core_exception.h"
 #include "armvm_mem.h"
 #include "armvm_tlb.h"
 #include "armvm.h"
+#include "control.h"
 
 /* **** */
 
@@ -75,7 +75,7 @@ int armvm_mmu_action_reset(int err, void *const param, action_ref)
 	x = ~0U;
 	TTBR0(&x);
 	TTBR1(&x);
-	CP15_REG1_BCLR(M);
+	CONTROL_CLR(m);
 
 	/* **** */
 
@@ -177,7 +177,7 @@ int __l1ptd_xx(armvm_mmu_ref mmu, uint32_t *const ppa)
 static __attribute__((warn_unused_result))
 int armvm_mmu__vpa2ppa(armvm_mmu_ref mmu, uint32_t *const ppa)
 {
-	if(!CP15_REG1_BIT(M))
+	if(!CONTROL(m))
 		return(0);
 
 	return(__l1ptd_xx(mmu, ppa));
@@ -214,7 +214,7 @@ int armvm_mmu_ifetch(armvm_mmu_ref mmu, uint32_t *const ir,
 	int tlb = 0;
 	armvm_tlbe_ptr tlbe = 0;
 
-	if(CP15_REG1_BIT(M)) {
+	if(CONTROL(m)) {
 		src = armvm_tlb_ifetch(mmu->tlb, va, &tlbe);
 
 		if(src) {
@@ -247,7 +247,7 @@ int armvm_mmu_read(armvm_mmu_ref mmu, uint32_t *const read,
 	int tlb = 0;
 	armvm_tlbe_ptr tlbe = 0;
 
-	if(CP15_REG1_BIT(M)) {
+	if(CONTROL(m)) {
 		src = armvm_tlb_read(mmu->tlb, va, &tlbe);
 
 		if(src) {
@@ -280,7 +280,7 @@ int armvm_mmu_write(armvm_mmu_ref mmu, const uint32_t va,
 	int tlb = 0;
 	armvm_tlbe_ptr tlbe = 0;
 
-	if(CP15_REG1_BIT(M)) {
+	if(CONTROL(m)) {
 		dst = armvm_tlb_write(mmu->tlb, va, &tlbe);
 
 		if(dst) {

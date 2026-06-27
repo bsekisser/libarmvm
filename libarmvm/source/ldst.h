@@ -1,10 +1,7 @@
 #pragma once
 
-#define pCOPROCESSOR core->cp
-
 /* **** */
 
-#include "armvm_coprocessor_cp15.h"
 #include "armvm_core_exception.h"
 #include "armvm_core_mem.h"
 #include "armvm_core.h"
@@ -38,7 +35,7 @@ static int __ldr(armvm_core_ref core, const int arm)
 {
 	const unsigned ea_xx = vR(EA) & 3;
 
-	if(ea_xx && CP15_REG1_BIT(A))
+	if(ea_xx && CONTROL(a))
 		return(armvm_core_exception_data_abort(core));
 
 	const int read_rval = armvm_core_mem_read(core, &vR(D), vR(EA), 4);
@@ -46,7 +43,7 @@ static int __ldr(armvm_core_ref core, const int arm)
 		return(read_rval);
 
 	if(arm) {
-		if(ea_xx && CP15_REG1_BIT(U))
+		if(ea_xx && CONTROL(u))
 			vR(D) = ror32(vR(D), (ea_xx << 3));
 	}
 
@@ -79,7 +76,7 @@ static int __ldrb(armvm_core_ref core)
 
 static int __ldrh(armvm_core_ref core)
 {
-	if((vR(EA) & 1) && CP15_REG1_BIT(A))
+	if((vR(EA) & 1) && CONTROL(a))
 		return(armvm_core_exception_data_abort(core));
 
 	const int read_rval = armvm_core_mem_read(core, &vR(D), vR(EA), 2);
@@ -116,7 +113,7 @@ static int __ldrsb(armvm_core_ref core)
 UNUSED_FN
 static int __ldrsh(armvm_core_ref core)
 {
-	if((vR(EA) & 1) && CP15_REG1_BIT(A))
+	if((vR(EA) & 1) && CONTROL(a))
 		return(armvm_core_exception_data_abort(core));
 
 	const int read_rval = armvm_core_mem_read(core, &vR(D), vR(EA), 2);
@@ -138,7 +135,7 @@ static int __str(armvm_core_ref core)
 {
 	reg_src_load(core, rRD);
 
-	if((vR(EA) & 3) && CP15_REG1_BIT(A))
+	if((vR(EA) & 3) && CONTROL(a))
 		return(armvm_core_exception_data_abort(core));
 
 	return(armvm_core_mem_write(core, vR(EA), 4, vR(D)));
@@ -155,7 +152,7 @@ static int __strh(armvm_core_ref core)
 {
 	reg_src_load(core, rRD);
 
-	if((vR(EA) & 1) && CP15_REG1_BIT(A))
+	if((vR(EA) & 1) && CONTROL(a))
 		return(armvm_core_exception_data_abort(core));
 
 	return(armvm_core_mem_write(core, vR(EA), 2, vR(D)));

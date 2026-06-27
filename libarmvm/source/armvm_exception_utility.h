@@ -2,8 +2,8 @@
 
 /* **** */
 
-#include "armvm_coprocessor_cp15.h"
 #include "armvm_core.h"
+#include "control.h"
 
 /* **** */
 
@@ -11,8 +11,11 @@
 
 /* **** */
 
-#define pCOPROCESSOR core->cp
-
 static __attribute__((warn_unused_result))
 uint32_t _high_vectors(armvm_core_ref core)
-{ return(CP15_REG1_BIT(V) ? (~0xffff) : 0); }
+{
+	libarmvm_ref avm = core->armvm;
+
+	return(CONTROL(v) ? (~0xffff) : 0);
+	(void)avm;
+}

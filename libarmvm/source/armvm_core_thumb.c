@@ -7,11 +7,10 @@
 #include "armvm_core_thumb.h"
 #include "itrace.h"
 
-#include "armvm_coprocessor_cp15.h"
-
 /* **** */
 
 #include "armvm.h"
+#include "control.h"
 
 #include "ldst.h"
 #include "ldstm_thumb.h"
@@ -560,7 +559,7 @@ int _armvm_core_thumb_ldstm_rn_rxx(armvm_core_ref core)
 
 	/* CP15_r1_Ubit == 0 */
 	if(start_address & 3) {
-		if(CP15_REG1_BIT(A) || CP15_REG1_BIT(U))
+		if(CONTROL(a) || CONTROL(u))
 			return(armvm_core_exception_data_abort(core));
 
 		ea &= ~3;
@@ -623,8 +622,8 @@ int _armvm_core_thumb_pop_push(armvm_core_ref core)
 	const uint32_t end_address = rn + (bit_l ? rcount_bytes : -4);
 
 	int data_abort = 0;
-	if(0 != (start_address & 3)) {
-		if(CP15_REG1_BIT(A) || CP15_REG1_BIT(A))
+	if(start_address & 3) {
+		if(CONTROL(a) || CONTROL(u))
 			data_abort = ~armvm_core_exception_data_abort(core);
 	}
 

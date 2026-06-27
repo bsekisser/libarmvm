@@ -5,9 +5,9 @@
 /* **** */
 
 #include "armvm_core.h"
-#include "armvm_coprocessor_cp15.h"
 #include "armvm_exception_utility.h"
 #include "armvm.h"
+#include "control.h"
 
 /* **** */
 
@@ -31,7 +31,7 @@ int armvm_core_exception_data_abort(armvm_core_ref core)
 //	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x10;
 
@@ -49,7 +49,7 @@ int armvm_core_exception_prefetch_abort(armvm_core_ref core)
 //	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x0c;
 
@@ -69,7 +69,7 @@ void armvm_core_exception_reset(armvm_core_ref core)
 	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x00;
 }
@@ -85,7 +85,7 @@ int armvm_core_exception_swi(armvm_core_ref core)
 //	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 //	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x08;
 
@@ -103,7 +103,7 @@ int armvm_core_exception_undefined_instruction(armvm_core_ref core)
 //	CPSR(fiq) = 1;
 	CPSR(irq) = 1;
 //	CPSR(abort) = 1;
-	CPSR(endian) = CP15_REG1_BIT(EE);
+	CPSR(endian) = CONTROL(ee);
 
 	PC = _high_vectors(core) | 0x04;
 
