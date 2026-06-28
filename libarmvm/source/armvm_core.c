@@ -58,36 +58,37 @@ uint32_t* _armvm_core_psr_mode_regs(armvm_core_ref core, uint32_t mode,
 
 	if(swap_spsr) {
 		switch(mode) {
-			case ARM_CPSR_M32(Abort):
-			case ARM_CPSR_M32(FIQ):
-			case ARM_CPSR_M32(IRQ):
-			case ARM_CPSR_M32(Supervisor):
-			case ARM_CPSR_M32(Undefined):
+			case ARM32_CPSR_MODE_Abort:
+			case ARM32_CPSR_MODE_FIQ:
+			case ARM32_CPSR_MODE_IRQ:
+			case ARM32_CPSR_MODE_Supervisor:
+			case ARM32_CPSR_MODE_Undefined:
 				*swap_spsr = 1;
 			break;
-			case ARM_CPSR_M32(System):
-			case ARM_CPSR_M32(User):
+			case ARM32_CPSR_MODE_System:
+			case ARM32_CPSR_MODE_User:
 				*swap_spsr = 0;
 			break;
 		}
 	}
 
 	switch(mode) {
-		case ARM_CPSR_M32(Abort):
+		case ARM32_CPSR_MODE_Abort:
 			return(&rABT(R13));
-		case ARM_CPSR_M32(FIQ):
+		case ARM32_CPSR_MODE_FIQ:
 			*reg = 8;
 			return(&rFIQ(R8));
-		case ARM_CPSR_M32(IRQ):
+		case ARM32_CPSR_MODE_IRQ:
 			return(&rIRQ(R13));
-		case ARM_CPSR_M32(Supervisor):
+		case ARM32_CPSR_MODE_Supervisor:
 			return(&rSVC(R13));
-		case ARM_CPSR_M32(Undefined):
+		case ARM32_CPSR_MODE_Undefined:
 			return(&rUND(R13));
-		case ARM_CPSR_M32(System):
-		case ARM_CPSR_M32(User):
+		case ARM32_CPSR_MODE_System:
+		case ARM32_CPSR_MODE_User:
 			break;
 		default:
+			LOG("mode: 0x%02x(%u, 0%o)", mode, mode, mode);
 			LOG_ACTION(exit(-1));
 	}
 
@@ -262,7 +263,7 @@ if(0) {
 		LOG("new_cpsr 0x%08x, thumb: %01u", data, ARM_CPSR_BEXT(data, T));
 }
 		armvm_core_psr_mode_switch(core, data);
-		arm_cpsr_write(pAPSR, pCPSR, ARM_CPSR_M(32) | *write);
+		arm_cpsr_write(pAPSR, pCPSR, ARM32_CPSR_MODE | *write);
 	}
 
 	return(data);
@@ -297,8 +298,8 @@ int armvm_core_pcx_v5(armvm_core_ref core, const uint32_t new_pc)
 
 void armvm_core_psr_mode_switch(armvm_core_ref core, const uint32_t new_cpsr)
 {
-	const uint32_t new_mode = ARM_CPSR_M(32) | (new_cpsr & 31);
-	const uint32_t old_mode = ARM_CPSR_M(32) | CPSR(mode);
+	const uint32_t new_mode = ARM32_CPSR_MODE | (new_cpsr & 31);
+	const uint32_t old_mode = ARM32_CPSR_MODE | CPSR(mode);
 
 	if(old_mode == new_mode)
 		return;

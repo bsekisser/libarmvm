@@ -25,7 +25,7 @@ int armvm_core_exception_data_abort(armvm_core_ref core)
 	rABT(R14) = ARM_PC_NEXT;
 	rABT(SPSR) = armvm_core_cpsr(core, 0);
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Abort));
+	armvm_core_psr_mode_switch(core, ARM32_CPSR_MODE_Abort);
 
 	CPSR(thumb) = 0;
 //	CPSR(fiq) = 1;
@@ -43,7 +43,7 @@ int armvm_core_exception_prefetch_abort(armvm_core_ref core)
 	rABT(R14) = ARM_IP_NEXT;
 	rABT(SPSR) = armvm_core_cpsr(core, 0);
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Abort));
+	armvm_core_psr_mode_switch(core, ARM32_CPSR_MODE_Abort);
 
 	CPSR(thumb) = 0;
 //	CPSR(fiq) = 1;
@@ -63,7 +63,7 @@ void armvm_core_exception_reset(armvm_core_ref core)
 //	rSVC(R14) = UNPREDICTABLE;
 //	rSVC(SPSR) = UNPREDICTABLE;
 
-	CPSR(mode) = ARM_CPSR_M32(Supervisor);
+	CPSR(mode) = ARM32_CPSR_MODE_Supervisor;
 
 	CPSR(thumb) = 0;
 	CPSR(fiq) = 1;
@@ -79,7 +79,7 @@ int armvm_core_exception_swi(armvm_core_ref core)
 	rSVC(R14) = ARM_PC_NEXT;
 	rSVC(SPSR) = armvm_core_cpsr(core, 0);
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Supervisor));
+	armvm_core_psr_mode_switch(core, ARM32_CPSR_MODE_Supervisor);
 
 	CPSR(thumb) = 0;
 //	CPSR(fiq) = 1;
@@ -97,7 +97,7 @@ int armvm_core_exception_undefined_instruction(armvm_core_ref core)
 	rUND(R14) = ARM_PC_NEXT;
 	rUND(SPSR) = armvm_core_cpsr(core, 0);
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(Undefined));
+	armvm_core_psr_mode_switch(core, ARM32_CPSR_MODE_Undefined);
 
 	CPSR(thumb) = 0;
 //	CPSR(fiq) = 1;

@@ -23,7 +23,7 @@ int armvm_exception_fiq(libarmvm_ref avm)
 	rFIQ(R14) = ARM_PC_NEXT;
 	rFIQ(SPSR) = armvm_core_cpsr(core, 0);
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(FIQ));
+	armvm_core_psr_mode_switch(core, ARM32_CPSR_MODE_FIQ);
 
 	CPSR(thumb) = 0;
 	CPSR(fiq) = 1;
@@ -43,7 +43,7 @@ int armvm_exception_irq(libarmvm_ref avm)
 	rIRQ(R14) = ARM_PC_NEXT;
 	rIRQ(SPSR) = armvm_core_cpsr(core, 0);
 
-	armvm_core_psr_mode_switch(core, ARM_CPSR_M32(IRQ));
+	armvm_core_psr_mode_switch(core, ARM32_CPSR_MODE_IRQ);
 
 	CPSR(thumb) = 0;
 //	CPSR(fiq) = 1;

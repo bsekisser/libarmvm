@@ -4,10 +4,9 @@
 
 #define ARM_CPSR_BEXT(_v, _bit) (((_v) >> ARM_CPSR_BIT(_bit)) & 1)
 #define ARM_CPSR_BIT(_) ARM_CPSR_BIT_##_
-#define ARM_CPSR_M(_x) (ARM_CPSR_M_##_x)
-#define ARM_CPSR_M32(_x) (ARM_CPSR_M(32) | ARM_CPSR_M(_x))
 
 typedef enum arm_cpsr_bit_enum {
+	ARM_CPSR_BIT_M32 = 4,
 	ARM_CPSR_BIT_T = 5,
 	ARM_CPSR_BIT_F = 6,
 	ARM_CPSR_BIT_I = 7,
@@ -16,16 +15,20 @@ typedef enum arm_cpsr_bit_enum {
 }arm_cpsr_bit_enum;
 
 typedef enum arm_cpsr_mode_enum {
-	ARM_CPSR_M_User,
-	ARM_CPSR_M_FIQ,
-	ARM_CPSR_M_IRQ,
-	ARM_CPSR_M_Supervisor,
+	ARM26_CPSR_MODE_User = 000,
+	ARM26_CPSR_MODE_FIQ = 001,
+	ARM26_CPSR_MODE_IRQ = 002,
+	ARM26_CPSR_MODE_Supervisor = 003,
 //
-	ARM_CPSR_M_32 = 0x10,
+	ARM32_CPSR_MODE = 020,
 //
-	ARM_CPSR_M_Abort = 0x7,
-	ARM_CPSR_M_Undefined = 0x8 | 3,
-	ARM_CPSR_M_System = 0xf,
+	ARM32_CPSR_MODE_User = 020,
+	ARM32_CPSR_MODE_FIQ = 021,
+	ARM32_CPSR_MODE_IRQ = 022,
+	ARM32_CPSR_MODE_Supervisor = 023,
+	ARM32_CPSR_MODE_Abort = 027,
+	ARM32_CPSR_MODE_Undefined = 033,
+	ARM32_CPSR_MODE_System = 037,
 }arm_cpsr_mode_enum;
 
 typedef union arm_cpsr_tag* arm_cpsr_ptr;
