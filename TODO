@@ -1,5 +1,4 @@
-public includes in include
-local/private includes in source/include
-
 fixed:
-	fix top level make... currently broken :(
+x	fix top level make... currently broken :(
+x	public includes in include
+x	local/private includes in source/include
