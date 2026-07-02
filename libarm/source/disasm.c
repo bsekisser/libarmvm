@@ -15,12 +15,12 @@
 
 /* **** */
 
-static void _arm_disasm(uint8_t* p, uint32_t address, int thumb)
+static void _arm_disasm(uint8_t *const p, const uint32_t address, const unsigned thumb)
 {
 	csh handle = 0;
 	cs_insn *insn;
 
-	const size_t size = thumb ? sizeof(uint16_t) : sizeof(uint32_t);
+	const size_t size = thumb ? (thumb << 1) : sizeof(uint32_t);
 	const int mode = thumb ? CS_MODE_THUMB : CS_MODE_ARM;
 
 	cs_assert_success(cs_open(CS_ARCH_ARM, mode, &handle));
@@ -67,6 +67,14 @@ void arm_disasm_arm_p(void* p, uint32_t address)
 PUBLIC
 void arm_disasm_thumb(uint32_t address, uint32_t opcode)
 { return(_arm_disasm((void*)&opcode, address & ~1U, 1)); }
+
+PUBLIC
+void arm_disasm_thumb32(uint32_t address, uint32_t opcode)
+{ return(_arm_disasm((void*)&opcode, address & ~1U, 2)); }
+
+PUBLIC
+void arm_disasm_thumb32_p(void* p, uint32_t address)
+{ return(_arm_disasm(p, address & ~1U, 2)); }
 
 PUBLIC
 void arm_disasm_thumb_p(void* p, uint32_t address)
