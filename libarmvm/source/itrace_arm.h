@@ -48,7 +48,7 @@ static void _dp_mov_s_s(armvm_core_ref core)
 
 static void itrace_dp(armvm_core_ref core)
 {
-	if(!_itrace_start(core, 0))
+	if(!itrace_start(core, 0))
 		return;
 
 	_itrace_(core, "%s%s(",
@@ -86,7 +86,7 @@ static void itrace_dp(armvm_core_ref core)
 				switch(ARM_IR_DP_SHIFT_TYPE) {
 					case ARM_SOP_ROR:
 						if(!vR(S)) {
-							_itrace_(core, ", RRX(%s))", sos, irR_NAME(M));
+							_itrace_(core, ", RRX(%s))", irR_NAME(M));
 							break;
 						}
 					__attribute__((fallthrough));
@@ -134,7 +134,7 @@ static void itrace_dp(armvm_core_ref core)
 
 void itrace_ldst(armvm_core_ref core)
 {
-	if(!_itrace_start(core, 0))
+	if(!itrace_start(core, 0))
 		return;
 
 //	int is_ld = 0;
@@ -216,7 +216,7 @@ void itrace_ldst(armvm_core_ref core)
 
 static void itrace_msr(armvm_core_ref core)
 {
-	if(!_itrace_start(core, 0))
+	if(!itrace_start(core, 0))
 		return;
 
 	const unsigned field_mask = ~rR(S);

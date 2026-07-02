@@ -79,7 +79,7 @@ int __arm__b_bl_blx(armvm_core_ref core, int const link, const int blx, int32_t 
 	 *	this will errantly be reflected in the trace
 	 */
 
-	_armvm_trace(core, "b%s%s(0x%08x)",
+	itrace(core, "b%s%s(0x%08x)",
 		link ? "l" : "",
 		blx ? "x" : "", new_pc);
 
@@ -157,7 +157,7 @@ int _arm_inst_bx_blx_m(armvm_core_ref core, const int link)
 	 *	this will errantly be reflected in the trace
 	 */
 
-	if(_itrace_start(core, "b%sx(%s)",
+	if(itrace_start(core, "b%sx(%s)",
 		link ? "l" : "", irR_NAME(M))) {
 
 		_itrace_end_with_comment(core, "%s(0x%08x)", thumb ? "T" : "A", rm);
@@ -191,7 +191,7 @@ int _arm_inst_clz(armvm_core_ref core)
 
 	reg_dst_wb(core, rRD, ARM_IR_R(D), rd);
 
-	if(_itrace_start(core, "clz(%s)", irR_NAME(M)))
+	if(itrace_start(core, "clz(%s)", irR_NAME(M)))
 		_itrace_end_with_comment(core, "0x%08x => 0x%08x", rm, rd);
 
 	LOG_ACTION(exit(-1));
@@ -261,7 +261,7 @@ int _arm_inst_dp_shift(armvm_core_ref core)
 static
 int _arm_inst_hlt(armvm_core_ref core)
 {
-	_armvm_trace(core, "hlt(0x%08x)", mlBFMOV(IR, 19, 8, 4) | mlBFEXT(IR, 3, 0));
+	itrace(core, "hlt(0x%08x)", mlBFMOV(IR, 19, 8, 4) | mlBFEXT(IR, 3, 0));
 
 	LOG_ACTION(core->flags.halt = 1);
 
@@ -423,7 +423,7 @@ int _arm_inst_ldstm(armvm_core_ref core)
 
 	const int user_mode_regs = user_mode_regs_load || user_mode_regs_store;
 
-	if(_itrace_start(core, 0)) {
+	if(itrace_start(core, 0)) {
 		_itrace_(core, "%s%c%c(%s%s, {%s}%s%s)",
 			opstr, bit_u ? 'i' : 'd', bit_p ? 'b' : 'a',
 			irR_NAME(N), bit_w ? "!" : "", reglist,
@@ -491,7 +491,7 @@ int _arm_inst_mcr_mrc(armvm_core_ref core)
 		assert(rRPC != ARM_IR_R(D));
 
 	if(core->config.trace) {
-		_armvm_trace(core, "m%s(p(%u), %u, %s, %s, %s, %u)",
+		itrace(core, "m%s(p(%u), %u, %s, %s, %s, %u)",
 			ARM_IR_MCRC_L ? "rc" : "cr", ARM_IR_MCRC_CPx, ARM_IR_MCRC_OP1,
 			irR_NAME(D),
 			arm_creg_name_string[ARM_IR_MCRC_CRn], arm_creg_name_string[ARM_IR_MCRC_CRm],
@@ -533,7 +533,7 @@ int _arm_inst_mla(armvm_core_ref core)
 
 	/* **** */
 
-	if(_itrace_start(core, 0)) {
+	if(itrace_start(core, 0)) {
 		_itrace_(core, "mla%s(", ARM_IR_DP_S ? "s" : "");
 		_itrace_(core, "%s", irR_NAME(D));
 		_itrace_(core, ", %s", irR_NAME(M));
@@ -565,7 +565,7 @@ int _arm_inst_mrs(armvm_core_ref core)
 
 	/* **** */
 
-	if(_itrace_start(core, "mrs(%s, %s)", irR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr")) {
+	if(itrace_start(core, "mrs(%s, %s)", irR_NAME(D), ARM_IR_MRSR_R ? "spsr" : "cpsr")) {
 		_itrace_end_with_comment(core, "0x%08x", rd);
 	}
 
@@ -717,7 +717,7 @@ int _arm_inst_mul(armvm_core_ref core)
 
 	/* **** */
 
-	if(_itrace_start(core, 0)) {
+	if(itrace_start(core, 0)) {
 		_itrace_(core, "mul%s(%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "", irR_NAME(D), irR_NAME(M), irR_NAME(S));
 
@@ -754,7 +754,7 @@ int _arm_inst_smull(armvm_core_ref core)
 
 	/* **** */
 
-	if(_itrace_start(core, "smull%s(%s:%s, %s, %s)",
+	if(itrace_start(core, "smull%s(%s:%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "",
 			irR_NAME(DLo), irR_NAME(DHi),
 			irR_NAME(M), irR_NAME(S)))
@@ -791,7 +791,7 @@ int _arm_inst_umull(armvm_core_ref core)
 
 	/* **** */
 
-	if(_itrace_start(core, "umull%s(%s:%s, %s, %s)",
+	if(itrace_start(core, "umull%s(%s:%s, %s, %s)",
 			ARM_IR_DP_S ? "s" : "",
 			irR_NAME(DLo), irR_NAME(DHi),
 			irR_NAME(M), irR_NAME(S)))

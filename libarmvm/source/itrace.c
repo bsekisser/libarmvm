@@ -17,22 +17,28 @@
 /* **** */
 
 static __attribute__((warn_unused_result))
-int ___trace_check(armvm_core_ref core)
+int ___itrace_check(armvm_core_ref core)
 { return(core && core->config.trace); }
 
 /* **** */
 
 static
-void __trace_comment_end(armvm_core_ref core)
+int __itrace_comment_end(armvm_core_ref core, const char *const format, va_list ap)
 {
-	if(___trace_check(core))
-		printf(" */ ");
+	if(!___itrace_check(core)) return(0);
+
+	if(format)
+		vprintf(format, ap);
+
+	printf(" */ ");
+
+	return(1);
 }
 
 static __attribute__((warn_unused_result))
-int __trace_comment_start(armvm_core_ref core, const char* format, va_list ap)
+int __itrace_comment_start(armvm_core_ref core, const char *const format, va_list ap)
 {
-	if(!___trace_check(core)) return(0);
+	if(!___itrace_check(core)) return(0);
 
 	printf(" /* ");
 
@@ -43,20 +49,30 @@ int __trace_comment_start(armvm_core_ref core, const char* format, va_list ap)
 }
 
 static
-void __trace_end(armvm_core_ref core, const char* format, va_list ap)
+int __itrace_comment_start_end(armvm_core_ref core, const char *const format, va_list ap)
 {
-	if(___trace_check(core)) {
-		if(format)
-			vprintf(format, ap);
+	const int rval = __itrace_comment_start(core, format, ap);
+	if(rval)
+		__itrace_comment_end(core, 0, ap);
 
-		printf(")\n");
-	}
+	return(rval);
+}
+
+static
+void __itrace_end(armvm_core_ref core, const char *const format, va_list ap)
+{
+	if(!___itrace_check(core)) return;
+
+	if(format)
+		vprintf(format, ap);
+
+	printf(")\n");
 }
 
 static __attribute__((warn_unused_result))
-int __trace_start(armvm_core_ref core, const char *format, va_list ap)
+int __itrace_start(armvm_core_ref core, const char *const format, va_list ap)
 {
-	if(!___trace_check(core)) return(0);
+	if(!___itrace_check(core)) return(0);
 
 	char flags[5], *dst = flags;
 
@@ -82,25 +98,21 @@ int __trace_start(armvm_core_ref core, const char *format, va_list ap)
 	return(1);
 }
 
-/* **** */
-
-void _armvm_trace(armvm_core_ref core, const char* format, ...)
+static
+void __itrace_start_end(armvm_core_ref core, const char *const format, va_list ap)
 {
-	va_list ap;
-	va_start(ap, format);
-
-	if(__trace_start(core, format, ap))
-		__trace_end(core, 0, ap);
-
-	va_end(ap);
+	if(__itrace_start(core, format, ap))
+		__itrace_end(core, 0, ap);
 }
+
+/* **** */
 
 void _itrace_(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 
-	if(___trace_check(core))
+	if(___itrace_check(core))
 		vprintf(format, ap);
 
 	va_end(ap);
@@ -113,8 +125,7 @@ void _itrace_comment(armvm_core_ref core, const char* format, ...)
 	va_list ap;
 	va_start(ap, format);
 
-	if(__trace_comment_start(core, format, ap))
-		__trace_comment_end(core);
+	__itrace_comment_start_end(core, format, ap);
 
 	va_end(ap);
 }
@@ -124,7 +135,7 @@ void _itrace_end(armvm_core_ref core, const char* format, ...)
 	va_list ap;
 	va_start(ap, format);
 
-	__trace_end(core, format, ap);
+	__itrace_end(core, format, ap);
 
 	va_end(ap);
 }
@@ -134,20 +145,30 @@ void _itrace_end_with_comment(armvm_core_ref core, const char* format, ...)
 	va_list ap;
 	va_start(ap, format);
 
-	if(__trace_comment_start(core, format, ap)) {
-		__trace_comment_end(core);
-		__trace_end(core, 0, ap);
-	}
+	if(__itrace_comment_start_end(core, format, ap))
+		__itrace_end(core, 0, ap);
 
 	va_end(ap);
 }
 
-int _itrace_start(armvm_core_ref core, const char* format, ...)
+/* **** */
+
+void itrace(armvm_core_ref core, const char* format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
 
-	const int rval = __trace_start(core, format, ap);
+	__itrace_start_end(core, format, ap);
+
+	va_end(ap);
+}
+
+int itrace_start(armvm_core_ref core, const char* format, ...)
+{
+	va_list ap;
+	va_start(ap, format);
+
+	const int rval = __itrace_start(core, format, ap);
 
 	va_end(ap);
 
